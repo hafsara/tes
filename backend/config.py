@@ -16,3 +16,13 @@ class Config:
 
     SWAGGER_URL = '/api/docs'
     API_URL = '/static/swagger.json'
+    
+    # Configuration de mail
+    SMTP_SERVER = 'smtp.example.com'
+    SMTP_PORT = 587
+    SMTP_USERNAME = 'user@example.com'
+    SMTP_PASSWORD = 'password'
+    EMAIL_FROM = 'no-reply@example.com'
+    REMINDER_DELAY_DAYS = 3
+    APP_URL = 'https://yourapp.com'
+

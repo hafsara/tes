@@ -10,9 +10,9 @@ def make_celery():
 
     # Configuration du planificateur pour la tâche périodique
     celery.conf.beat_schedule = {
-        'check-reminders-every-10-minutes': {
-            'task': 'tasks.check_reminders',
-            'schedule': crontab(minute='*/10'),  # toutes les 10 minutes
+        'check-reminders-and-escalations': {
+            'task': 'tasks.check_reminders_and_escalations',
+            'schedule': 3600.0,  # toutes les heures
         },
     }
 

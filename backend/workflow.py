@@ -2,60 +2,78 @@ from SpiffWorkflow.specs import WorkflowSpec
 from SpiffWorkflow.task import Task as TaskSpec
 from SpiffWorkflow import Workflow
 from SpiffWorkflow.exceptions import WorkflowException
+from datetime import datetime, timedelta
+from models import FormContainer
+from email_manager import send_email
+from config import Config
 
 
 class ReminderTask(TaskSpec):
     def __init__(self, name, delay):
-        super().__init__(name=name)
+        super().__init__(name)
         self.delay = delay
 
-    def execute(self, task):
-        # Code pour envoyer un rappel
-        print(f"Sending reminder for task: {task.id}")
+    def can_be_started(self, task):
+        # La tâche de rappel peut commencer si le délai est atteint
+        return datetime.utcnow() >= (task.created_date + timedelta(days=self.delay))
 
 
 class EscalationTask(TaskSpec):
-    def __init__(self, name):
-        super().__init__(name=name)
+    def can_be_started(self, task):
+        # La tâche d'escalade peut commencer si le rappel a échoué
+        return task.get_data('reminder_sent') is True and not task.get_data('user_response')
 
-    def execute(self, task):
-        # Code pour gérer l'escalade
-        print(f"Escalating task: {task.id}")
+
+def create_workflow_spec():
+    spec = WorkflowSpec(name="FormWorkflow")
+    reminder_task = ReminderTask(name="Send Reminder", delay=Config.REMINDER_DELAY_DAYS)
+    escalation_task = EscalationTask(name="Escalate Task")
+
+    spec.start.connect(reminder_task)
+    reminder_task.connect(escalation_task)
+
+    return spec
 
 
 class FormWorkflowManager:
     def __init__(self, container_id):
         self.container_id = container_id
-        self.workflow = Workflow(self.create_workflow_spec())
-
-    @staticmethod
-    def create_workflow_spec():
-        """Crée une spécification de workflow avec des tâches de rappel et d'escalade."""
-        spec = WorkflowSpec(name="FormWorkflow")
-        reminder_task = ReminderTask(name="Send Reminder", delay=3)  # délai de 3 jours
-        escalation_task = EscalationTask(name="Escalate Task")
-
-        # Connexion des tâches
-        spec.start.connect(reminder_task)
-        reminder_task.connect(escalation_task)
-
-        return spec
+        self.workflow_spec = create_workflow_spec()
+        self.workflow = Workflow(self.workflow_spec)
 
     def process_workflow(self):
-        """Traite les étapes du workflow pour le formulaire."""
+        """Avance le workflow pour traiter les rappels et escalades."""
         try:
             while not self.workflow.is_complete():
-                self.workflow.step()  # Avance le workflow à l'étape suivante
+                task = self.workflow.get_active_task()
+
+                if isinstance(task.task_spec, ReminderTask):
+                    self.send_reminder(task)
+                elif isinstance(task.task_spec, EscalationTask):
+                    self.escalate(task)
+
+                self.workflow.complete_task(task)
+
         except WorkflowException as e:
             print(f"Workflow error: {e}")
 
-    def stop_workflow(self):
-        """Arrête le workflow associé au Form Container en le marquant comme complet."""
-        if self.workflow:
-            self.workflow.complete_task()  # Marque la tâche comme complète
-            self.workflow.save()  # Sauvegarde les changements
+    def send_reminder(self, task):
+        form_container = FormContainer.query.get(self.container_id)
+        if form_container:
+            send_email(
+                to=form_container.user_email,
+                subject="Rappel : Formulaire en attente de réponse",
+                body=f"Veuillez répondre au formulaire {form_container.title}.",
+                link=f"{Config.APP_URL}/form-container/{self.container_id}"
+            )
+            task.data['reminder_sent'] = True  # Enregistrer que le rappel a été envoyé
 
-    def save_workflow_state(self):
-        """Méthode pour sauvegarder l'état actuel du workflow (peut être étendue pour persistance)."""
-        # Code pour sauvegarder l'état actuel du workflow (si nécessaire pour la persistance)
-        pass
+    def escalate(self, task):
+        form_container = FormContainer.query.get(self.container_id)
+        if form_container:
+            send_email(
+                to=form_container.manager_email,
+                subject="Escalade : Formulaire en attente",
+                body=f"L'utilisateur n'a pas répondu au formulaire {form_container.title}.",
+                link=f"{Config.APP_URL}/form-container/{self.container_id}"
+            )
