@@ -1,0 +1,8 @@
+Flask
+Flask-SQLAlchemy
+Flask-RESTful
+Flask-Swagger-UI
+Authlib
+SpiffWorkflow
+Celery
+psycopg2-binary

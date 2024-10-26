@@ -1,0 +1,106 @@
+/form_management
+|-- app.py                     # Point d'entrée de l'application
+|-- config.py                  # Configuration de l'application
+|-- models.py                  # Modèles SQLAlchemy
+|-- routes.py                  # Endpoints Flask
+|-- auth.py                    # Authentification OAuth avec Authlib
+|-- workflow.py                # Gestion de relance et escalade avec SpiffWorkflow
+|-- tasks.py                   # Tâches asynchrones avec Celery
+|-- /static/swagger.json       # Fichier de spécifications Swagger
+|-- requirements.txt           # Liste des dépendances
+
+
+Pour tester le backend de votre projet, voici les étapes à suivre :
+
+### 1. **Vérifier l'installation et la configuration**
+
+   Assurez-vous que :
+   - La base de données est configurée et accessible.
+   - Toutes les dépendances sont installées (`Flask`, `SQLAlchemy`, `Authlib`, `SpiffWorkflow`, `Celery`, etc.).
+
+### 2. **Initialiser la Base de Données**
+
+   Dans le fichier `app.py` ou dans un script séparé, assurez-vous d’avoir le code suivant pour créer les tables de la base de données :
+
+   ```python
+   from models import db
+   from app import app
+
+   with app.app_context():
+       db.create_all()
+   ```
+
+   Vous pouvez exécuter ce script pour créer les tables.
+
+### 3. **Lancer le serveur Flask**
+
+   Démarrez le serveur Flask pour que les endpoints de l’API soient accessibles :
+   ```bash
+   flask run
+   ```
+
+   Le serveur devrait être disponible à `http://localhost:5000` par défaut.
+
+### 4. **Tester les Endpoints avec Swagger**
+
+   Accédez à la documentation Swagger à `http://localhost:5000/api/docs` pour :
+   - Voir la liste des endpoints disponibles.
+   - Tester chaque endpoint directement via l'interface Swagger en fournissant les paramètres requis.
+
+### 5. **Tester avec un Client REST (Postman ou cURL)**
+
+   Si vous voulez tester plus en détail ou simuler des cas spécifiques, utilisez un client REST comme **Postman** ou `cURL`. Voici les endpoints principaux à tester :
+
+   - **Création d'un Form Container** :
+     ```
+     POST http://localhost:5000/form-containers
+     Body (JSON):
+     {
+       "title": "Titre du Form Container",
+       "user_id": 1,
+       "manager_email": "manager@example.com",
+       "ticket": "ticket123",
+       "escalation": true
+     }
+     ```
+
+   - **Création d'un Formulaire** :
+     ```
+     POST http://localhost:5000/form-containers/<container_id>/forms
+     Body (JSON):
+     {
+       "fields": {
+         "question1": "Answer1",
+         "question2": "Answer2"
+       }
+     }
+     ```
+
+   - **Soumission d'une Réponse** :
+     ```
+     POST http://localhost:5000/forms/<form_id>/response
+     Body (JSON):
+     {
+       "response": {
+         "question1": "Updated Answer1",
+         "question2": "Updated Answer2"
+       }
+     }
+     ```
+
+### 6. **Tester la Gestion des Tâches Asynchrones (Celery)**
+
+   1. **Démarrer le Worker Celery** :
+      ```bash
+      celery -A tasks.celery worker --loglevel=info
+      ```
+
+   2. **Planification des Rappels avec Celery Beat** :
+      Si vous voulez planifier les rappels automatiquement, installez **Celery Beat** et configurez des tâches récurrentes (optionnel).
+
+### 7. **Vérifier les Logs et Résultats**
+
+   - Assurez-vous que les actions comme l'escalade et les rappels se déclenchent correctement.
+   - Surveillez les logs dans la console pour détecter les erreurs ou les messages de débogage.
+
+Ces étapes devraient vous permettre de tester toutes les fonctionnalités principales du backend. Une fois les tests réussis, nous pourrons avancer avec le développement des pages frontend.
