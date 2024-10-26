@@ -1,6 +1,10 @@
 from authlib.integrations.flask_client import OAuth
-from flask import redirect, url_for, session
+from flask import Blueprint, redirect, url_for, session
 
+# Créer un blueprint pour l'authentification
+auth_bp = Blueprint('auth', __name__)
+
+# Configurer OAuth
 oauth = OAuth()
 
 def setup_oauth(app):
@@ -14,19 +18,20 @@ def setup_oauth(app):
         client_kwargs={'scope': 'openid email profile'},
     )
 
-@app.route('/login')
+# Définir les routes de l'authentification sur le blueprint
+@auth_bp.route('/login')
 def login():
-    redirect_uri = url_for('authorize', _external=True)
+    redirect_uri = url_for('auth.authorize', _external=True)
     return oauth.google.authorize_redirect(redirect_uri)
 
-@app.route('/authorize')
+@auth_bp.route('/authorize')
 def authorize():
     token = oauth.google.authorize_access_token()
     user_info = oauth.google.parse_id_token(token)
     session['user'] = user_info
     return redirect('/')
 
-@app.route('/logout')
+@auth_bp.route('/logout')
 def logout():
     session.pop('user', None)
     return redirect('/')
