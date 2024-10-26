@@ -1,1 +1,29 @@
+<div class="admin-dashboard">
+  <h1>Dashboard Administrateur</h1>
+
+  <div *ngFor="let container of formContainers" class="form-container-card">
+    <h2>{{ container.title }}</h2>
+    <p><strong>Email Utilisateur:</strong> {{ container.userEmail }}</p>
+    <p><strong>Email Manager:</strong> {{ container.managerEmail }}</p>
+    <p><strong>Ticket:</strong> {{ container.ticket }}</p>
+    <p><strong>Escalade:</strong> {{ container.escalation ? 'Oui' : 'Non' }}</p>
+    <p><strong>Validé:</strong> {{ container.validated ? 'Oui' : 'Non' }}</p>
+
+    <div class="form-list">
+      <h3>Formulaires</h3>
+      <ul>
+        <li *ngFor="let form of container.forms">
+          {{ form.title }} - {{ form.status }}
+        </li>
+      </ul>
+    </div>
+
+    <button (click)="addFormToContainer(container.id)" [disabled]="container.forms.length >= 5">
+      Ajouter un Formulaire
+    </button>
+    <button (click)="validateContainer(container.id)" [disabled]="container.validated">
+      Valider le Conteneur
+    </button>
+  </div>
+</div>
 <p>admin-dashboard works!</p>
