@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 
 interface Question {
   text: string;
-  type: 'text' | 'multiple-choice' | 'checkbox'; // Types de questions disponibles
-  options?: string[]; // Utilisé uniquement pour les questions à choix multiple et case à cocher
+  type: 'text' | 'multiple-choice' | 'checkbox';
+  options?: string[];
 }
 
 @Component({
@@ -12,15 +12,14 @@ interface Question {
   styleUrls: ['./create-form.component.scss']
 })
 export class CreateFormComponent {
-  formTitle = '';
-  formDescription = '';
-  userMail = '';
-  managerMail = '';
-  escalation = false;
+  title: string = '';
+  description: string = '';
+  userEmail: string = '';
+  managerEmail: string = '';
+  escalation: boolean = false;
 
-  questions: Question[] = []; // Liste des questions
+  questions: Question[] = [];
 
-  // Ajouter une nouvelle question
   addQuestion(type: 'text' | 'multiple-choice' | 'checkbox') {
     const newQuestion: Question = {
       text: '',
@@ -30,27 +29,32 @@ export class CreateFormComponent {
     this.questions.push(newQuestion);
   }
 
-  // Ajouter une option à une question à choix multiple ou case à cocher
   addOption(questionIndex: number) {
-    this.questions[questionIndex].options?.push('');
+    if (this.questions[questionIndex].options) {
+      this.questions[questionIndex].options.push('');
+    }
   }
 
-  // Supprimer une option d'une question
   removeOption(questionIndex: number, optionIndex: number) {
-    this.questions[questionIndex].options?.splice(optionIndex, 1);
+    if (this.questions[questionIndex].options) {
+      this.questions[questionIndex].options.splice(optionIndex, 1);
+    }
   }
 
-  // Soumettre le formulaire (envoyer les données à une API, etc.)
-  submitForm() {
+  removeQuestion(index: number) {
+    this.questions.splice(index, 1);
+  }
+
+  saveForm() {
     const formData = {
-      title: this.formTitle,
-      description: this.formDescription,
-      userMail: this.userMail,
-      managerMail: this.managerMail,
+      title: this.title,
+      description: this.description,
+      userEmail: this.userEmail,
+      managerEmail: this.managerEmail,
       escalation: this.escalation,
       questions: this.questions
     };
-    console.log('Formulaire soumis :', formData);
-    // Envoyer les données à l'API backend ici si nécessaire
+    console.log('Form data:', formData);
+    // Ici, vous pouvez ajouter le code pour envoyer les données au backend via une requête HTTP
   }
 }

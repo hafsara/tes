@@ -1,52 +1,41 @@
 <div class="form-container">
-  <div class="header">
-    <input type="text" placeholder="Formulaire sans titre" class="title-input" [(ngModel)]="formTitle" />
-    <input type="text" placeholder="Description du formulaire" class="description-input" [(ngModel)]="formDescription" />
-  </div>
+  <h2>Création de Formulaire</h2>
 
-  <div class="config-section">
-    <label for="userMail">Email du User :</label>
-    <input id="userMail" type="email" [(ngModel)]="userMail" />
+  <label>Titre du formulaire</label>
+  <input type="text" [(ngModel)]="title" placeholder="Titre du formulaire" />
 
-    <label for="managerMail">Email du Manager :</label>
-    <input id="managerMail" type="email" [(ngModel)]="managerMail" />
+  <label>Description du formulaire</label>
+  <textarea [(ngModel)]="description" placeholder="Description du formulaire"></textarea>
 
-    <label for="escalation">Escalade :</label>
-    <input id="escalation" type="checkbox" [(ngModel)]="escalation" />
-  </div>
+  <label>Email de l'utilisateur</label>
+  <input type="email" [(ngModel)]="userEmail" placeholder="Email du User" />
 
-  <div class="form-questions">
-    <div *ngFor="let question of questions; let i = index" class="question">
-      <input type="text" placeholder="Question sans titre" [(ngModel)]="question.text" class="question-input" />
+  <label>Email du manager</label>
+  <input type="email" [(ngModel)]="managerEmail" placeholder="Email du Manager" />
 
-      <select [(ngModel)]="question.type" (change)="addQuestion(question.type)">
-        <option value="text">Texte</option>
-        <option value="multiple-choice">Choix multiple</option>
-        <option value="checkbox">Case à cocher</option>
-      </select>
+  <label>Escalade</label>
+  <input type="checkbox" [(ngModel)]="escalation" />
 
-      <!-- Champ pour les réponses texte -->
-      <div *ngIf="question.type === 'text'">
-        <input type="text" placeholder="Réponse texte" disabled />
-      </div>
+  <div class="questions-section">
+    <h3>Questions</h3>
+    <button (click)="addQuestion('text')">Ajouter Question Texte</button>
+    <button (click)="addQuestion('multiple-choice')">Ajouter Choix Multiples</button>
+    <button (click)="addQuestion('checkbox')">Ajouter Cases à Cocher</button>
 
-      <!-- Options pour les choix multiples et cases à cocher -->
-      <div *ngIf="question.type === 'multiple-choice' || question.type === 'checkbox'" class="options">
-        <div *ngFor="let option of question.options; let j = index" class="option">
+    <div *ngFor="let question of questions; let i = index" class="question-item">
+      <input type="text" [(ngModel)]="question.text" placeholder="Question sans titre" />
+      <button (click)="removeQuestion(i)">Supprimer Question</button>
+
+      <div *ngIf="question.type === 'multiple-choice' || question.type === 'checkbox'">
+        <div *ngFor="let option of question.options; let j = index">
           <input [type]="question.type === 'checkbox' ? 'checkbox' : 'radio'" />
           <input type="text" [(ngModel)]="question.options[j]" placeholder="Option" />
-          <button (click)="removeOption(i, j)">Supprimer</button>
+          <button (click)="removeOption(i, j)">Supprimer Option</button>
         </div>
-        <button (click)="addOption(i)">Ajouter une option</button>
+        <button (click)="addOption(i)">Ajouter Option</button>
       </div>
     </div>
   </div>
 
-  <!-- Boutons pour ajouter différents types de questions -->
-  <button (click)="addQuestion('text')">Ajouter une question Texte</button>
-  <button (click)="addQuestion('multiple-choice')">Ajouter une question à Choix multiple</button>
-  <button (click)="addQuestion('checkbox')">Ajouter une question Case à cocher</button>
-
-  <!-- Soumettre le formulaire -->
-  <button (click)="submitForm()">Soumettre le formulaire</button>
+  <button (click)="saveForm()">Sauvegarder Formulaire</button>
 </div>
