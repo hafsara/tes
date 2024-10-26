@@ -80,3 +80,6 @@
    - Surveillez les logs dans la console pour détecter les erreurs ou les messages de débogage.
 
 Ces étapes devraient vous permettre de tester toutes les fonctionnalités principales du backend. Une fois les tests réussis, nous pourrons avancer avec le développement des pages frontend.
+
+
+curl -X POST http://127.0.0.1:5000/form-containers -H "Content-Type: application/json" -d '{"title": "Sample Form", "user_id": 1, "manager_email": "manager@example.com"}'

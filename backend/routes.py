@@ -3,9 +3,11 @@ from models import db, User, FormContainer, Form
 
 api = Blueprint('api', __name__)
 
+
 @api.route('/', methods=['GET'])
 def home():
     return jsonify({"message": "Welcome to the Form Management API"}), 200
+
 
 @api.route('/form-containers', methods=['POST'])
 def create_form_container():
@@ -20,6 +22,7 @@ def create_form_container():
     db.session.add(form_container)
     db.session.commit()
     return jsonify(form_container.id), 201
+
 
 @api.route('/form-containers/<int:container_id>/forms', methods=['POST'])
 def create_form(container_id):
