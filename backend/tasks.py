@@ -19,6 +19,9 @@ def make_celery(app):
     celery.Task = ContextTask
     return celery
 
+from app import app
+celery = make_celery(app)
+
 @celery.task
 def check_reminders():
     # Appel de la fonction de workflow pour chaque formulaire non validé

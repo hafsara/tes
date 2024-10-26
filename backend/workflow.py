@@ -1,6 +1,7 @@
-from spiffworkflow.specs import WorkflowSpec, TaskSpec
-from spiffworkflow import Workflow
-from spiffworkflow.exceptions import WorkflowException
+from SpiffWorkflow.specs import WorkflowSpec
+from SpiffWorkflow.task import Task as TaskSpec
+from SpiffWorkflow import Workflow
+from SpiffWorkflow.exceptions import WorkflowException
 
 
 class ReminderTask(TaskSpec):
