@@ -3,6 +3,10 @@ from models import db, User, FormContainer, Form
 
 api = Blueprint('api', __name__)
 
+@api.route('/', methods=['GET'])
+def home():
+    return jsonify({"message": "Welcome to the Form Management API"}), 200
+
 @api.route('/form-containers', methods=['POST'])
 def create_form_container():
     data = request.json
