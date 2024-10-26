@@ -1,1 +1,52 @@
-<p>create-form works!</p>
+<div class="form-container">
+  <div class="header">
+    <input type="text" placeholder="Formulaire sans titre" class="title-input" [(ngModel)]="formTitle" />
+    <input type="text" placeholder="Description du formulaire" class="description-input" [(ngModel)]="formDescription" />
+  </div>
+
+  <div class="config-section">
+    <label for="userMail">Email du User :</label>
+    <input id="userMail" type="email" [(ngModel)]="userMail" />
+
+    <label for="managerMail">Email du Manager :</label>
+    <input id="managerMail" type="email" [(ngModel)]="managerMail" />
+
+    <label for="escalation">Escalade :</label>
+    <input id="escalation" type="checkbox" [(ngModel)]="escalation" />
+  </div>
+
+  <div class="form-questions">
+    <div *ngFor="let question of questions; let i = index" class="question">
+      <input type="text" placeholder="Question sans titre" [(ngModel)]="question.text" class="question-input" />
+
+      <select [(ngModel)]="question.type" (change)="addQuestion(question.type)">
+        <option value="text">Texte</option>
+        <option value="multiple-choice">Choix multiple</option>
+        <option value="checkbox">Case à cocher</option>
+      </select>
+
+      <!-- Champ pour les réponses texte -->
+      <div *ngIf="question.type === 'text'">
+        <input type="text" placeholder="Réponse texte" disabled />
+      </div>
+
+      <!-- Options pour les choix multiples et cases à cocher -->
+      <div *ngIf="question.type === 'multiple-choice' || question.type === 'checkbox'" class="options">
+        <div *ngFor="let option of question.options; let j = index" class="option">
+          <input [type]="question.type === 'checkbox' ? 'checkbox' : 'radio'" />
+          <input type="text" [(ngModel)]="question.options[j]" placeholder="Option" />
+          <button (click)="removeOption(i, j)">Supprimer</button>
+        </div>
+        <button (click)="addOption(i)">Ajouter une option</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Boutons pour ajouter différents types de questions -->
+  <button (click)="addQuestion('text')">Ajouter une question Texte</button>
+  <button (click)="addQuestion('multiple-choice')">Ajouter une question à Choix multiple</button>
+  <button (click)="addQuestion('checkbox')">Ajouter une question Case à cocher</button>
+
+  <!-- Soumettre le formulaire -->
+  <button (click)="submitForm()">Soumettre le formulaire</button>
+</div>
