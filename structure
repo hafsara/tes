@@ -9,6 +9,7 @@
 |-- /static/swagger.json       # Fichier de spécifications Swagger
 |-- requirements.txt           # Liste des dépendances
 
+celery -A tasks worker --loglevel=info
 
 Pour tester le backend de votre projet, voici les étapes à suivre :
 

@@ -4,7 +4,9 @@ from workflow import process_workflow
 from models import Form
 from celery.schedules import crontab
 
-celery = make_celery()
+from app import app  # Assurez-vous que `app` est bien importé depuis `app.py`
+
+celery = make_celery(app)  # Initialisez l'instance Celery avec l'application Flask
 
 
 @celery.task
