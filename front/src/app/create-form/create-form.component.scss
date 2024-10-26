@@ -1,92 +1,58 @@
-/* SCSS pour créer un design proche de votre maquette */
-
-.form-container {
-  max-width: 800px;
-  margin: auto;
+.form-header {
+  display: flex;
+  flex-direction: column;
+  background-color: #673ab7;
+  color: white;
   padding: 20px;
-  background-color: #f5f5f5;
   border-radius: 8px;
+}
 
-  .header {
-    background-color: #673ab7;
-    color: white;
-    padding: 15px;
-    border-radius: 8px 8px 0 0;
-    font-size: 1.5em;
-    text-align: center;
-  }
+.form-title {
+  font-size: 24px;
+  font-weight: bold;
+  border: none;
+  background: transparent;
+  color: white;
+  margin-bottom: 10px;
+}
 
-  .form-info {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px;
+.form-description {
+  border: none;
+  background: transparent;
+  color: white;
+  margin-bottom: 10px;
+}
 
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      label {
-        font-weight: bold;
-        margin-bottom: 5px;
-      }
-      input {
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-      }
-    }
+.form-settings {
+  display: flex;
+  gap: 20px;
+}
 
-    .switch {
-      display: flex;
-      align-items: center;
-      label {
-        margin-left: 8px;
-      }
-    }
-  }
+.questions-section {
+  margin-top: 20px;
+}
 
-  .question-card {
-    background-color: white;
-    border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 8px;
-    margin-top: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+.question-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  margin-bottom: 10px;
+}
 
-    .question-title {
-      font-size: 1.2em;
-      margin-bottom: 10px;
-    }
+.question-input {
+  font-size: 18px;
+  font-weight: bold;
+  width: 100%;
+  margin-bottom: 10px;
+}
 
-    .options {
-      display: flex;
-      flex-direction: column;
-      input[type="text"] {
-        margin: 5px 0;
-        padding: 8px;
-        border-radius: 4px;
-        border: 1px solid #ddd;
-      }
-    }
+.options-section {
+  margin-top: 10px;
+}
 
-    .actions {
-      margin-top: 10px;
-      button {
-        margin-right: 10px;
-        padding: 5px 10px;
-        border-radius: 4px;
-      }
-    }
-  }
-
-  .form-footer {
-    display: flex;
-    justify-content: space-between;
-    padding-top: 20px;
-
-    button {
-      padding: 10px 20px;
-      font-size: 1em;
-      border-radius: 4px;
-    }
-  }
+.form-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }

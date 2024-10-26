@@ -1,40 +1,54 @@
 import { Component } from '@angular/core';
 
-interface Question {
-  text: string;
-  options: string[];
-}
-
 @Component({
   selector: 'app-create-form',
   templateUrl: './create-form.component.html',
   styleUrls: ['./create-form.component.scss']
 })
 export class CreateFormComponent {
-  questions: Question[] = [];
+  formTitle = '';
+  formDescription = '';
+  userEmail = '';
+  managerEmail = '';
+  escalationEnabled = false;
+
+  questions = [
+    {
+      text: '',
+      type: 'multiple',
+      options: ['Option 1']
+    }
+  ];
 
   addQuestion() {
     this.questions.push({
       text: '',
-      options: ['']
+      type: 'multiple',
+      options: ['Option 1']
     });
   }
 
+  removeQuestion(index: number) {
+    this.questions.splice(index, 1);
+  }
+
   addOption(questionIndex: number) {
-    this.questions[questionIndex].options = this.questions[questionIndex].options || [];
-    this.questions[questionIndex].options.push('');
+    this.questions[questionIndex].options.push(`Option ${this.questions[questionIndex].options.length + 1}`);
   }
 
   removeOption(questionIndex: number, optionIndex: number) {
     this.questions[questionIndex].options.splice(optionIndex, 1);
   }
 
-  removeQuestion(questionIndex: number) {
-    this.questions.splice(questionIndex, 1);
-  }
-
   saveForm() {
-    console.log('Form data:', this.questions);
-    // Sauvegarder le formulaire ou envoyer les données
+    // Logique de sauvegarde du formulaire
+    console.log({
+      title: this.formTitle,
+      description: this.formDescription,
+      email: this.userEmail,
+      managerEmail: this.managerEmail,
+      escalation: this.escalationEnabled,
+      questions: this.questions
+    });
   }
 }
