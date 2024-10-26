@@ -6,7 +6,6 @@ from form_workflow_manager import FormWorkflowManager
 api = Blueprint('api', __name__)
 
 
-# Endpoint pour créer un conteneur de formulaire avec au moins un formulaire
 @api.route('/form-containers', methods=['POST'])
 def create_form_container():
     data = request.json
@@ -15,7 +14,7 @@ def create_form_container():
     if not super_admin_id:
         return jsonify({"error": "SuperAdmin non authentifié"}), 401
 
-    # Créer le FormContainer
+    # Créer le FormContainer avec un lien unique
     form_container = FormContainer(
         title=data['title'],
         user_email=data['user_email'],
@@ -24,6 +23,7 @@ def create_form_container():
         escalation=data.get('escalation', False),
         initiated_by=super_admin_id
     )
+    form_container.generate_unique_link()
 
     db.session.add(form_container)
     db.session.commit()
@@ -40,7 +40,7 @@ def create_form_container():
     db.session.add(form)
     db.session.commit()
 
-    return jsonify({"container_id": form_container.id, "form_id": form.id}), 201
+    return jsonify({"container_id": form_container.id, "form_id": form.id, "link": form_container.unique_link}), 201
 
 
 # Endpoint pour ajouter un formulaire supplémentaire dans un conteneur (max 5)
@@ -232,3 +232,41 @@ def validate_form_container(container_id):
     form_workflow.stop_workflow()
 
     return jsonify({"message": "Form Container validé avec succès."}), 200
+
+
+@api.route('/form-containers/<string:unique_link>/history', methods=['GET'])
+def get_form_container_history(unique_link):
+    # Récupération du Form Container par lien unique
+    form_container = FormContainer.query.filter_by(unique_link=unique_link, validated=False).first()
+    if not form_container:
+        return jsonify({"error": "Form Container introuvable ou déjà validé"}), 404
+
+    # Récupération de l'email ou de l'ID utilisateur de la session pour vérifier l'accès
+    user_email = session.get('user_email')
+    super_admin_id = session.get('super_admin_id')
+
+    # Vérification de l'autorisation
+    if (form_container.user_email != user_email) and (form_container.initiated_by != super_admin_id):
+        return jsonify({"error": "Accès refusé"}), 403
+
+    # Historique des interactions
+    interaction_history = {
+        "container_id": form_container.id,
+        "title": form_container.title,
+        "user_email": form_container.user_email,
+        "manager_email": form_container.manager_email,
+        "ticket": form_container.ticket,
+        "escalation": form_container.escalation,
+        "forms": [
+            {
+                "form_id": form.id,
+                "fields": form.fields,
+                "response": form.response,
+                "status": form.status,
+                "created_at": form.created_at,
+                "updated_at": form.updated_at
+            }
+            for form in form_container.forms
+        ]
+    }
+    return jsonify(interaction_history), 200

@@ -15,11 +15,23 @@ class FormContainer(db.Model):
     escalation = db.Column(db.Boolean, default=False)
     validated = db.Column(db.Boolean, default=False)
     initiated_by = db.Column(db.Integer, nullable=False)  # ID du SuperAdmin
+    unique_link = db.Column(db.String(200), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
-    # Relation avec les formulaires (chaque FormContainer peut contenir plusieurs formulaires)
     forms = db.relationship('Form', backref='form_container', cascade="all, delete-orphan", lazy=True)
+
+    def generate_unique_link(self):
+        """Generates a unique link for the form container."""
+        random_data = os.urandom(16)
+        hash_object = hashlib.sha256(random_data)
+        self.unique_link = hash_object.hexdigest()
+
+    def save(self):
+        if not self.unique_link:
+            self.generate_unique_link()
+        db.session.add(self)
+        db.session.commit()
 
 
 class Form(db.Model):

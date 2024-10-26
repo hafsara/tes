@@ -64,9 +64,9 @@ class FormWorkflowManager:
                 to=form_container.user_email,
                 subject="Rappel : Formulaire en attente de réponse",
                 body=f"Veuillez répondre au formulaire {form_container.title}.",
-                link=f"{Config.APP_URL}/form-container/{self.container_id}"
+                link=form_container.unique_link
             )
-            task.data['reminder_sent'] = True  # Enregistrer que le rappel a été envoyé
+            task.data['reminder_sent'] = True
 
     def escalate(self, task):
         form_container = FormContainer.query.get(self.container_id)
@@ -75,5 +75,5 @@ class FormWorkflowManager:
                 to=form_container.manager_email,
                 subject="Escalade : Formulaire en attente",
                 body=f"L'utilisateur n'a pas répondu au formulaire {form_container.title}.",
-                link=f"{Config.APP_URL}/form-container/{self.container_id}"
+                link=form_container.unique_link
             )
