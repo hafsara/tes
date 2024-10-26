@@ -11,17 +11,21 @@ def home():
 
 @api.route('/form-containers', methods=['POST'])
 def create_form_container():
-    data = request.json
-    form_container = FormContainer(
-        title=data['title'],
-        user_id=data['user_id'],
-        manager_email=data['manager_email'],
-        ticket=data.get('ticket'),
-        escalation=data.get('escalation', False)
-    )
-    db.session.add(form_container)
-    db.session.commit()
-    return jsonify({"id": form_container.id}), 201
+    try:
+        data = request.json
+        form_container = FormContainer(
+            title=data['title'],
+            user_id=data['user_id'],
+            manager_email=data['manager_email'],
+            ticket=data.get('ticket'),
+            escalation=data.get('escalation', False)
+        )
+        db.session.add(form_container)
+        db.session.commit()
+        return jsonify({"id": form_container.id}), 201
+    except Exception as e:
+        print("Erreur:", e)  # Imprime l'erreur dans la console pour le débogage
+        return jsonify({"error": str(e)}), 500
 
 
 @api.route('/form-containers', methods=['GET'])
