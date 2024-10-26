@@ -1,11 +1,9 @@
 from flask import Flask
-from backend.config import Config
-from backend.models import db
-from backend.routes import api
+from config import Config
+from extensions import db, make_celery
+from routes import api
 from flask_swagger_ui import get_swaggerui_blueprint
-from backend.celery_config import make_celery
-from backend.auth import setup_oauth
-
+from auth import setup_oauth
 
 app = Flask(__name__)
 app.config.from_object(Config)

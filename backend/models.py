@@ -1,6 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from extensions import db
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -22,6 +20,6 @@ class Form(db.Model):
     __tablename__ = 'forms'
     id = db.Column(db.Integer, primary_key=True)
     form_container_id = db.Column(db.Integer, db.ForeignKey('form_containers.id'), nullable=False)
-    fields = db.Column(db.JSON, nullable=False)  # Store form fields as JSON
+    fields = db.Column(db.JSON, nullable=False)
     response = db.Column(db.JSON)
     status = db.Column(db.String(50), default='open')
