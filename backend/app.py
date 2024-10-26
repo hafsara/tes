@@ -4,7 +4,7 @@ from extensions import db
 from routes import api
 from flask_swagger_ui import get_swaggerui_blueprint
 from auth import setup_oauth, auth_bp
-from celery_app import celery  # Importez l'instance Celery configurée
+from celery_app import celery
 
 app = Flask(__name__)
 app.config.from_object(Config)

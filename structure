@@ -1,27 +1,3 @@
-/form_management
-|-- app.py                     # Point d'entrée de l'application
-|-- config.py                  # Configuration de l'application
-|-- models.py                  # Modèles SQLAlchemy
-|-- routes.py                  # Endpoints Flask
-|-- auth.py                    # Authentification OAuth avec Authlib
-|-- workflow.py                # Gestion de relance et escalade avec SpiffWorkflow
-|-- tasks.py                   # Tâches asynchrones avec Celery
-|-- /static/swagger.json       # Fichier de spécifications Swagger
-|-- requirements.txt           # Liste des dépendances
-
-celery -A tasks worker --loglevel=info
-
-Pour tester le backend de votre projet, voici les étapes à suivre :
-
-### 1. **Vérifier l'installation et la configuration**
-
-   Assurez-vous que :
-   - La base de données est configurée et accessible.
-   - Toutes les dépendances sont installées (`Flask`, `SQLAlchemy`, `Authlib`, `SpiffWorkflow`, `Celery`, etc.).
-
-### 2. **Initialiser la Base de Données**
-
-   Dans le fichier `app.py` ou dans un script séparé, assurez-vous d’avoir le code suivant pour créer les tables de la base de données :
 
    ```python
    from models import db
@@ -31,8 +7,6 @@ Pour tester le backend de votre projet, voici les étapes à suivre :
        db.create_all()
    ```
 
-   Vous pouvez exécuter ce script pour créer les tables.
-
 ### 3. **Lancer le serveur Flask**
 
    Démarrez le serveur Flask pour que les endpoints de l’API soient accessibles :
@@ -40,7 +14,8 @@ Pour tester le backend de votre projet, voici les étapes à suivre :
    flask run
    ```
 
-   Le serveur devrait être disponible à `http://localhost:5000` par défaut.
+# celery -A celery_app.celery worker --loglevel=info
+# celery -A celery_app.celery beat --loglevel=info
 
 ### 4. **Tester les Endpoints avec Swagger**
 

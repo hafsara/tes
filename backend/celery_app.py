@@ -20,7 +20,3 @@ def make_celery():
 
 
 celery = make_celery()
-
-
-# celery -A celery_app.celery worker --loglevel=info
-# celery -A celery_app.celery beat --loglevel=info
