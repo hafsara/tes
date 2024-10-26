@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { CreateFormComponent } from './create-form/create-form.component';
+import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/create-form', pathMatch: 'full' },
-  { path: 'create-form', component: CreateFormComponent }
+  { path: 'admin-dashboard', component: AdminDashboardComponent },
+  { path: '', redirectTo: '/admin-dashboard', pathMatch: 'full' },  // Redirection par défaut, optionnelle
+  // Vous pouvez ajouter d'autres routes ici
 ];
 
 @NgModule({
