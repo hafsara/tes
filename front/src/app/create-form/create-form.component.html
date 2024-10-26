@@ -1,44 +1,49 @@
-<div class="form-header">
-  <input type="text" [(ngModel)]="formTitle" placeholder="Formulaire sans titre" class="form-title" />
-  <textarea [(ngModel)]="formDescription" placeholder="Description du formulaire" class="form-description"></textarea>
-
-  <div class="form-settings">
-    <label>Mail</label>
-    <input type="email" [(ngModel)]="userEmail" placeholder="User email" />
-
-    <label>Manager mail</label>
-    <input type="email" [(ngModel)]="managerEmail" placeholder="Manager email" />
-
-    <label>Escalade</label>
-    <input type="checkbox" [(ngModel)]="escalationEnabled" />
+<div class="form-container">
+  <div class="form-header">
+    <input type="text" [(ngModel)]="formTitle" placeholder="Titre de form" class="form-title" />
+    <textarea [(ngModel)]="formDescription" placeholder="Description de formulaire" class="form-description"></textarea>
   </div>
-</div>
 
-<div class="questions-section">
-  <div *ngFor="let question of questions; let i = index" class="question-card">
-    <input type="text" [(ngModel)]="question.text" placeholder="Question sans titre" class="question-input" />
+  <div class="questions-section">
+    <div *ngFor="let question of questions; let i = index" class="question-card">
+      <input type="text" [(ngModel)]="question.text" placeholder="Label de question" class="question-input" />
 
-    <div class="question-type">
-      <select [(ngModel)]="question.type">
-        <option value="multiple">Choix multiples</option>
-        <option value="text">Texte</option>
-      </select>
-    </div>
-
-    <div *ngIf="question.type === 'multiple'" class="options-section">
-      <div *ngFor="let option of question.options; let j = index">
-        <input type="text" [(ngModel)]="question.options[j]" placeholder="Option" />
-        <button (click)="removeOption(i, j)">Supprimer l'option</button>
+      <div class="question-type">
+        <select [(ngModel)]="question.type" (change)="onTypeChange(question)">
+          <option value="text">Texte</option>
+          <option value="checkbox">Cases à cocher</option>
+          <option value="multiple">Choix multiples</option>
+        </select>
       </div>
-      <button (click)="addOption(i)">Ajouter une option</button>
+
+      <div *ngIf="question.type === 'text'" class="text-input-section">
+        <input type="text" placeholder="Réponse longue" class="text-answer-input" />
+      </div>
+
+      <div *ngIf="question.type === 'checkbox'" class="checkbox-section">
+        <div *ngFor="let option of question.options; let j = index">
+          <label>
+            <input type="checkbox" /> {{ option }}
+          </label>
+        </div>
+        <button (click)="addOption(i)">Ajouter une option</button>
+      </div>
+
+      <div *ngIf="question.type === 'multiple'" class="multiple-choice-section">
+        <div *ngFor="let option of question.options; let j = index" class="option">
+          <input type="radio" name="option{{i}}" /> {{ option }}
+          <button (click)="removeOption(i, j)" class="remove-option-btn">X</button>
+        </div>
+        <button (click)="addOption(i)">Ajouter une option</button>
+      </div>
+
+      <button (click)="removeQuestion(i)" class="remove-question-btn">Supprimer la question</button>
     </div>
 
-    <button (click)="removeQuestion(i)">Supprimer la question</button>
+    <button (click)="addQuestion()" class="add-question-btn">Ajouter une question</button>
   </div>
 
-  <button (click)="addQuestion()">Ajouter une question</button>
-</div>
-
-<div class="form-footer">
-  <button (click)="saveForm()">Enregistrer le formulaire</button>
+  <div class="form-footer">
+    <button (click)="saveForm()">Enregistrer le formulaire</button>
+  </div>
 </div>

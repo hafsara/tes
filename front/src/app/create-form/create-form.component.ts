@@ -8,23 +8,19 @@ import { Component } from '@angular/core';
 export class CreateFormComponent {
   formTitle = '';
   formDescription = '';
-  userEmail = '';
-  managerEmail = '';
-  escalationEnabled = false;
-
   questions = [
     {
       text: '',
-      type: 'multiple',
-      options: ['Option 1']
+      type: 'text',
+      options: []
     }
   ];
 
   addQuestion() {
     this.questions.push({
       text: '',
-      type: 'multiple',
-      options: ['Option 1']
+      type: 'text',
+      options: []
     });
   }
 
@@ -40,14 +36,18 @@ export class CreateFormComponent {
     this.questions[questionIndex].options.splice(optionIndex, 1);
   }
 
+  onTypeChange(question: any) {
+    if (question.type === 'text') {
+      question.options = [];
+    } else if (!question.options.length) {
+      question.options = ['Option 1'];
+    }
+  }
+
   saveForm() {
-    // Logique de sauvegarde du formulaire
     console.log({
       title: this.formTitle,
       description: this.formDescription,
-      email: this.userEmail,
-      managerEmail: this.managerEmail,
-      escalation: this.escalationEnabled,
       questions: this.questions
     });
   }

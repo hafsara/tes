@@ -1,10 +1,25 @@
+$form-bg-color: #f7f1fc;
+$form-header-color: #673ab7;
+$card-bg-color: #ffffff;
+$button-primary-color: #4caf50;
+$button-danger-color: #e57373;
+$text-input-bg: #fafafa;
+
+.form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: $form-bg-color;
+  padding: 20px;
+  border-radius: 8px;
+}
+
 .form-header {
   display: flex;
   flex-direction: column;
-  background-color: #673ab7;
-  color: white;
+  background-color: $form-header-color;
   padding: 20px;
   border-radius: 8px;
+  color: white;
 }
 
 .form-title {
@@ -23,21 +38,17 @@
   margin-bottom: 10px;
 }
 
-.form-settings {
-  display: flex;
-  gap: 20px;
-}
-
 .questions-section {
   margin-top: 20px;
 }
 
 .question-card {
-  background-color: white;
+  background-color: $card-bg-color;
   border-radius: 8px;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   padding: 15px;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  position: relative;
 }
 
 .question-input {
@@ -47,7 +58,53 @@
   margin-bottom: 10px;
 }
 
-.options-section {
+.question-type select {
+  padding: 5px;
+  margin-bottom: 10px;
+}
+
+.text-input-section input,
+.checkbox-section input,
+.multiple-choice-section input {
+  padding: 10px;
+  width: 100%;
+  background-color: $text-input-bg;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.remove-option-btn {
+  background-color: $button-danger-color;
+  color: white;
+  border: none;
+  padding: 5px;
+  margin-left: 5px;
+  border-radius: 4px;
+}
+
+.add-question-btn,
+.form-footer button {
+  background-color: $button-primary-color;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.remove-question-btn {
+  background-color: $button-danger-color;
+  color: white;
+  border: none;
+  padding: 5px;
+  border-radius: 4px;
   margin-top: 10px;
 }
 
