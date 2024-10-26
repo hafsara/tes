@@ -1,9 +1,11 @@
 from flask import Flask
-from config import Config
-from models import db
-from routes import api
+from backend.config import Config
+from backend.models import db
+from backend.routes import api
 from flask_swagger_ui import get_swaggerui_blueprint
-from auth import setup_oauth
+from backend.celery_config import make_celery
+from backend.auth import setup_oauth
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -11,6 +13,7 @@ app.config.from_object(Config)
 # Initialize extensions
 db.init_app(app)
 setup_oauth(app)
+celery = make_celery(app)
 
 # Register API
 app.register_blueprint(api)
