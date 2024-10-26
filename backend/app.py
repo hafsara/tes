@@ -1,9 +1,10 @@
 from flask import Flask
 from config import Config
-from extensions import db, make_celery
+from extensions import db
 from routes import api
 from flask_swagger_ui import get_swaggerui_blueprint
-from auth import setup_oauth, auth_bp  # Importez auth_bp pour l'enregistrement
+from auth import setup_oauth, auth_bp
+from celery_app import celery  # Importez l'instance Celery configurée
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -11,11 +12,10 @@ app.config.from_object(Config)
 # Initialize extensions
 db.init_app(app)
 setup_oauth(app)
-celery = make_celery(app)
 
 # Enregistrer les blueprints
 app.register_blueprint(api)
-app.register_blueprint(auth_bp, url_prefix='/auth')  # Enregistre le blueprint auth avec le préfixe /auth
+app.register_blueprint(auth_bp, url_prefix='/auth')
 
 # Swagger setup
 SWAGGER_URL = Config.SWAGGER_URL
