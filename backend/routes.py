@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, session
 from models import db, FormContainer, Form
 from datetime import datetime
+from form_workflow_manager import FormWorkflowManager
 
 api = Blueprint('api', __name__)
 
@@ -67,24 +68,6 @@ def add_form_to_container(container_id):
     db.session.commit()
 
     return jsonify({"form_id": form.id}), 201
-
-
-# Endpoint pour valider un Form Container
-@api.route('/form-containers/<int:container_id>/validate', methods=['POST'])
-def validate_form_container(container_id):
-    super_admin_id = session.get('super_admin_id')
-    if not super_admin_id:
-        return jsonify({"error": "SuperAdmin non authentifié"}), 401
-
-    form_container = FormContainer.query.get_or_404(container_id)
-
-    if form_container.initiated_by != super_admin_id:
-        return jsonify({"error": "Vous n'êtes pas autorisé à valider ce conteneur"}), 403
-
-    form_container.validated = True
-    db.session.commit()
-
-    return jsonify({"message": "Form Container validé avec succès"}), 200
 
 
 # Endpoint pour soumettre une réponse à un formulaire dans un Form Container
@@ -228,3 +211,24 @@ def view_form_container(encoded_id):
         ]
     }
     return jsonify(result), 200
+
+
+@api.route('/form-containers/<int:container_id>/validate', methods=['POST'])
+def validate_form_container(container_id):
+    super_admin_id = session.get('super_admin_id')
+    if not super_admin_id:
+        return jsonify({"error": "SuperAdmin non authentifié"}), 401
+
+    form_container = FormContainer.query.get_or_404(container_id)
+
+    if form_container.initiated_by != super_admin_id:
+        return jsonify({"error": "Vous n'êtes pas autorisé à valider ce conteneur"}), 403
+
+    form_container.validated = True
+    db.session.commit()
+
+    # Utilisation de FormWorkflowManager pour stopper le workflow
+    form_workflow = FormWorkflowManager(container_id=form_container.id)
+    form_workflow.stop_workflow()
+
+    return jsonify({"message": "Form Container validé avec succès."}), 200
