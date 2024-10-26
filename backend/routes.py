@@ -21,13 +21,10 @@ def create_form_container():
     )
     db.session.add(form_container)
     db.session.commit()
-    return jsonify(form_container.id), 201
+    return jsonify({"id": form_container.id}), 201
 
 
-@api.route('/form-containers/<int:container_id>/forms', methods=['POST'])
-def create_form(container_id):
-    data = request.json
-    form = Form(form_container_id=container_id, fields=data['fields'])
-    db.session.add(form)
-    db.session.commit()
-    return jsonify(form.id), 201
+@api.route('/form-containers', methods=['GET'])
+def get_form_containers():
+    containers = FormContainer.query.all()
+    return jsonify([{"id": c.id, "title": c.title} for c in containers]), 200
