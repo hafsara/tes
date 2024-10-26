@@ -1,115 +1,48 @@
-$form-bg-color: #f7f1fc;
-$form-header-color: #673ab7;
-$card-bg-color: #ffffff;
-$button-primary-color: #4caf50;
-$button-danger-color: #e57373;
-$text-input-bg: #fafafa;
-
 .form-container {
-  max-width: 800px;
-  margin: 0 auto;
-  background-color: $form-bg-color;
-  padding: 20px;
-  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .form-header {
+  text-align: center;
+}
+
+.question-block {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  margin: 1rem 0;
+  width: 80%;
+}
+
+.question-text {
+  width: 100%;
+  font-size: 1.1rem;
+}
+
+.options-container {
   display: flex;
   flex-direction: column;
-  background-color: $form-header-color;
-  padding: 20px;
-  border-radius: 8px;
-  color: white;
+  margin-top: 0.5rem;
 }
 
-.form-title {
-  font-size: 24px;
-  font-weight: bold;
-  border: none;
-  background: transparent;
-  color: white;
-  margin-bottom: 10px;
-}
-
-.form-description {
-  border: none;
-  background: transparent;
-  color: white;
-  margin-bottom: 10px;
-}
-
-.questions-section {
-  margin-top: 20px;
-}
-
-.question-card {
-  background-color: $card-bg-color;
-  border-radius: 8px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 15px;
-  margin-bottom: 15px;
-  position: relative;
-}
-
-.question-input {
-  font-size: 18px;
-  font-weight: bold;
-  width: 100%;
-  margin-bottom: 10px;
-}
-
-.question-type select {
-  padding: 5px;
-  margin-bottom: 10px;
-}
-
-.text-input-section input,
-.checkbox-section input,
-.multiple-choice-section input {
-  padding: 10px;
-  width: 100%;
-  background-color: $text-input-bg;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.option {
+.sidebar {
+  position: fixed;
+  right: 1rem;
+  top: 4rem;
   display: flex;
-  align-items: center;
-  margin-top: 5px;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.remove-option-btn {
-  background-color: $button-danger-color;
-  color: white;
+.sidebar button {
+  background-color: transparent;
   border: none;
-  padding: 5px;
-  margin-left: 5px;
-  border-radius: 4px;
-}
-
-.add-question-btn,
-.form-footer button {
-  background-color: $button-primary-color;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 4px;
   cursor: pointer;
-  margin-top: 20px;
+  font-size: 1.5rem;
+  color: #333;
 }
 
-.remove-question-btn {
-  background-color: $button-danger-color;
-  color: white;
-  border: none;
-  padding: 5px;
-  border-radius: 4px;
-  margin-top: 10px;
-}
-
-.form-footer {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
+.sidebar button:hover {
+  color: #007bff;
 }

@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 interface Question {
   text: string;
   type: string;
-  options: string[]; // Spécifie que options est un tableau de chaînes
+  options: string[];
 }
 
 @Component({
@@ -31,7 +31,18 @@ export class CreateFormComponent {
   }
 
   removeQuestion(index: number) {
-    this.questions.splice(index, 1);
+    if (this.questions.length > 1) {
+      this.questions.splice(index, 1);
+    }
+  }
+
+  duplicateQuestion(index: number) {
+    const questionToDuplicate = this.questions[index];
+    this.questions.splice(index + 1, 0, {
+      text: questionToDuplicate.text,
+      type: questionToDuplicate.type,
+      options: [...questionToDuplicate.options]
+    });
   }
 
   addOption(questionIndex: number) {
