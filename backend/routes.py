@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, session
 from models import db, FormContainer, Form
 from datetime import datetime
-from form_workflow_manager import FormWorkflowManager
+from workflow import FormWorkflowManager
 
 api = Blueprint('api', __name__)
 
