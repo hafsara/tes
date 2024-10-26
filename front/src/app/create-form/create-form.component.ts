@@ -1,5 +1,11 @@
 import { Component } from '@angular/core';
 
+interface Question {
+  text: string;
+  type: string;
+  options: string[]; // Spécifie que options est un tableau de chaînes
+}
+
 @Component({
   selector: 'app-create-form',
   templateUrl: './create-form.component.html',
@@ -8,7 +14,7 @@ import { Component } from '@angular/core';
 export class CreateFormComponent {
   formTitle = '';
   formDescription = '';
-  questions = [
+  questions: Question[] = [
     {
       text: '',
       type: 'text',
@@ -36,7 +42,7 @@ export class CreateFormComponent {
     this.questions[questionIndex].options.splice(optionIndex, 1);
   }
 
-  onTypeChange(question: any) {
+  onTypeChange(question: Question) {
     if (question.type === 'text') {
       question.options = [];
     } else if (!question.options.length) {
