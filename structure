@@ -80,3 +80,4 @@
    - Surveillez les logs dans la console pour détecter les erreurs ou les messages de débogage.
 
 Ces étapes devraient vous permettre de tester toutes les fonctionnalités principales du backend. Une fois les tests réussis, nous pourrons avancer avec le développement des pages frontend.
+sudo -u postgres psql -d dbname
