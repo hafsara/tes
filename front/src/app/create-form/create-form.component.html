@@ -1,41 +1,18 @@
 <div class="form-container">
-  <h2>Création de Formulaire</h2>
+  <h2>Créer un formulaire</h2>
 
-  <label>Titre du formulaire</label>
-  <input type="text" [(ngModel)]="title" placeholder="Titre du formulaire" />
+  <div *ngFor="let question of questions; let i = index" class="question">
+    <input type="text" [(ngModel)]="question.text" placeholder="Question" />
 
-  <label>Description du formulaire</label>
-  <textarea [(ngModel)]="description" placeholder="Description du formulaire"></textarea>
-
-  <label>Email de l'utilisateur</label>
-  <input type="email" [(ngModel)]="userEmail" placeholder="Email du User" />
-
-  <label>Email du manager</label>
-  <input type="email" [(ngModel)]="managerEmail" placeholder="Email du Manager" />
-
-  <label>Escalade</label>
-  <input type="checkbox" [(ngModel)]="escalation" />
-
-  <div class="questions-section">
-    <h3>Questions</h3>
-    <button (click)="addQuestion('text')">Ajouter Question Texte</button>
-    <button (click)="addQuestion('multiple-choice')">Ajouter Choix Multiples</button>
-    <button (click)="addQuestion('checkbox')">Ajouter Cases à Cocher</button>
-
-    <div *ngFor="let question of questions; let i = index" class="question-item">
-      <input type="text" [(ngModel)]="question.text" placeholder="Question sans titre" />
-      <button (click)="removeQuestion(i)">Supprimer Question</button>
-
-      <div *ngIf="question.type === 'multiple-choice' || question.type === 'checkbox'">
-        <div *ngFor="let option of question.options; let j = index">
-          <input [type]="question.type === 'checkbox' ? 'checkbox' : 'radio'" />
-          <input type="text" [(ngModel)]="question.options[j]" placeholder="Option" />
-          <button (click)="removeOption(i, j)">Supprimer Option</button>
-        </div>
-        <button (click)="addOption(i)">Ajouter Option</button>
-      </div>
+    <div *ngFor="let option of question.options; let j = index" class="option">
+      <input type="text" [(ngModel)]="question.options[j]" placeholder="Option" />
+      <button (click)="removeOption(i, j)">Supprimer l'option</button>
     </div>
+
+    <button (click)="addOption(i)">Ajouter une option</button>
+    <button (click)="removeQuestion(i)">Supprimer la question</button>
   </div>
 
-  <button (click)="saveForm()">Sauvegarder Formulaire</button>
+  <button (click)="addQuestion()">Ajouter une question</button>
+  <button (click)="saveForm()">Enregistrer le formulaire</button>
 </div>

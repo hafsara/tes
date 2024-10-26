@@ -2,8 +2,7 @@ import { Component } from '@angular/core';
 
 interface Question {
   text: string;
-  type: 'text' | 'multiple-choice' | 'checkbox';
-  options?: string[];
+  options: string[];
 }
 
 @Component({
@@ -12,49 +11,30 @@ interface Question {
   styleUrls: ['./create-form.component.scss']
 })
 export class CreateFormComponent {
-  title: string = '';
-  description: string = '';
-  userEmail: string = '';
-  managerEmail: string = '';
-  escalation: boolean = false;
-
   questions: Question[] = [];
 
-  addQuestion(type: 'text' | 'multiple-choice' | 'checkbox') {
-    const newQuestion: Question = {
+  addQuestion() {
+    this.questions.push({
       text: '',
-      type: type,
-      options: type === 'multiple-choice' || type === 'checkbox' ? [''] : undefined
-    };
-    this.questions.push(newQuestion);
+      options: ['']
+    });
   }
 
   addOption(questionIndex: number) {
-    if (this.questions[questionIndex].options) {
-      this.questions[questionIndex].options.push('');
-    }
+    this.questions[questionIndex].options = this.questions[questionIndex].options || [];
+    this.questions[questionIndex].options.push('');
   }
 
   removeOption(questionIndex: number, optionIndex: number) {
-    if (this.questions[questionIndex].options) {
-      this.questions[questionIndex].options.splice(optionIndex, 1);
-    }
+    this.questions[questionIndex].options.splice(optionIndex, 1);
   }
 
-  removeQuestion(index: number) {
-    this.questions.splice(index, 1);
+  removeQuestion(questionIndex: number) {
+    this.questions.splice(questionIndex, 1);
   }
 
   saveForm() {
-    const formData = {
-      title: this.title,
-      description: this.description,
-      userEmail: this.userEmail,
-      managerEmail: this.managerEmail,
-      escalation: this.escalation,
-      questions: this.questions
-    };
-    console.log('Form data:', formData);
-    // Ici, vous pouvez ajouter le code pour envoyer les données au backend via une requête HTTP
+    console.log('Form data:', this.questions);
+    // Sauvegarder le formulaire ou envoyer les données
   }
 }
