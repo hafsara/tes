@@ -1,41 +1,47 @@
 <div class="form-container">
-  <div class="form-header">
-    <input type="text" [(ngModel)]="formTitle" placeholder="Formulaire sans titre" class="form-title" />
-    <input type="text" [(ngModel)]="formDescription" placeholder="Description du formulaire" class="form-description" />
-  </div>
+  <h2>Créer un formulaire</h2>
+  <div *ngFor="let question of questions; let i = index" class="question-container">
+    <input
+      type="text"
+      [(ngModel)]="question.text"
+      placeholder="Question sans titre"
+      class="question-input"
+    />
 
-  <div *ngFor="let question of questions; let i = index" class="question-block">
-    <input type="text" [(ngModel)]="question.text" placeholder="Question sans titre" class="question-text" />
+    <div class="question-controls">
+      <select [(ngModel)]="question.type">
+        <option value="multipleChoice">Choix multiples</option>
+        <option value="checkbox">Cases à cocher</option>
+        <option value="dropdown">Liste déroulante</option>
+      </select>
 
-    <!-- Choix du type de question -->
-    <select [(ngModel)]="question.type" (change)="onTypeChange(question)">
-      <option value="text">Texte</option>
-      <option value="checkbox">Cases à cocher</option>
-      <option value="radio">Boutons radio</option>
-    </select>
-
-    <!-- Affichage des options pour les types checkbox et radio -->
-    <div *ngIf="question.type !== 'text'" class="options-container">
-      <div *ngFor="let option of question.options; let j = index">
-        <input type="text" [(ngModel)]="question.options[j]" placeholder="Option" />
-        <button (click)="removeOption(i, j)">Supprimer l'option</button>
-      </div>
       <button (click)="addOption(i)">Ajouter une option</button>
+    </div>
+
+    <div *ngIf="question.type === 'multipleChoice' || question.type === 'checkbox' || question.type === 'dropdown'">
+      <div *ngFor="let option of question.options; let j = index" class="option-container">
+        <input
+          type="text"
+          [(ngModel)]="question.options[j]"
+          placeholder="Option"
+          class="option-input"
+        />
+        <button (click)="removeOption(i, j)" class="remove-option-btn">X</button>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <button (click)="addQuestion()" title="Ajouter une question">
+        <i class="material-icons">add</i>
+      </button>
+      <button (click)="removeQuestion(i)" title="Supprimer la question">
+        <i class="material-icons">delete</i>
+      </button>
+      <button (click)="duplicateQuestion(i)" title="Dupliquer la question">
+        <i class="material-icons">content_copy</i>
+      </button>
     </div>
   </div>
 
-  <!-- Barre de contrôle latérale -->
-  <div class="sidebar">
-    <button (click)="addQuestion()" title="Ajouter une question">
-      <i class="material-icons">add</i>
-    </button>
-    <button (click)="removeQuestion()" title="Supprimer la question">
-      <i class="material-icons">delete</i>
-    </button>
-    <button (click)="duplicateQuestion()" title="Dupliquer la question">
-      <i class="material-icons">content_copy</i>
-    </button>
-  </div>
-
-  <button (click)="saveForm()">Enregistrer le formulaire</button>
+  <button class="submit-btn">Enregistrer le formulaire</button>
 </div>

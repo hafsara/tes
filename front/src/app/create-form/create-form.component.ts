@@ -4,6 +4,7 @@ interface Question {
   text: string;
   type: string;
   options: string[];
+  isRequired: boolean;
 }
 
 @Component({
@@ -12,21 +13,16 @@ interface Question {
   styleUrls: ['./create-form.component.scss']
 })
 export class CreateFormComponent {
-  formTitle = '';
-  formDescription = '';
   questions: Question[] = [
-    {
-      text: '',
-      type: 'text',
-      options: []
-    }
+    { text: '', type: 'multipleChoice', options: ['Option 1'], isRequired: false }
   ];
 
   addQuestion() {
     this.questions.push({
       text: '',
-      type: 'text',
-      options: []
+      type: 'multipleChoice',
+      options: ['Option 1'],
+      isRequired: false
     });
   }
 
@@ -41,31 +37,19 @@ export class CreateFormComponent {
     this.questions.splice(index + 1, 0, {
       text: questionToDuplicate.text,
       type: questionToDuplicate.type,
-      options: [...questionToDuplicate.options]
+      options: [...questionToDuplicate.options],
+      isRequired: questionToDuplicate.isRequired
     });
   }
 
   addOption(questionIndex: number) {
-    this.questions[questionIndex].options.push(`Option ${this.questions[questionIndex].options.length + 1}`);
+    const optionNumber = this.questions[questionIndex].options.length + 1;
+    this.questions[questionIndex].options.push(`Option ${optionNumber}`);
   }
 
   removeOption(questionIndex: number, optionIndex: number) {
-    this.questions[questionIndex].options.splice(optionIndex, 1);
-  }
-
-  onTypeChange(question: Question) {
-    if (question.type === 'text') {
-      question.options = [];
-    } else if (!question.options.length) {
-      question.options = ['Option 1'];
+    if (this.questions[questionIndex].options.length > 1) {
+      this.questions[questionIndex].options.splice(optionIndex, 1);
     }
-  }
-
-  saveForm() {
-    console.log({
-      title: this.formTitle,
-      description: this.formDescription,
-      questions: this.questions
-    });
   }
 }
