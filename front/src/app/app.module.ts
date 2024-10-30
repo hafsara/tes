@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import {MatFormFieldModule} from '@angular/material/form-field';
 
 // App Components and Services
 import { AppRoutingModule } from './app-routing.module';
@@ -21,6 +22,7 @@ import { FormListComponent } from './form-list/form-list.component';
 import { FormDetailsComponent } from './form-details/form-details.component';
 import { FormContainerService } from './services/form-container.service';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 @NgModule({
   declarations: [
@@ -32,6 +34,8 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
     FormDetailsComponent
   ],
   imports: [
+    MatFormFieldModule,
+    MatSlideToggleModule,
     BrowserModule,
     AppRoutingModule,
     FormsModule,
