@@ -9,6 +9,8 @@ import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.compo
 import { FormHistoryComponent } from './form-history/form-history.component';
 import { FormListComponent } from './form-list/form-list.component';
 import { FormDetailsComponent } from './form-details/form-details.component';
+import { HttpClientModule } from '@angular/common/http';
+import { FormContainerService } from './services/form-container.service'; // Assurez-vous du bon chemin d'import
 
 @NgModule({
   declarations: [
@@ -24,7 +26,7 @@ import { FormDetailsComponent } from './form-details/form-details.component';
     AppRoutingModule,
     FormsModule // <-- Et ajoutez-le ici aussi
   ],
-  providers: [],
-  bootstrap: [AppComponent]
+  providers: [FormContainerService],
+  bootstrap: [AppComponent],
 })
 export class AppModule { }
