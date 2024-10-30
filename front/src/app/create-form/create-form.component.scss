@@ -1,95 +1,88 @@
 .form-container {
-  width: 600px;
+  width: 650px;
   margin: 0 auto;
   font-family: Arial, sans-serif;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 20px;
-  background-color: #fff;
 
   h2 {
     text-align: center;
     color: #333;
-    margin-bottom: 20px;
+    font-size: 1.5em;
+    margin-bottom: 1rem;
   }
 
-  .form-info {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
-
-    input[type="text"], input[type="email"] {
-      padding: 8px;
-      font-size: 16px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      width: 100%;
-    }
-
-    label {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-weight: bold;
-    }
-  }
-
-  .question-section {
-    margin-top: 20px;
+  input[type="text"], input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0 15px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
   }
 
   .question-container {
-    background-color: #f9f9f9;
+    background-color: #f3f3f3;
     border: 1px solid #ddd;
     padding: 15px;
     border-radius: 8px;
     margin-bottom: 20px;
-    position: relative;
 
     .question-input {
       width: 100%;
       padding: 8px;
       font-size: 16px;
       margin-bottom: 10px;
+      border: 1px solid #d1d1d1;
       border-radius: 4px;
-      border: 1px solid #ddd;
+      outline: none;
+      transition: border-color 0.3s ease;
+
+      &:focus {
+        border-color: #007bff;
+      }
+
+      &.error {
+        border-color: #dc3545;
+      }
     }
 
     .question-controls {
       display: flex;
-      align-items: center;
       gap: 10px;
+      margin-top: 5px;
 
       select {
         padding: 5px;
         font-size: 14px;
         border-radius: 4px;
-        border: 1px solid #ddd;
       }
 
       button {
         background-color: #007bff;
         color: white;
         border: none;
-        padding: 6px 12px;
+        padding: 8px 12px;
         border-radius: 4px;
         cursor: pointer;
         font-size: 14px;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: #0056b3;
+        }
       }
     }
 
     .option-container {
       display: flex;
-      align-items: center;
+      gap: 10px;
       margin-top: 8px;
 
       .option-input {
-        flex-grow: 1;
+        flex: 1;
         padding: 6px;
         font-size: 14px;
+        border: 1px solid #d1d1d1;
         border-radius: 4px;
-        border: 1px solid #ddd;
       }
 
       .remove-option-btn {
@@ -99,17 +92,19 @@
         padding: 4px 8px;
         border-radius: 4px;
         cursor: pointer;
-        margin-left: 8px;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: #c82333;
+        }
       }
     }
 
     .sidebar {
-      position: absolute;
-      right: -50px;
-      top: 10px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
+      margin-top: 10px;
 
       button {
         background-color: #6c757d;
@@ -119,14 +114,10 @@
         border-radius: 50%;
         cursor: pointer;
         font-size: 18px;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        transition: background-color 0.3s ease;
 
-        i {
-          font-size: 16px;
+        &:hover {
+          background-color: #5a6268;
         }
       }
     }
@@ -134,13 +125,17 @@
 
   .submit-btn {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     background-color: #28a745;
     color: white;
     border: none;
     font-size: 16px;
     border-radius: 4px;
     cursor: pointer;
-    margin-top: 10px;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #218838;
+    }
   }
 }
