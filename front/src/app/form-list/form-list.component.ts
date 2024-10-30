@@ -19,6 +19,6 @@ export class FormListComponent {
       'open': 'open',
       'validate': 'validate',
       'escalate': 'escalate'
-    }[status] || ''; // Ajoute une chaîne vide par défaut si `status` est inconnu
+    }[status] || 'open';
   }
 }
