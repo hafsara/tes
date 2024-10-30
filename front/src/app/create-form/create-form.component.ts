@@ -88,9 +88,9 @@ export class CreateFormComponent {
     return (
       this.form.title.trim() !== '' &&
       this.form.description.trim() !== '' &&
-      this.emailPattern.test(this.form.userEmail) &&
+      this.emailPattern.test(this.form.userEmail)
       // (!this.form.escalation || (this.form.managerEmail && this.emailPattern.test(this.form.managerEmail))) &&
-      this.form.questions.every(q => q.text.trim() !== '')
+      //this.form.questions.every(q => q.text.trim() !== '')
     );
   }
 
