@@ -28,7 +28,12 @@ export class CreateFormComponent {
     userEmail: '',
     escalation: false,
     questions: [
-      { text: '', type: 'multipleChoice', options: ['Option 1'], isRequired: false }
+      {
+        text: '',
+        type: 'multipleChoice',
+        options: ['Option 1'],
+        isRequired: false,
+      }
     ]
   };
 
@@ -40,7 +45,7 @@ export class CreateFormComponent {
         text: '',
         type: 'multipleChoice',
         options: ['Option 1'],
-        isRequired: false
+        isRequired: false,
       });
     }
   }
@@ -57,7 +62,7 @@ export class CreateFormComponent {
       text: questionToDuplicate.text,
       type: questionToDuplicate.type,
       options: [...questionToDuplicate.options],
-      isRequired: questionToDuplicate.isRequired
+      isRequired: questionToDuplicate.isRequired,
     });
   }
 
@@ -91,7 +96,7 @@ export class CreateFormComponent {
     if (this.isFormContainerValid()) {
       const jsonForm = JSON.stringify(this.form);
       console.log('Formulaire soumis :', jsonForm);
-      // Envoi au backend ici avec le JSON généré (exemple: via HTTP POST)
+      // Send to backend here with the generated JSON (example: via HTTP POST)
     } else {
       alert("Veuillez remplir tous les champs obligatoires avec des formats valides.");
     }
