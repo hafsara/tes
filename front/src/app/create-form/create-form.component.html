@@ -1,75 +1,85 @@
 <div class="form-container">
   <h2>Créer un formulaire</h2>
 
-  <!-- Titre du formulaire -->
-  <input type="text" [(ngModel)]="title" placeholder="Titre du formulaire" class="form-input" required />
-
-  <!-- Description du formulaire -->
-  <input type="text" [(ngModel)]="description" placeholder="Description du formulaire" class="form-input" required />
-
-  <!-- Email de l'utilisateur -->
-  <input type="email" [(ngModel)]="userEmail" placeholder="Email de l'utilisateur" class="form-input" required />
-
-  <!-- Escalade et Email du manager -->
-  <div class="escalation-container">
+  <div class="form-info">
+    <input
+      type="text"
+      [(ngModel)]="form.title"
+      placeholder="Titre du formulaire"
+      required
+    />
+    <input
+      type="text"
+      [(ngModel)]="form.description"
+      placeholder="Description du formulaire"
+      required
+    />
+    <input
+      type="email"
+      [(ngModel)]="form.userEmail"
+      [pattern]="emailPattern"
+      placeholder="Email de l'utilisateur"
+      required
+    />
     <label>
       Escalade
-      <input type="checkbox" [(ngModel)]="escalation" (change)="toggleEscalation()" />
+      <input type="checkbox" [(ngModel)]="form.escalation" (change)="toggleEscalation()" />
     </label>
     <input
-      *ngIf="escalation"
+      *ngIf="form.escalation"
       type="email"
-      [(ngModel)]="managerEmail"
+      [(ngModel)]="form.managerEmail"
+      [pattern]="emailPattern"
       placeholder="Email du manager"
-      class="form-input"
       required
     />
   </div>
 
-  <!-- Questions dynamiques -->
-  <div *ngFor="let question of questions; let i = index" class="question-container">
-    <input
-      type="text"
-      [(ngModel)]="question.text"
-      placeholder="Question sans titre"
-      class="question-input"
-    />
+  <!-- Affiche les questions seulement si les informations de base sont valides -->
+  <div *ngIf="isFormContainerValid()" class="question-section">
+    <div *ngFor="let question of form.questions; let i = index" class="question-container">
+      <input
+        type="text"
+        [(ngModel)]="question.text"
+        placeholder="Question sans titre"
+        class="question-input"
+      />
 
-    <div class="question-controls">
-      <select [(ngModel)]="question.type">
-        <option value="multipleChoice">Choix multiples</option>
-        <option value="checkbox">Cases à cocher</option>
-        <option value="dropdown">Liste déroulante</option>
-        <option value="text">Texte</option>
-      </select>
-      <button (click)="addOption(i)">Ajouter une option</button>
-    </div>
+      <div class="question-controls">
+        <select [(ngModel)]="question.type">
+          <option value="multipleChoice">Choix multiples</option>
+          <option value="checkbox">Cases à cocher</option>
+          <option value="dropdown">Liste déroulante</option>
+          <option value="text">Texte</option>
+        </select>
+        <button *ngIf="question.type !== 'text'" (click)="addOption(i)">Ajouter une option</button>
+      </div>
 
-    <div *ngIf="question.type === 'multipleChoice' || question.type === 'checkbox' || question.type === 'dropdown'">
-      <div *ngFor="let option of question.options; let j = index" class="option-container">
-        <input
-          type="text"
-          [(ngModel)]="question.options[j]"
-          placeholder="Option"
-          class="option-input"
-        />
-        <button (click)="removeOption(i, j)" class="remove-option-btn">X</button>
+      <div *ngIf="['multipleChoice', 'checkbox', 'dropdown'].includes(question.type)">
+        <div *ngFor="let option of question.options; let j = index" class="option-container">
+          <input
+            type="text"
+            [(ngModel)]="question.options[j]"
+            placeholder="Option"
+            class="option-input"
+          />
+          <button (click)="removeOption(i, j)" class="remove-option-btn">X</button>
+        </div>
+      </div>
+
+      <div class="sidebar">
+        <button (click)="addQuestion()" title="Ajouter une question">
+          <i class="material-icons">add</i>
+        </button>
+        <button (click)="removeQuestion(i)" title="Supprimer la question">
+          <i class="material-icons">delete</i>
+        </button>
+        <button (click)="duplicateQuestion(i)" title="Dupliquer la question">
+          <i class="material-icons">content_copy</i>
+        </button>
       </div>
     </div>
 
-    <div class="sidebar">
-      <button (click)="addQuestion()" title="Ajouter une question">
-        <i class="material-icons">add</i>
-      </button>
-      <button (click)="removeQuestion(i)" title="Supprimer la question">
-        <i class="material-icons">delete</i>
-      </button>
-      <button (click)="duplicateQuestion(i)" title="Dupliquer la question">
-        <i class="material-icons">content_copy</i>
-      </button>
-    </div>
+    <button (click)="submitForm()" class="submit-btn">Enregistrer le formulaire</button>
   </div>
-
-  <!-- Bouton pour sauvegarder le formulaire -->
-  <button (click)="saveForm()" class="submit-btn">Enregistrer le formulaire</button>
 </div>

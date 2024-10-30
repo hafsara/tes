@@ -2,10 +2,15 @@
   width: 600px;
   margin: 0 auto;
   font-family: Arial, sans-serif;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  background-color: #fff;
 
   h2 {
     text-align: center;
     color: #333;
+    margin-bottom: 20px;
   }
 
   .form-info {
@@ -17,6 +22,8 @@
     input[type="text"], input[type="email"] {
       padding: 8px;
       font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
       width: 100%;
     }
 
@@ -26,6 +33,10 @@
       gap: 5px;
       font-weight: bold;
     }
+  }
+
+  .question-section {
+    margin-top: 20px;
   }
 
   .question-container {
@@ -41,6 +52,8 @@
       padding: 8px;
       font-size: 16px;
       margin-bottom: 10px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
     }
 
     .question-controls {
@@ -51,6 +64,8 @@
       select {
         padding: 5px;
         font-size: 14px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
       }
 
       button {
@@ -73,6 +88,8 @@
         flex-grow: 1;
         padding: 6px;
         font-size: 14px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
       }
 
       .remove-option-btn {
@@ -124,5 +141,6 @@
     font-size: 16px;
     border-radius: 4px;
     cursor: pointer;
+    margin-top: 10px;
   }
 }

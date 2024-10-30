@@ -7,46 +7,51 @@ interface Question {
   isRequired: boolean;
 }
 
+interface FormContainer {
+  title: string;
+  description: string;
+  userEmail: string;
+  managerEmail?: string;
+  escalation: boolean;
+  questions: Question[];
+}
+
 @Component({
   selector: 'app-create-form',
   templateUrl: './create-form.component.html',
   styleUrls: ['./create-form.component.scss']
 })
 export class CreateFormComponent {
-  title: string = '';
-  description: string = '';
-  userEmail: string = '';
-  managerEmail: string = '';
-  escalation: boolean = false;
-  questions: Question[] = [
-    { text: '', type: 'multipleChoice', options: ['Option 1'], isRequired: false }
-  ];
+  form: FormContainer = {
+    title: '',
+    description: '',
+    userEmail: '',
+    escalation: false,
+    questions: []
+  };
 
-  // Gestion de l'affichage du champ Manager Email
-  toggleEscalation() {
-    if (!this.escalation) {
-      this.managerEmail = ''; // Réinitialise l'email du manager si l'escalade est désactivée
+  emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  addQuestion() {
+    if (this.isFormContainerValid()) {
+      this.form.questions.push({
+        text: '',
+        type: 'multipleChoice',
+        options: ['Option 1'],
+        isRequired: false
+      });
     }
   }
 
-  addQuestion() {
-    this.questions.push({
-      text: '',
-      type: 'multipleChoice',
-      options: ['Option 1'],
-      isRequired: false
-    });
-  }
-
   removeQuestion(index: number) {
-    if (this.questions.length > 1) {
-      this.questions.splice(index, 1);
+    if (this.form.questions.length > 1) {
+      this.form.questions.splice(index, 1);
     }
   }
 
   duplicateQuestion(index: number) {
-    const questionToDuplicate = this.questions[index];
-    this.questions.splice(index + 1, 0, {
+    const questionToDuplicate = this.form.questions[index];
+    this.form.questions.splice(index + 1, 0, {
       text: questionToDuplicate.text,
       type: questionToDuplicate.type,
       options: [...questionToDuplicate.options],
@@ -55,33 +60,38 @@ export class CreateFormComponent {
   }
 
   addOption(questionIndex: number) {
-    const optionNumber = this.questions[questionIndex].options.length + 1;
-    this.questions[questionIndex].options.push(`Option ${optionNumber}`);
+    const optionNumber = this.form.questions[questionIndex].options.length + 1;
+    this.form.questions[questionIndex].options.push(`Option ${optionNumber}`);
   }
 
   removeOption(questionIndex: number, optionIndex: number) {
-    if (this.questions[questionIndex].options.length > 1) {
-      this.questions[questionIndex].options.splice(optionIndex, 1);
+    if (this.form.questions[questionIndex].options.length > 1) {
+      this.form.questions[questionIndex].options.splice(optionIndex, 1);
     }
   }
 
-  // Sauvegarde du formulaire
-  saveForm() {
-    if (this.title && this.description && this.userEmail) {
-      const formData = {
-        title: this.title,
-        description: this.description,
-        user: {
-          email: this.userEmail,
-          managerEmail: this.escalation ? this.managerEmail : null,
-          escalation: this.escalation
-        },
-        questions: this.questions
-      };
-      console.log('Form Data:', formData);
-      // Envoie formData à l'API backend pour enregistrement
+  toggleEscalation() {
+    if (!this.form.escalation) {
+      this.form.managerEmail = ''; // Clear manager email if escalation is disabled
+    }
+  }
+
+  isFormContainerValid(): boolean {
+    return (
+      this.form.title.trim() !== '' &&
+      this.form.description.trim() !== '' &&
+      this.emailPattern.test(this.form.userEmail) &&
+      (!this.form.escalation || (this.form.managerEmail && this.emailPattern.test(this.form.managerEmail)))
+    );
+  }
+
+  submitForm() {
+    if (this.isFormContainerValid()) {
+      const jsonForm = JSON.stringify(this.form);
+      console.log('Formulaire soumis :', jsonForm);
+      // Envoi au backend ici avec le JSON généré (exemple: via HTTP POST)
     } else {
-      alert('Veuillez remplir tous les champs obligatoires');
+      alert("Veuillez remplir tous les champs obligatoires avec des formats valides.");
     }
   }
 }
