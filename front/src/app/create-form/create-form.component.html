@@ -1,18 +1,18 @@
 <div class="form-container mat-elevation-z4">
-  <h2>Créer un formulaire</h2>
+  <h3>Créer un formulaire</h3>
 
   <div class="form-info">
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" class="full-width">
       <mat-label>Titre du formulaire</mat-label>
       <input matInput [(ngModel)]="form.title" required />
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" class="full-width">
       <mat-label>Description du formulaire</mat-label>
       <textarea matInput [(ngModel)]="form.description" required cdkTextareaAutosize #autosize="cdkTextareaAutosize" cdkAutosizeMinRows="1" cdkAutosizeMaxRows="5"></textarea>
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" class="full-width">
       <mat-label>Email de l'utilisateur</mat-label>
       <input matInput [(ngModel)]="form.userEmail" type="email" [pattern]="emailPattern" required />
       <mat-error *ngIf="form.userEmail && !emailPattern.test(form.userEmail)">
