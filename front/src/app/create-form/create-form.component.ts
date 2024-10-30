@@ -13,9 +13,21 @@ interface Question {
   styleUrls: ['./create-form.component.scss']
 })
 export class CreateFormComponent {
+  title: string = '';
+  description: string = '';
+  userEmail: string = '';
+  managerEmail: string = '';
+  escalation: boolean = false;
   questions: Question[] = [
     { text: '', type: 'multipleChoice', options: ['Option 1'], isRequired: false }
   ];
+
+  // Gestion de l'affichage du champ Manager Email
+  toggleEscalation() {
+    if (!this.escalation) {
+      this.managerEmail = ''; // Réinitialise l'email du manager si l'escalade est désactivée
+    }
+  }
 
   addQuestion() {
     this.questions.push({
@@ -50,6 +62,26 @@ export class CreateFormComponent {
   removeOption(questionIndex: number, optionIndex: number) {
     if (this.questions[questionIndex].options.length > 1) {
       this.questions[questionIndex].options.splice(optionIndex, 1);
+    }
+  }
+
+  // Sauvegarde du formulaire
+  saveForm() {
+    if (this.title && this.description && this.userEmail) {
+      const formData = {
+        title: this.title,
+        description: this.description,
+        user: {
+          email: this.userEmail,
+          managerEmail: this.escalation ? this.managerEmail : null,
+          escalation: this.escalation
+        },
+        questions: this.questions
+      };
+      console.log('Form Data:', formData);
+      // Envoie formData à l'API backend pour enregistrement
+    } else {
+      alert('Veuillez remplir tous les champs obligatoires');
     }
   }
 }
