@@ -79,7 +79,7 @@ export class CreateFormComponent {
 
   toggleEscalation() {
     if (!this.form.escalation) {
-      this.form.managerEmail = ''; // Clear manager email if escalation is disabled
+      this.form.managerEmail = undefined;
     }
   }
 
@@ -88,7 +88,7 @@ export class CreateFormComponent {
       this.form.title.trim() !== '' &&
       this.form.description.trim() !== '' &&
       this.emailPattern.test(this.form.userEmail) &&
-      (!this.form.escalation || (this.form.managerEmail && this.emailPattern.test(this.form.managerEmail)))
+      // todo (!this.form.escalation || (this.form.managerEmail && this.emailPattern.test(this.form.managerEmail || '')))
     );
   }
 
