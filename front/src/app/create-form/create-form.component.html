@@ -2,17 +2,17 @@
   <h3>Créer un formulaire</h3>
 
   <div class="form-info">
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field class="full-width-input">
       <mat-label>Titre du formulaire</mat-label>
       <input matInput [(ngModel)]="form.title" required />
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field class="full-width-input">
       <mat-label>Description du formulaire</mat-label>
       <textarea matInput [(ngModel)]="form.description" required cdkTextareaAutosize #autosize="cdkTextareaAutosize" cdkAutosizeMinRows="1" cdkAutosizeMaxRows="5"></textarea>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field aclass="full-width-input">
       <mat-label>Email de l'utilisateur</mat-label>
       <input matInput [(ngModel)]="form.userEmail" type="email" [pattern]="emailPattern" required />
       <mat-error *ngIf="form.userEmail && !emailPattern.test(form.userEmail)">
@@ -20,9 +20,9 @@
       </mat-error>
     </mat-form-field>
 
-    <mat-slide-toggle [(ngModel)]="form.escalation" (change)="toggleEscalation()">Escalade</mat-slide-toggle>
+    <mat-slide-toggle [(ngModel)]="form.escalation" (change)="toggleEscalation()" class="full-width-input">Escalade</mat-slide-toggle>
 
-    <mat-form-field *ngIf="form.escalation" appearance="outline">
+    <mat-form-field *ngIf="form.escalation" class="full-width-input">
       <mat-label>Email du manager</mat-label>
       <input matInput [(ngModel)]="form.managerEmail" type="email" [pattern]="emailPattern" required />
       <mat-error *ngIf="form.managerEmail && !emailPattern.test(form.managerEmail)">
