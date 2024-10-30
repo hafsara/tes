@@ -1,41 +1,45 @@
-<mat-card class="form-container">
+<div class="form-container mat-elevation-z8">
   <h2>Créer un formulaire</h2>
 
   <div class="form-info">
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline">
       <mat-label>Titre du formulaire</mat-label>
-      <input matInput type="text" [(ngModel)]="form.title" required />
+      <input matInput [(ngModel)]="form.title" required>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline">
       <mat-label>Description du formulaire</mat-label>
-      <input matInput type="text" [(ngModel)]="form.description" required />
+      <input matInput [(ngModel)]="form.description" required>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline">
       <mat-label>Email de l'utilisateur</mat-label>
-      <input matInput type="email" [(ngModel)]="form.userEmail" [pattern]="emailPattern" required />
-      <mat-error *ngIf="!emailPattern.test(form.userEmail)">Email non valide</mat-error>
+      <input matInput type="email" [(ngModel)]="form.userEmail" [pattern]="emailPattern" required>
+      <mat-error *ngIf="form.userEmail && !emailPattern.test(form.userEmail)">
+        Email non valide
+      </mat-error>
     </mat-form-field>
 
     <mat-checkbox [(ngModel)]="form.escalation" (change)="toggleEscalation()">Escalade</mat-checkbox>
 
-    <mat-form-field *ngIf="form.escalation" appearance="outline" class="full-width">
+    <mat-form-field *ngIf="form.escalation" appearance="outline">
       <mat-label>Email du manager</mat-label>
-      <input matInput type="email" [(ngModel)]="form.managerEmail" [pattern]="emailPattern" />
-      <mat-error *ngIf="!emailPattern.test(form.managerEmail)">Email non valide</mat-error>
+      <input matInput type="email" [(ngModel)]="form.managerEmail" [pattern]="emailPattern" required>
+      <mat-error *ngIf="form.managerEmail && !emailPattern.test(form.managerEmail)">
+        Email non valide
+      </mat-error>
     </mat-form-field>
   </div>
 
-  <!-- Affiche les questions seulement si les informations de base sont valides -->
+  <!-- Display questions only if the basic information is valid -->
   <div *ngIf="isFormContainerValid()" class="question-section">
     <div *ngFor="let question of form.questions; let i = index" class="question-container">
-      <mat-form-field appearance="outline" class="full-width">
+      <mat-form-field appearance="outline">
         <mat-label>Question sans titre</mat-label>
-        <input matInput type="text" [(ngModel)]="question.text" required />
+        <input matInput [(ngModel)]="question.text" required>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="question-controls">
+      <mat-form-field appearance="outline">
         <mat-label>Type de question</mat-label>
         <mat-select [(ngModel)]="question.type">
           <mat-option value="multipleChoice">Choix multiples</mat-option>
@@ -45,16 +49,18 @@
         </mat-select>
       </mat-form-field>
 
-      <button mat-button *ngIf="question.type !== 'text'" (click)="addOption(i)">Ajouter une option</button>
+      <button *ngIf="question.type !== 'text'" mat-raised-button color="primary" (click)="addOption(i)">
+        Ajouter une option
+      </button>
 
       <div *ngIf="['multipleChoice', 'checkbox', 'dropdown'].includes(question.type)">
         <div *ngFor="let option of question.options; let j = index" class="option-container">
-          <mat-form-field appearance="outline" class="full-width">
+          <mat-form-field appearance="outline">
             <mat-label>Option</mat-label>
-            <input matInput type="text" [(ngModel)]="question.options[j]" />
+            <input matInput [(ngModel)]="question.options[j]" required>
           </mat-form-field>
           <button mat-icon-button color="warn" (click)="removeOption(i, j)">
-            <mat-icon>close</mat-icon>
+            <mat-icon>delete</mat-icon>
           </button>
         </div>
       </div>
@@ -72,6 +78,6 @@
       </div>
     </div>
 
-    <button mat-raised-button color="primary" (click)="submitForm()" class="submit-btn">Enregistrer le formulaire</button>
+    <button mat-raised-button color="primary" (click)="submitForm()">Enregistrer le formulaire</button>
   </div>
-</mat-card>
+</div>

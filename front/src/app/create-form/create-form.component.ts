@@ -27,6 +27,7 @@ export class CreateFormComponent {
     title: '',
     description: '',
     userEmail: '',
+    managerEmail: '', // Initialized as an empty string to avoid undefined issues
     escalation: false,
     questions: [
       {
@@ -63,7 +64,7 @@ export class CreateFormComponent {
       text: questionToDuplicate.text,
       type: questionToDuplicate.type,
       options: [...questionToDuplicate.options],
-      isRequired: questionToDuplicate.isRequired,
+      isRequired: questionToDuplicate.isRequired
     });
   }
 
@@ -80,7 +81,7 @@ export class CreateFormComponent {
 
   toggleEscalation() {
     if (!this.form.escalation) {
-      this.form.managerEmail = undefined;
+      this.form.managerEmail = ''; // Clear manager email if escalation is disabled
     }
   }
 
@@ -89,8 +90,7 @@ export class CreateFormComponent {
       this.form.title.trim() !== '' &&
       this.form.description.trim() !== '' &&
       this.emailPattern.test(this.form.userEmail)
-      // (!this.form.escalation || (this.form.managerEmail && this.emailPattern.test(this.form.managerEmail))) &&
-      //this.form.questions.every(q => q.text.trim() !== '')
+      // (!this.form.escalation || (this.form.managerEmail && this.emailPattern.test(this.form.managerEmail)))
     );
   }
 
@@ -98,7 +98,7 @@ export class CreateFormComponent {
     if (this.isFormContainerValid()) {
       const jsonForm = JSON.stringify(this.form);
       console.log('Formulaire soumis :', jsonForm);
-      // Send to backend here with the generated JSON (example: via HTTP POST)
+      // Send to the backend here with the generated JSON (e.g., via HTTP POST)
     } else {
       alert("Veuillez remplir tous les champs obligatoires avec des formats valides.");
     }
