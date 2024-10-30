@@ -33,7 +33,7 @@
 
   <div *ngIf="isFormContainerValid()" class="question-section">
     <div *ngFor="let question of form.questions; let i = index" class="question-container">
-      <mat-form-field appearance="outline" class="full-width">
+      <mat-form-field appearance="outline" class="full-width-input">
         <mat-label>Question sans titre</mat-label>
         <input matInput [(ngModel)]="question.text" required />
       </mat-form-field>
