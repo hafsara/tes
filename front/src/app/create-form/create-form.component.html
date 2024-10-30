@@ -1,20 +1,20 @@
-<div class="form-container mat-elevation-z8">
+<div class="form-container mat-elevation-z4">
   <h2>Créer un formulaire</h2>
 
   <div class="form-info">
     <mat-form-field appearance="outline">
       <mat-label>Titre du formulaire</mat-label>
-      <input matInput [(ngModel)]="form.title" required>
+      <input matInput [(ngModel)]="form.title" required />
     </mat-form-field>
 
     <mat-form-field appearance="outline">
       <mat-label>Description du formulaire</mat-label>
-      <input matInput [(ngModel)]="form.description" required>
+      <input matInput [(ngModel)]="form.description" required />
     </mat-form-field>
 
     <mat-form-field appearance="outline">
       <mat-label>Email de l'utilisateur</mat-label>
-      <input matInput type="email" [(ngModel)]="form.userEmail" [pattern]="emailPattern" required>
+      <input matInput [(ngModel)]="form.userEmail" type="email" [pattern]="emailPattern" required />
       <mat-error *ngIf="form.userEmail && !emailPattern.test(form.userEmail)">
         Email non valide
       </mat-error>
@@ -24,19 +24,18 @@
 
     <mat-form-field *ngIf="form.escalation" appearance="outline">
       <mat-label>Email du manager</mat-label>
-      <input matInput type="email" [(ngModel)]="form.managerEmail" [pattern]="emailPattern" required>
+      <input matInput [(ngModel)]="form.managerEmail" type="email" [pattern]="emailPattern" required />
       <mat-error *ngIf="form.managerEmail && !emailPattern.test(form.managerEmail)">
         Email non valide
       </mat-error>
     </mat-form-field>
   </div>
 
-  <!-- Display questions only if the basic information is valid -->
   <div *ngIf="isFormContainerValid()" class="question-section">
     <div *ngFor="let question of form.questions; let i = index" class="question-container">
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="outline" class="full-width">
         <mat-label>Question sans titre</mat-label>
-        <input matInput [(ngModel)]="question.text" required>
+        <input matInput [(ngModel)]="question.text" required />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
@@ -49,15 +48,15 @@
         </mat-select>
       </mat-form-field>
 
-      <button *ngIf="question.type !== 'text'" mat-raised-button color="primary" (click)="addOption(i)">
+      <button mat-stroked-button color="primary" *ngIf="question.type !== 'text'" (click)="addOption(i)">
         Ajouter une option
       </button>
 
       <div *ngIf="['multipleChoice', 'checkbox', 'dropdown'].includes(question.type)">
         <div *ngFor="let option of question.options; let j = index" class="option-container">
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" class="option-field">
             <mat-label>Option</mat-label>
-            <input matInput [(ngModel)]="question.options[j]" required>
+            <input matInput [(ngModel)]="question.options[j]" required />
           </mat-form-field>
           <button mat-icon-button color="warn" (click)="removeOption(i, j)">
             <mat-icon>delete</mat-icon>
@@ -78,6 +77,6 @@
       </div>
     </div>
 
-    <button mat-raised-button color="primary" (click)="submitForm()">Enregistrer le formulaire</button>
+    <button mat-raised-button color="primary" (click)="submitForm()" class="submit-btn">Enregistrer le formulaire</button>
   </div>
 </div>
