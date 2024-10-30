@@ -1,3 +1,4 @@
+// create-form.component.ts
 import { Component } from '@angular/core';
 
 interface Question {
@@ -32,7 +33,7 @@ export class CreateFormComponent {
         text: '',
         type: 'multipleChoice',
         options: ['Option 1'],
-        isRequired: false,
+        isRequired: true,
       }
     ]
   };
@@ -45,7 +46,7 @@ export class CreateFormComponent {
         text: '',
         type: 'multipleChoice',
         options: ['Option 1'],
-        isRequired: false,
+        isRequired: true
       });
     }
   }
@@ -88,7 +89,8 @@ export class CreateFormComponent {
       this.form.title.trim() !== '' &&
       this.form.description.trim() !== '' &&
       this.emailPattern.test(this.form.userEmail) &&
-      // todo (!this.form.escalation || (this.form.managerEmail && this.emailPattern.test(this.form.managerEmail || '')))
+      (!this.form.escalation || (this.form.managerEmail && this.emailPattern.test(this.form.managerEmail))) &&
+      this.form.questions.every(q => q.text.trim() !== '')
     );
   }
 
