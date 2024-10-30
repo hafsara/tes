@@ -20,6 +20,7 @@ import { FormHistoryComponent } from './form-history/form-history.component';
 import { FormListComponent } from './form-list/form-list.component';
 import { FormDetailsComponent } from './form-details/form-details.component';
 import { FormContainerService } from './services/form-container.service';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,7 @@ import { FormContainerService } from './services/form-container.service';
     MatIconModule,
     MatCardModule
   ],
-  providers: [FormContainerService],
+  providers: [FormContainerService, provideAnimationsAsync()],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
