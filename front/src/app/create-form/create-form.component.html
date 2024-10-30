@@ -12,7 +12,7 @@
       <textarea matInput [(ngModel)]="form.description" required cdkTextareaAutosize #autosize="cdkTextareaAutosize" cdkAutosizeMinRows="1" cdkAutosizeMaxRows="5"></textarea>
     </mat-form-field>
 
-    <mat-form-field aclass="full-width-input">
+    <mat-form-field class="full-width-input">
       <mat-label>Email de l'utilisateur</mat-label>
       <input matInput [(ngModel)]="form.userEmail" type="email" [pattern]="emailPattern" required />
       <mat-error *ngIf="form.userEmail && !emailPattern.test(form.userEmail)">
