@@ -1,22 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormContainerService } from '../services/form-container.service';
-
-interface FormContainer {
-  id: number;
-  title: string;
-  userEmail: string;
-  managerEmail: string;
-  ticket: string;
-  escalation: boolean;
-  validated: boolean;
-  forms: Form[];
-}
-
-interface Form {
-  id: number;
-  title: string;
-  status: string;
-}
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -24,29 +8,33 @@ interface Form {
   styleUrls: ['./admin-dashboard.component.scss']
 })
 export class AdminDashboardComponent implements OnInit {
-  formContainers: FormContainer[] = [];
+  formContainers = [];
+  selectedForm: any;
 
-  constructor(private formContainerService: FormContainerService) {}
+  constructor(
+    private router: Router,
+    private formContainerService: FormContainerService
+  ) {}
 
   ngOnInit(): void {
     this.loadFormContainers();
   }
 
-  loadFormContainers() {
-    this.formContainerService.getFormContainers().subscribe((containers: FormContainer[]) => {
-      this.formContainers = containers;
+  loadFormContainers(): void {
+    this.formContainerService.getFormContainers().subscribe((data) => {
+      this.formContainers = data;
     });
   }
 
-  validateContainer(containerId: number) {
-    this.formContainerService.validateContainer(containerId).subscribe(() => {
-      this.loadFormContainers();
-    });
+  navigateToCreateForm(): void {
+    this.router.navigate(['/create-form']);
   }
 
-  addFormToContainer(containerId: number) {
-    this.formContainerService.addFormToContainer(containerId).subscribe(() => {
-      this.loadFormContainers();
-    });
+  refreshFormList(): void {
+    this.loadFormContainers();
+  }
+
+  selectForm(form: any): void {
+    this.selectedForm = form;
   }
 }

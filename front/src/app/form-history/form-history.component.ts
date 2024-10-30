@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-form-history',
   templateUrl: './form-history.component.html',
-  styleUrl: './form-history.component.scss'
+  styleUrls: ['./form-history.component.scss']
 })
 export class FormHistoryComponent {
-
+  @Input() formHistory: any[];
 }

@@ -1,29 +1,26 @@
 <div class="admin-dashboard">
-  <h1>Dashboard Administrateur</h1>
+  <div class="header">
+    <button (click)="navigateToCreateForm()">Nouveau formulaire</button>
+  </div>
 
-  <div *ngFor="let container of formContainers" class="form-container-card">
-    <h2>{{ container.title }}</h2>
-    <p><strong>Email Utilisateur:</strong> {{ container.userEmail }}</p>
-    <p><strong>Email Manager:</strong> {{ container.managerEmail }}</p>
-    <p><strong>Ticket:</strong> {{ container.ticket }}</p>
-    <p><strong>Escalade:</strong> {{ container.escalation ? 'Oui' : 'Non' }}</p>
-    <p><strong>Validé:</strong> {{ container.validated ? 'Oui' : 'Non' }}</p>
+  <div class="dashboard-content">
+    <!-- Liste des demandes -->
+    <app-form-list
+      [formContainers]="formContainers"
+      [selectedForm]="selectedForm"
+      (formSelected)="selectForm($event)">
+    </app-form-list>
 
-    <div class="form-list">
-      <h3>Formulaires</h3>
-      <ul>
-        <li *ngFor="let form of container.forms">
-          {{ form.title }} - {{ form.status }}
-        </li>
-      </ul>
-    </div>
+    <!-- Détails du formulaire -->
+    <app-form-details
+      [selectedForm]="selectedForm"
+      (formUpdate)="refreshFormList()">
+    </app-form-details>
 
-    <button (click)="addFormToContainer(container.id)" [disabled]="container.forms.length >= 5">
-      Ajouter un Formulaire
-    </button>
-    <button (click)="validateContainer(container.id)" [disabled]="container.validated">
-      Valider le Conteneur
-    </button>
+    <!-- Historique des interactions -->
+    <app-form-history
+      *ngIf="selectedForm?.history?.length"
+      [formHistory]="selectedForm.history">
+    </app-form-history>
   </div>
 </div>
-<p>admin-dashboard works!</p>
