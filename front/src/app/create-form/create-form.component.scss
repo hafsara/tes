@@ -22,9 +22,9 @@ h3 {
 
 .mat-form-field {
   border-radius: 8px;
-  background-color: #f0f0f0; // couleur d'arrière-plan plus claire
+  background-color: ghostwhite;
   padding: 10px;
-  width: 100%; // Assurez une largeur constante
+  width: 100%;
 }
 
 .question-section {
@@ -54,18 +54,19 @@ h3 {
 
 .sidebar {
   position: absolute;
-  right: -40px; // Aligner un peu plus près du bord
-  top: 10px;
+  right: -70px;
+  top: 50px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+
 }
 
 .submit-btn {
   display: block;
   width: 100%;
   margin-top: 20px;
-  background-color: #1976d2; // Couleur d'accentuation
+  background-color: #1976d2;
   color: #fff;
   border-radius: 8px;
 }
