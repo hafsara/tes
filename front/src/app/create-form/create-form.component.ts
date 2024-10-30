@@ -27,7 +27,9 @@ export class CreateFormComponent {
     description: '',
     userEmail: '',
     escalation: false,
-    questions: []
+    questions: [
+      { text: '', type: 'multipleChoice', options: ['Option 1'], isRequired: false }
+    ]
   };
 
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
