@@ -6,5 +6,5 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./form-history.component.scss']
 })
 export class FormHistoryComponent {
-  @Input() formHistory: any[];
+  @Input() formHistory: any[] = [];
 }

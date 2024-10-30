@@ -16,9 +16,7 @@ export class FormListComponent {
 
   getStatusClass(status: string): string {
     return {
-      'open': 'open',
-      'validate': 'validate',
-      'escalate': 'escalate'
-    }[status];
+    someProperty: someValue ?? ""
+  };
   }
 }
