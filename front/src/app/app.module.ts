@@ -1,7 +1,17 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms'; // <-- Ajoutez ceci
+import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
+// Angular Material Modules
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+
+// App Components and Services
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CreateFormComponent } from './create-form/create-form.component';
@@ -9,8 +19,7 @@ import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.compo
 import { FormHistoryComponent } from './form-history/form-history.component';
 import { FormListComponent } from './form-list/form-list.component';
 import { FormDetailsComponent } from './form-details/form-details.component';
-import { HttpClientModule } from '@angular/common/http';
-import { FormContainerService } from './services/form-container.service'; // Assurez-vous du bon chemin d'import
+import { FormContainerService } from './services/form-container.service';
 
 @NgModule({
   declarations: [
@@ -24,9 +33,16 @@ import { FormContainerService } from './services/form-container.service'; // Ass
   imports: [
     BrowserModule,
     AppRoutingModule,
-    FormsModule // <-- Et ajoutez-le ici aussi
+    FormsModule,
+    HttpClientModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatIconModule,
+    MatCardModule
   ],
   providers: [FormContainerService],
-  bootstrap: [AppComponent],
+  bootstrap: [AppComponent]
 })
 export class AppModule { }

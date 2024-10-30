@@ -1,85 +1,77 @@
-<div class="form-container">
+<mat-card class="form-container">
   <h2>Créer un formulaire</h2>
 
   <div class="form-info">
-    <input
-      type="text"
-      [(ngModel)]="form.title"
-      placeholder="Titre du formulaire"
-      required
-    />
-    <input
-      type="text"
-      [(ngModel)]="form.description"
-      placeholder="Description du formulaire"
-      required
-    />
-    <input
-      type="email"
-      [(ngModel)]="form.userEmail"
-      [pattern]="emailPattern"
-      placeholder="Email de l'utilisateur"
-      required
-    />
-    <label>
-      Escalade
-      <input type="checkbox" [(ngModel)]="form.escalation" (change)="toggleEscalation()" />
-    </label>
-    <input
-      *ngIf="form.escalation"
-      type="email"
-      [(ngModel)]="form.managerEmail"
-      [pattern]="emailPattern"
-      placeholder="Email du manager"
-      required
-    />
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Titre du formulaire</mat-label>
+      <input matInput type="text" [(ngModel)]="form.title" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description du formulaire</mat-label>
+      <input matInput type="text" [(ngModel)]="form.description" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Email de l'utilisateur</mat-label>
+      <input matInput type="email" [(ngModel)]="form.userEmail" [pattern]="emailPattern" required />
+      <mat-error *ngIf="!emailPattern.test(form.userEmail)">Email non valide</mat-error>
+    </mat-form-field>
+
+    <mat-checkbox [(ngModel)]="form.escalation" (change)="toggleEscalation()">Escalade</mat-checkbox>
+
+    <mat-form-field *ngIf="form.escalation" appearance="outline" class="full-width">
+      <mat-label>Email du manager</mat-label>
+      <input matInput type="email" [(ngModel)]="form.managerEmail" [pattern]="emailPattern" />
+      <mat-error *ngIf="!emailPattern.test(form.managerEmail)">Email non valide</mat-error>
+    </mat-form-field>
   </div>
 
   <!-- Affiche les questions seulement si les informations de base sont valides -->
   <div *ngIf="isFormContainerValid()" class="question-section">
     <div *ngFor="let question of form.questions; let i = index" class="question-container">
-      <input
-        type="text"
-        [(ngModel)]="question.text"
-        placeholder="Question sans titre"
-        class="question-input"
-      />
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Question sans titre</mat-label>
+        <input matInput type="text" [(ngModel)]="question.text" required />
+      </mat-form-field>
 
-      <div class="question-controls">
-        <select [(ngModel)]="question.type">
-          <option value="multipleChoice">Choix multiples</option>
-          <option value="checkbox">Cases à cocher</option>
-          <option value="dropdown">Liste déroulante</option>
-          <option value="text">Texte</option>
-        </select>
-        <button *ngIf="question.type !== 'text'" (click)="addOption(i)">Ajouter une option</button>
-      </div>
+      <mat-form-field appearance="outline" class="question-controls">
+        <mat-label>Type de question</mat-label>
+        <mat-select [(ngModel)]="question.type">
+          <mat-option value="multipleChoice">Choix multiples</mat-option>
+          <mat-option value="checkbox">Cases à cocher</mat-option>
+          <mat-option value="dropdown">Liste déroulante</mat-option>
+          <mat-option value="text">Texte</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-button *ngIf="question.type !== 'text'" (click)="addOption(i)">Ajouter une option</button>
 
       <div *ngIf="['multipleChoice', 'checkbox', 'dropdown'].includes(question.type)">
         <div *ngFor="let option of question.options; let j = index" class="option-container">
-          <input
-            type="text"
-            [(ngModel)]="question.options[j]"
-            placeholder="Option"
-            class="option-input"
-          />
-          <button (click)="removeOption(i, j)" class="remove-option-btn">X</button>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Option</mat-label>
+            <input matInput type="text" [(ngModel)]="question.options[j]" />
+          </mat-form-field>
+          <button mat-icon-button color="warn" (click)="removeOption(i, j)">
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
       </div>
 
       <div class="sidebar">
-        <button (click)="addQuestion()" title="Ajouter une question">
-          <i class="material-icons">add</i>
+        <button mat-icon-button color="primary" (click)="addQuestion()" title="Ajouter une question">
+          <mat-icon>add</mat-icon>
         </button>
-        <button (click)="removeQuestion(i)" title="Supprimer la question">
-          <i class="material-icons">delete</i>
+        <button mat-icon-button color="warn" (click)="removeQuestion(i)" title="Supprimer la question">
+          <mat-icon>delete</mat-icon>
         </button>
-        <button (click)="duplicateQuestion(i)" title="Dupliquer la question">
-          <i class="material-icons">content_copy</i>
+        <button mat-icon-button color="accent" (click)="duplicateQuestion(i)" title="Dupliquer la question">
+          <mat-icon>content_copy</mat-icon>
         </button>
       </div>
     </div>
 
-    <button (click)="submitForm()" class="submit-btn">Enregistrer le formulaire</button>
+    <button mat-raised-button color="primary" (click)="submitForm()" class="submit-btn">Enregistrer le formulaire</button>
   </div>
-</div>
+</mat-card>
