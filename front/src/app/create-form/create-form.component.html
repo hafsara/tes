@@ -9,7 +9,7 @@
 
     <mat-form-field appearance="outline">
       <mat-label>Description du formulaire</mat-label>
-      <input matInput [(ngModel)]="form.description" required />
+      <textarea matInput [(ngModel)]="form.description" required cdkTextareaAutosize #autosize="cdkTextareaAutosize" cdkAutosizeMinRows="1" cdkAutosizeMaxRows="5"></textarea>
     </mat-form-field>
 
     <mat-form-field appearance="outline">
@@ -20,7 +20,7 @@
       </mat-error>
     </mat-form-field>
 
-    <mat-checkbox [(ngModel)]="form.escalation" (change)="toggleEscalation()">Escalade</mat-checkbox>
+    <mat-slide-toggle [(ngModel)]="form.escalation" (change)="toggleEscalation()">Escalade</mat-slide-toggle>
 
     <mat-form-field *ngIf="form.escalation" appearance="outline">
       <mat-label>Email du manager</mat-label>
