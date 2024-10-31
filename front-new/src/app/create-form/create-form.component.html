@@ -30,16 +30,26 @@
                             </p-floatLabel>
                         </div>
 
-                        <div class="centered-container">
-                            <p-toggleButton
-                                    [(ngModel)]="form.escalate"
-                                    onLabel="Escalate On"
-                                    offLabel="Escalate Off"/>
+                        <div class="centered-container flex align-items-center">
+                            <div class="full-width-input mr-2">
+                                <p-floatLabel>
+                                    <input pInputText id="reference" [(ngModel)]="form.reference"/>
+                                    <label for="reference">Reference</label>
+                                </p-floatLabel>
+                            </div>
+
+                            <div>
+                                <p-toggleButton
+                                        [(ngModel)]="form.escalate"
+                                        onLabel="Escalate On"
+                                        offLabel="Escalate Off"/>
+                            </div>
                         </div>
+
                         <div *ngIf="form.escalate" class="centered-container">
                             <p-floatLabel>
                                 <input pInputText id="managerMail" [(ngModel)]="form.managerEmail"/>
-                                <label for="managerMail">User Email</label>
+                                <label for="managerMail">Manager Email</label>
                             </p-floatLabel>
                         </div>
                     </div>

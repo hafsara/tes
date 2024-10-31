@@ -10,7 +10,7 @@
 .centered-container {
   width: 100%;
   max-width: 600px;
-  padding: 0.5rem;
+  padding: 1rem;
 }
 
 p-floatLabel {
@@ -29,8 +29,8 @@ textarea[pInputTextarea] {
 }
 
 textarea[pInputTextarea] {
-  height: auto; /* Adapte la hauteur au contenu */
-  min-height: 100px; /* Hauteur minimale, à ajuster selon vos besoins */
+  height: auto;
+  max-height: 75px;
 }
 
 .stepper-form-container {

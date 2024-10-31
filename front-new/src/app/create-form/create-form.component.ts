@@ -12,6 +12,7 @@ interface FormContainer {
   title: string;
   description: string;
   userEmail: string;
+  reference: string;
   managerEmail?: string;
   escalate: boolean;
   questions: Question[];
@@ -42,6 +43,7 @@ export class CreateFormComponent {
     title: '',
     description: '',
     userEmail: '',
+    reference: '',
     managerEmail: '',
     escalate: false,
     questions: [
