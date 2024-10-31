@@ -4,6 +4,7 @@ interface Question {
   text: string;
   type: string;
   options: string[];
+  isRequired: boolean;
 }
 
 interface FormContainer {
@@ -21,19 +22,40 @@ interface FormContainer {
   styleUrls: ['./create-form.component.scss']
 })
 export class CreateFormComponent {
-  currentStep = 0;
+  steps = [
+    { label: 'Configuration' },
+    { label: 'Création du Formulaire' },
+    { label: 'Récapitulatif' }
+  ];
+
+  questionTypes = [
+    { label: 'Choix multiples', value: 'multipleChoice' },
+    { label: 'Cases à cocher', value: 'checkbox' },
+    { label: 'Liste déroulante', value: 'dropdown' },
+    { label: 'Texte', value: 'text' }
+  ];
+
   form: FormContainer = {
     title: '',
     description: '',
     userEmail: '',
     managerEmail: '',
     escalation: false,
-    questions: [{ text: '', type: 'multipleChoice', options: ['Option 1'] }]
+    questions: [
+      {
+        text: '',
+        type: 'multipleChoice',
+        options: ['Option 1'],
+        isRequired: true,
+      }
+    ]
   };
-  emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-  onStepChange(event: any): void {
-    this.currentStep = event as number;
+  emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  currentStep = 0;
+
+  onStepChange(event: number): void {
+    this.currentStep = event;
   }
 
   nextStep() {
@@ -55,8 +77,7 @@ export class CreateFormComponent {
       return (
         this.form.title.trim() !== '' &&
         this.form.description.trim() !== '' &&
-        this.emailPattern.test(this.form.userEmail || '')
-        //(!this.form.escalation || (this.form.managerEmail && this.emailPattern.test(this.form.managerEmail || '')))
+        this.emailPattern.test(this.form.userEmail)
       );
     } else if (this.currentStep === 1) {
       return this.form.questions.every(q => q.text.trim() !== '');
@@ -65,24 +86,45 @@ export class CreateFormComponent {
   }
 
   addQuestion() {
-    this.form.questions.push({ text: '', type: 'multipleChoice', options: ['Option 1'] });
+    this.form.questions.push({
+      text: '',
+      type: 'multipleChoice',
+      options: ['Option 1'],
+      isRequired: true
+    });
   }
 
   addOption(questionIndex: number) {
-    this.form.questions[questionIndex].options.push(`Option ${this.form.questions[questionIndex].options.length + 1}`);
+    const optionNumber = this.form.questions[questionIndex].options.length + 1;
+    this.form.questions[questionIndex].options.push(`Option ${optionNumber}`);
   }
 
   removeOption(questionIndex: number, optionIndex: number) {
-    this.form.questions[questionIndex].options.splice(optionIndex, 1);
+    if (this.form.questions[questionIndex].options.length > 1) {
+      this.form.questions[questionIndex].options.splice(optionIndex, 1);
+    }
   }
 
   toggleEscalation() {
     if (!this.form.escalation) {
-      this.form.managerEmail = ''; // Réinitialise l'email du manager si l'escalade est désactivée
+      this.form.managerEmail = '';
     }
   }
 
   submitForm() {
-    console.log("Formulaire soumis :", this.form);
+    if (this.isFormContainerValid()) {
+      const jsonForm = JSON.stringify(this.form);
+      console.log('Formulaire soumis :', jsonForm);
+    } else {
+      alert("Veuillez remplir tous les champs obligatoires avec des formats valides.");
+    }
+  }
+
+  isFormContainerValid(): boolean {
+    return (
+      this.form.title.trim() !== '' &&
+      this.form.description.trim() !== '' &&
+      this.emailPattern.test(this.form.userEmail)
+    );
   }
 }

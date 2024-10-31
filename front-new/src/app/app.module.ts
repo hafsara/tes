@@ -1,27 +1,21 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
-
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { NZ_I18N } from 'ng-zorro-antd/i18n';
-import { en_US } from 'ng-zorro-antd/i18n';
-import { registerLocaleData } from '@angular/common';
-import en from '@angular/common/locales/en';
 import { FormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
+
+// PrimeNG Modules
+import { StepsModule } from 'primeng/steps';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { DropdownModule } from 'primeng/dropdown';
+import { ToggleButtonModule } from 'primeng/togglebutton';
+import { TooltipModule } from 'primeng/tooltip';
+
 import { CreateFormComponent } from './create-form/create-form.component';
-
-// NG-Zorro Modules
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzFormModule } from 'ng-zorro-antd/form';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzSelectModule } from 'ng-zorro-antd/select';
-import { NzSwitchModule } from 'ng-zorro-antd/switch';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzStepsModule } from 'ng-zorro-antd/steps';
-
-registerLocaleData(en);
 
 @NgModule({
   declarations: [
@@ -32,21 +26,18 @@ registerLocaleData(en);
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    BrowserAnimationsModule, // nécessaire pour les animations NG-Zorro
+    BrowserAnimationsModule,
     HttpClientModule,
-    // NG-Zorro Modules
-    NzButtonModule,
-    NzFormModule,
-    NzInputModule,
-    NzSelectModule,
-    NzSwitchModule,
-    NzIconModule,
-    NzStepsModule,
+    // PrimeNG Modules
+    StepsModule,
+    ButtonModule,
+    InputTextModule,
+    InputTextareaModule,
+    DropdownModule,
+    ToggleButtonModule,
+    TooltipModule
   ],
-  providers: [
-    provideClientHydration(),
-    { provide: NZ_I18N, useValue: en_US },
-  ],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

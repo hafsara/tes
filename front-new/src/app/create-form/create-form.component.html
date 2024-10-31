@@ -1,97 +1,90 @@
-<nz-steps [nzCurrent]="currentStep" (nzCurrentChange)="onStepChange($event)" nzProgressDot>
-  <nz-step nzTitle="Configuration"></nz-step>
-  <nz-step nzTitle="Création du Formulaire"></nz-step>
-  <nz-step nzTitle="Récapitulatif"></nz-step>
-</nz-steps>
+<div class="progress-container">
+  <p-steps [(activeIndex)]="currentStep" [model]="steps" [readonly]="true" styleClass="steps-dot"></p-steps>
+</div>
 
 <div class="step-content">
   <!-- Step 1: Configuration -->
   <div *ngIf="currentStep === 0">
     <h3>Configuration du Form Container</h3>
 
-    <nz-form-item class="full-width-input">
-      <nz-form-label [nzRequired]="true">Titre du formulaire</nz-form-label>
-      <nz-form-control [nzErrorTip]="form.title.trim() === '' ? 'Ce champ est obligatoire' : ''">
-        <input nz-input [(ngModel)]="form.title" required />
-      </nz-form-control>
-    </nz-form-item>
+    <div class="p-field p-grid">
+      <label for="title" class="p-col-fixed" style="width: 150px;">Titre du formulaire</label>
+      <div class="p-col">
+        <input id="title" pInputText [(ngModel)]="form.title" required />
+        <small *ngIf="form.title.trim() === ''" class="p-error">Ce champ est obligatoire</small>
+      </div>
+    </div>
 
-    <nz-form-item class="full-width-input">
-      <nz-form-label [nzRequired]="true">Description</nz-form-label>
-      <nz-form-control [nzErrorTip]="form.description.trim() === '' ? 'Ce champ est obligatoire' : ''">
-        <textarea nz-input [(ngModel)]="form.description" required [nzAutosize]="{ minRows: 1, maxRows: 5 }"></textarea>
-      </nz-form-control>
-    </nz-form-item>
+    <div class="p-field p-grid">
+      <label for="description" class="p-col-fixed" style="width: 150px;">Description</label>
+      <div class="p-col">
+        <textarea id="description" pInputTextarea [(ngModel)]="form.description" autoResize required></textarea>
+        <small *ngIf="form.description.trim() === ''" class="p-error">Ce champ est obligatoire</small>
+      </div>
+    </div>
 
-    <nz-form-item class="full-width-input">
-      <nz-form-label [nzRequired]="true">Email de l'utilisateur</nz-form-label>
-      <nz-form-control [nzErrorTip]="!emailPattern.test(form.userEmail) ? 'Email invalide' : form.userEmail.trim() === '' ? 'Ce champ est obligatoire' : ''">
-        <input nz-input [(ngModel)]="form.userEmail" type="email" required />
-      </nz-form-control>
-    </nz-form-item>
+    <div class="p-field p-grid">
+      <label for="userEmail" class="p-col-fixed" style="width: 150px;">Email de l'utilisateur</label>
+      <div class="p-col">
+        <input id="userEmail" pInputText [(ngModel)]="form.userEmail" type="email" required />
+        <small *ngIf="!emailPattern.test(form.userEmail)" class="p-error">Email invalide</small>
+      </div>
+    </div>
 
-    <nz-switch [(ngModel)]="form.escalation" (ngModelChange)="toggleEscalation()" class="full-width-input">
-      Escalade
-    </nz-switch>
+    <div class="p-field-checkbox">
+      <p-toggleButton [(ngModel)]="form.escalation" onLabel="Escalade" offLabel="Pas d'escalade"></p-toggleButton>
+    </div>
 
-    <nz-form-item *ngIf="form.escalation" class="full-width-input">
-      <nz-form-label [nzRequired]="true">Email du manager</nz-form-label>
-      <nz-form-control [nzErrorTip]="form.managerEmail?.trim() === '' ? 'Ce champ est obligatoire' : (!form.managerEmail || !emailPattern.test(form.managerEmail) ? 'Email invalide' : '')">
-        <input nz-input [(ngModel)]="form.managerEmail" type="email" required />
-      </nz-form-control>
-    </nz-form-item>
+    <div class="p-field p-grid" *ngIf="form.escalation">
+      <label for="managerEmail" class="p-col-fixed" style="width: 150px;">Email du manager</label>
+      <div class="p-col">
+        <input id="managerEmail" pInputText [(ngModel)]="form.managerEmail" type="email" required />
+        <small *ngIf="!form.managerEmail || !emailPattern.test(form.managerEmail)" class="p-error">Email invalide</small>
+      </div>
+    </div>
   </div>
 
   <!-- Step 2: Création dynamique du formulaire -->
   <div *ngIf="currentStep === 1">
     <h3>Création du formulaire dynamique</h3>
     <div *ngFor="let question of form.questions; let i = index" class="question-container">
-      <nz-form-item class="full-width-input">
-        <nz-form-label>Question sans titre</nz-form-label>
-        <nz-form-control [nzErrorTip]="question.text.trim() === '' ? 'Ce champ est obligatoire' : ''">
-          <input nz-input [(ngModel)]="question.text" required />
-        </nz-form-control>
-      </nz-form-item>
+      <div class="p-field p-grid">
+        <label class="p-col-fixed" style="width: 150px;">Question sans titre</label>
+        <div class="p-col">
+          <input pInputText [(ngModel)]="question.text" required />
+          <small *ngIf="question.text.trim() === ''" class="p-error">Ce champ est obligatoire</small>
+        </div>
+      </div>
 
-      <nz-form-item>
-        <nz-form-label>Type de question</nz-form-label>
-        <nz-form-control>
-          <nz-select [(ngModel)]="question.type">
-            <nz-option nzValue="multipleChoice" nzLabel="Choix multiples"></nz-option>
-            <nz-option nzValue="checkbox" nzLabel="Cases à cocher"></nz-option>
-            <nz-option nzValue="dropdown" nzLabel="Liste déroulante"></nz-option>
-            <nz-option nzValue="text" nzLabel="Texte"></nz-option>
-          </nz-select>
-        </nz-form-control>
-      </nz-form-item>
+      <div class="p-field p-grid">
+        <label class="p-col-fixed" style="width: 150px;">Type de question</label>
+        <div class="p-col">
+          <p-dropdown [(ngModel)]="question.type" [options]="questionTypes" placeholder="Sélectionner"></p-dropdown>
+        </div>
+      </div>
 
-      <button nz-button nzType="dashed" nzShape="circle" *ngIf="question.type !== 'text'" (click)="addOption(i)">
-        <i nz-icon nzType="plus"></i>
-      </button>
+      <button pButton type="button" icon="pi pi-plus" label="Ajouter une option" *ngIf="question.type !== 'text'" (click)="addOption(i)"></button>
 
       <div *ngIf="['multipleChoice', 'checkbox', 'dropdown'].includes(question.type)">
         <h5>Options</h5>
         <div *ngFor="let option of question.options; let j = index" class="option-container">
-          <nz-form-item class="option-field">
-            <nz-form-control>
-              <input nz-input [(ngModel)]="question.options[j]" required placeholder="Option" />
-            </nz-form-control>
-          </nz-form-item>
+          <input pInputText [(ngModel)]="question.options[j]" required placeholder="Option" />
+          <button pButton type="button" icon="pi pi-trash" class="p-button-danger" (click)="removeOption(i, j)"></button>
         </div>
       </div>
     </div>
-    <button nz-button nzType="default" (click)="addQuestion()">Ajouter une question</button>
+    <button pButton type="button" label="Ajouter une question" (click)="addQuestion()"></button>
   </div>
 
   <!-- Step 3: Récapitulatif -->
   <div *ngIf="currentStep === 2">
     <h3>Récapitulatif</h3>
-    <!-- Le contenu du récapitulatif reste inchangé -->
+    <!-- Contenu du récapitulatif -->
   </div>
 </div>
 
 <div class="step-actions">
-  <button nz-button nzType="default" (click)="previousStep()" [disabled]="currentStep === 0">Précédent</button>
-  <button nz-button nzType="primary" (click)="nextStep()" *ngIf="currentStep < 2">Suivant</button>
-  <button nz-button nzType="primary" (click)="submitForm()" *ngIf="currentStep === 2">Enregistrer</button>
+  <button pButton type="button" label="Précédent" icon="pi pi-arrow-left" (click)="previousStep()" [disabled]="currentStep === 0"></button>
+  <button pButton type="button" label="Suivant" icon="pi pi-arrow-right" (click)="nextStep()" *ngIf="currentStep < 2"></button>
+  <button pButton type="button" label="Enregistrer" icon="pi pi-save" (click)="submitForm()" *ngIf="currentStep === 2"></button>
 </div>
