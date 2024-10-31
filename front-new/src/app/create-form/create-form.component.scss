@@ -1,3 +1,44 @@
-.p-stepper {
-  flex-basis: 50rem;
+.form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+ padding: 1rem;
 }
+
+.centered-container {
+  width: 100%;
+  max-width: 600px;
+  padding: 0.5rem;
+}
+
+p-floatLabel {
+  width: 100%;
+}
+
+input[pInputText],
+textarea[pInputTextarea] {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  resize: none;
+}
+
+textarea[pInputTextarea] {
+  height: auto; /* Adapte la hauteur au contenu */
+  min-height: 100px; /* Hauteur minimale, à ajuster selon vos besoins */
+}
+
+.stepper-form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 800px; /* Ajustez la largeur maximale selon vos besoins */
+    margin: 0 auto;
+}
+
