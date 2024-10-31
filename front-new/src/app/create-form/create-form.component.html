@@ -56,66 +56,80 @@
         <p-stepperPanel header="Add Fields">
             <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback"
                          let-index="index">
-                <div class="flex flex-column h-12rem">
-                    <div class="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
-                        <div *ngFor="let question of form.questions; let i = index" class="question-container">
-                            <div class="full-width-input">
-                                <p-floatLabel>
-                                    <input pInputText [(ngModel)]="question.text" required/>
-                                    <label>Question sans titre</label>
-                                </p-floatLabel>
-                            </div>
+                <div class="flex flex-column">
+                    <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
 
-                            <div class="full-width-input">
-                                <p-dropdown [(ngModel)]="question.type" placeholder="Type de question"
-                                            [options]="questionTypes">
-                                </p-dropdown>
-                            </div>
+                        <!-- Boucle principale pour chaque question -->
+                        <div *ngFor="let question of form.questions; let i = index"
+                             class="question-wrapper flex align-items-start mb-4">
 
-                            <button pButton type="button" icon="pi pi-plus" class="p-button-rounded p-button-primary"
-                                    *ngIf="question.type !== 'text'" (click)="addOption(i)">
-                            </button>
+                            <!-- Conteneur de la question -->
+                            <div class="question-content flex-grow-1">
 
-                            <div *ngIf="['multipleChoice', 'checkbox', 'dropdown'].includes(question.type)">
-                                <div *ngFor="let option of question.options; let j = index" class="option-container">
-                                    <div class="option-field">
-                                        <p-floatLabel>
-                                            <input pInputText [(ngModel)]="question.options[j]" required/>
-                                            <label>Option</label>
-                                        </p-floatLabel>
-                                    </div>
-                                    <button pButton type="button" icon="pi pi-trash"
-                                            class="p-button-rounded p-button-danger" (click)="removeOption(i, j)">
+                                <!-- Titre de la question -->
+                                <div class="full-width-input mb-2">
+                                    <p-floatLabel>
+                                        <input pInputText [(ngModel)]="question.text" required/>
+                                        <label>Question sans titre</label>
+                                    </p-floatLabel>
+                                </div>
+
+                                <!-- Type de question -->
+                                <div class="full-width-input mb-2">
+                                    <p-dropdown [(ngModel)]="question.type" placeholder="Type de question"
+                                                [options]="questionTypes">
+                                    </p-dropdown>
+                                </div>
+
+                                <!-- Bouton pour ajouter une option (visible si le type de question n'est pas 'text') -->
+                                <div *ngIf="question.type !== 'text'" class="mb-2">
+                                    <button pButton type="button" icon="pi pi-plus"
+                                            class="p-button-rounded p-button-primary"
+                                            (click)="addOption(i)">
                                     </button>
+                                </div>
+
+                                <!-- Options pour les types de questions spécifiques -->
+                                <div *ngIf="['multipleChoice', 'checkbox', 'dropdown'].includes(question.type)">
+                                    <div *ngFor="let option of question.options; let j = index"
+                                         class="option-container flex align-items-center mb-2">
+                                        <div class="option-field flex-auto">
+                                            <p-floatLabel>
+                                                <input pInputText [(ngModel)]="question.options[j]" required/>
+                                                <label>Option</label>
+                                            </p-floatLabel>
+                                        </div>
+                                        <button pButton type="button" icon="pi pi-trash"
+                                                class="p-button-rounded p-button-danger ml-2"
+                                                (click)="removeOption(i, j)">
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="sidebar">
+                            <!-- Barre latérale (sidebar) avec les boutons d'action -->
+                            <div class="sidebar ml-3">
                                 <button pButton type="button" icon="pi pi-plus"
-                                        class="p-button-rounded p-button-primary" (click)="addQuestion()"
-                                        title="Ajouter une question">
+                                        class="p-button-rounded p-button-primary mb-2"
+                                        (click)="addQuestion()" title="Ajouter une question">
                                 </button>
                                 <button pButton type="button" icon="pi pi-trash"
-                                        class="p-button-rounded p-button-danger" (click)="removeQuestion(i)"
-                                        title="Supprimer la question">
+                                        class="p-button-rounded p-button-danger mb-2"
+                                        (click)="removeQuestion(i)" title="Supprimer la question">
                                 </button>
                                 <button pButton type="button" icon="pi pi-copy"
-                                        class="p-button-rounded p-button-secondary" (click)="duplicateQuestion(i)"
-                                        title="Dupliquer la question">
+                                        class="p-button-rounded p-button-secondary"
+                                        (click)="duplicateQuestion(i)" title="Dupliquer la question">
                                 </button>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Boutons de navigation -->
                     <div class="flex pt-4 justify-content-between">
-                        <p-button
-                                label="Back"
-                                icon="pi pi-arrow-left"
-                                (onClick)="prevCallback.emit()"/>
-                        <p-button
-                                label="Next"
-                                icon="pi pi-arrow-right"
-                                iconPos="right"
-                                (onClick)="nextCallback.emit()"/>
+                        <p-button label="Back" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()"></p-button>
+                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
+                                  (onClick)="nextCallback.emit()"></p-button>
                     </div>
                 </div>
             </ng-template>

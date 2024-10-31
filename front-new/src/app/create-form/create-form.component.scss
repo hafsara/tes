@@ -42,12 +42,23 @@ textarea[pInputTextarea] {
     margin: 0 auto;
 }
 
+.question-wrapper {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.question-content {
+    flex-grow: 1;
+}
+
 .sidebar {
-    position: absolute;
-    right: 270px;
-    top: 147px;
     display: flex;
     flex-direction: column;
-    }
+    align-items: center;
+}
+.full-width-input {
+    width: 100%;
+}
 
 
