@@ -22,109 +22,55 @@ interface FormContainer {
   styleUrls: ['./create-form.component.scss']
 })
 export class CreateFormComponent {
-  steps = [
-    { label: 'Configuration' },
-    { label: 'Création du Formulaire' },
-    { label: 'Récapitulatif' }
-  ];
-
-  questionTypes = [
-    { label: 'Choix multiples', value: 'multipleChoice' },
-    { label: 'Cases à cocher', value: 'checkbox' },
-    { label: 'Liste déroulante', value: 'dropdown' },
-    { label: 'Texte', value: 'text' }
-  ];
-
   form: FormContainer = {
     title: '',
     description: '',
     userEmail: '',
     managerEmail: '',
     escalation: false,
-    questions: [
-      {
-        text: '',
-        type: 'multipleChoice',
-        options: ['Option 1'],
-        isRequired: true,
-      }
-    ]
+    questions: [{ text: '', type: 'multipleChoice', options: ['Option 1'], isRequired: true }]
   };
 
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  currentStep = 0;
 
-  onStepChange(event: number): void {
-    this.currentStep = event;
-  }
+  // Propriétés pour afficher les erreurs
+  showTitleError = false;
+  showDescriptionError = false;
+  showUserEmailError = false;
+  showManagerEmailError = false;
 
-  nextStep() {
-    if (this.isCurrentStepValid()) {
-      this.currentStep++;
+  // Méthode de validation pour l'étape 1
+  validateStep1(): boolean {
+    this.showTitleError = this.form.title.trim() === '';
+    this.showDescriptionError = this.form.description.trim() === '';
+    this.showUserEmailError = !this.emailPattern.test(this.form.userEmail);
+
+    if (this.form.escalation) {
+      this.showManagerEmailError = !this.emailPattern.test(this.form.managerEmail || '');
     } else {
-      alert("Veuillez remplir tous les champs obligatoires pour continuer.");
+      this.showManagerEmailError = false;
     }
+
+    // Retourne true si tous les champs sont valides
+    return !this.showTitleError && !this.showDescriptionError && !this.showUserEmailError && !this.showManagerEmailError;
   }
 
-  previousStep() {
-    if (this.currentStep > 0) {
-      this.currentStep--;
-    }
-  }
-
-  isCurrentStepValid(): boolean {
-    if (this.currentStep === 0) {
-      return (
-        this.form.title.trim() !== '' &&
-        this.form.description.trim() !== '' &&
-        this.emailPattern.test(this.form.userEmail)
-      );
-    } else if (this.currentStep === 1) {
-      return this.form.questions.every(q => q.text.trim() !== '');
-    }
-    return true;
-  }
-
-  addQuestion() {
-    this.form.questions.push({
-      text: '',
-      type: 'multipleChoice',
-      options: ['Option 1'],
-      isRequired: true
-    });
-  }
-
-  addOption(questionIndex: number) {
-    const optionNumber = this.form.questions[questionIndex].options.length + 1;
-    this.form.questions[questionIndex].options.push(`Option ${optionNumber}`);
-  }
-
-  removeOption(questionIndex: number, optionIndex: number) {
-    if (this.form.questions[questionIndex].options.length > 1) {
-      this.form.questions[questionIndex].options.splice(optionIndex, 1);
-    }
-  }
-
-  toggleEscalation() {
-    if (!this.form.escalation) {
-      this.form.managerEmail = '';
-    }
-  }
-
-  submitForm() {
-    if (this.isFormContainerValid()) {
-      const jsonForm = JSON.stringify(this.form);
-      console.log('Formulaire soumis :', jsonForm);
+  // Fonction pour passer à l'étape suivante
+nextStep(nextCallback: any) {
+  if (this.validateStep1()) {
+    console.log("Tous les champs sont valides, passage à l'étape suivante.");
+    if (nextCallback) {
+      nextCallback(); // Assurez-vous que nextCallback existe avant de l'exécuter
     } else {
-      alert("Veuillez remplir tous les champs obligatoires avec des formats valides.");
+      console.error("nextCallback est indéfini.");
     }
+  } else {
+    console.log("Certains champs sont invalides, restez sur l'étape actuelle.");
   }
+}
 
-  isFormContainerValid(): boolean {
-    return (
-      this.form.title.trim() !== '' &&
-      this.form.description.trim() !== '' &&
-      this.emailPattern.test(this.form.userEmail)
-    );
+  // Fonction pour revenir à l'étape précédente
+  previousStep(prevCallback: Function) {
+    prevCallback();
   }
 }
