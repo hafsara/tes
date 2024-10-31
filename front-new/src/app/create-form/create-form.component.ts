@@ -29,11 +29,10 @@ export class CreateFormComponent {
         { label: 'Choix multiples', value: 'multipleChoice' },
         { label: 'Cases à cocher', value: 'checkbox' },
         { label: 'Liste déroulante', value: 'dropdown' },
-        { label: 'Text', value: 'text' }
+        { label: 'Texte', value: 'text' }
   ];
 
   steps = [
-      undefined,
     { label: 'Configuration du Form Container' },
     { label: 'Création du Formulaire' },
     { label: 'Récapitulatif' }
@@ -48,7 +47,7 @@ export class CreateFormComponent {
     questions: [
       {
         text: '',
-        type: 'Text',
+        type: 'multipleChoice',
         options: ['Option 1'],
         isRequired: true
       }

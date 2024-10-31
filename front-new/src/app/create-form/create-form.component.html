@@ -74,11 +74,20 @@
                                     </p-floatLabel>
                                 </div>
 
-                                <div class="dropdown-container mb-2">
-                                    <p-dropdown [(ngModel)]="question.type" placeholder="Select question type"
-                                                [options]="questionTypes">
-                                    </p-dropdown>
+                                <div class="dropdown-button-row mb-2">
+                                    <div class="dropdown-container">
+                                        <p-dropdown [(ngModel)]="question.type" placeholder="Select question type"
+                                                    [options]="questionTypes">
+                                        </p-dropdown>
+                                    </div>
+
+                                    <div *ngIf="question.type !== 'text'" class="button-container">
+                                        <button pButton type="button" icon="pi pi-plus"
+                                                class="p-button-rounded p-button-primary" (click)="addOption(i)">
+                                        </button>
+                                    </div>
                                 </div>
+
                                 <!-- Options pour les types de questions spécifiques -->
                                 <div *ngIf="['multipleChoice', 'checkbox', 'dropdown'].includes(question.type)">
                                     <div *ngFor="let option of question.options; let j = index"
@@ -89,9 +98,7 @@
                                             </p-floatLabel>
                                         </div>
                                         <div class="option-buttons ml-2">
-                                            <p-button icon="pi pi-plus" [rounded]="true" [text]="true"
-                                                      (click)="addOption(i)" title="Add option"
-                                                      class="p-button-rounded mb-2"/>
+
                                             <p-button icon="pi pi-trash" [rounded]="true" [text]="true"
                                                       (click)="removeOption(i, j)" title="Delete option"
                                                       class="p-button-rounded mb-2"/>

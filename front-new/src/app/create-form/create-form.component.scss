@@ -83,3 +83,18 @@ textarea[pInputTextarea] {
     width: 100%;
 }
 
+.dropdown-button-row {
+    display: flex;
+    align-items: center; /* Centre verticalement les éléments */
+    gap: 10px; /* Espace entre les éléments */
+}
+
+.dropdown-container {
+    flex: 1; /* Prend toute la largeur disponible */
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
