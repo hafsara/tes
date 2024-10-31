@@ -19,6 +19,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzStepsModule } from 'ng-zorro-antd/steps';
 
 registerLocaleData(en);
 
@@ -31,7 +32,7 @@ registerLocaleData(en);
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    BrowserAnimationsModule, // necessary for NG-Zorro animations
+    BrowserAnimationsModule, // nécessaire pour les animations NG-Zorro
     HttpClientModule,
     // NG-Zorro Modules
     NzButtonModule,
@@ -40,6 +41,7 @@ registerLocaleData(en);
     NzSelectModule,
     NzSwitchModule,
     NzIconModule,
+    NzStepsModule,
   ],
   providers: [
     provideClientHydration(),

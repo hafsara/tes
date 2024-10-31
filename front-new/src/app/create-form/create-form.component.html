@@ -1,7 +1,14 @@
-<div class="form-container nz-elevation-4">
-  <h3>Créer un formulaire</h3>
+<nz-steps [nzCurrent]="currentStep" (nzCurrentChange)="onStepChange($event)">
+  <nz-step nzTitle="Configuration"></nz-step>
+  <nz-step nzTitle="Création du Formulaire"></nz-step>
+  <nz-step nzTitle="Récapitulatif"></nz-step>
+</nz-steps>
 
-  <div class="form-info">
+
+<div class="step-content">
+  <!-- Step 1: Configuration -->
+  <div *ngIf="currentStep === 0">
+    <h3>Configuration du Form Container</h3>
     <nz-form-item class="full-width-input">
       <nz-form-label [nzRequired]="true">Titre du formulaire</nz-form-label>
       <nz-form-control>
@@ -10,7 +17,7 @@
     </nz-form-item>
 
     <nz-form-item class="full-width-input">
-      <nz-form-label [nzRequired]="true">Description du formulaire</nz-form-label>
+      <nz-form-label [nzRequired]="true">Description</nz-form-label>
       <nz-form-control>
         <textarea nz-input [(ngModel)]="form.description" required [nzAutosize]="{ minRows: 1, maxRows: 5 }"></textarea>
       </nz-form-control>
@@ -35,7 +42,9 @@
     </nz-form-item>
   </div>
 
-  <div *ngIf="isFormContainerValid()" class="question-section">
+  <!-- Step 2: Création dynamique du formulaire -->
+  <div *ngIf="currentStep === 1">
+    <h3>Création du formulaire dynamique</h3>
     <div *ngFor="let question of form.questions; let i = index" class="question-container">
       <nz-form-item class="full-width-input">
         <nz-form-label>Question sans titre</nz-form-label>
@@ -72,22 +81,29 @@
           </button>
         </div>
       </div>
-
-      <div class="sidebar">
-        <button nz-button nzShape="circle" nzType="default" (click)="addQuestion()" title="Ajouter une question">
-          <i nz-icon nzType="plus"></i>
-        </button>
-        <button nz-button nzShape="circle" nzType="default" nzDanger (click)="removeQuestion(i)" title="Supprimer la question">
-          <i nz-icon nzType="delete"></i>
-        </button>
-        <button nz-button nzShape="circle" nzType="default" nzGhost (click)="duplicateQuestion(i)" title="Dupliquer la question">
-          <i nz-icon nzType="copy"></i>
-        </button>
-      </div>
     </div>
-
-    <button nz-button nzType="primary" nzBlock (click)="submitForm()" class="submit-btn">
-      Enregistrer le formulaire
-    </button>
+    <button nz-button nzType="default" (click)="addQuestion()">Ajouter une question</button>
   </div>
+
+  <!-- Step 3: Récapitulatif -->
+  <div *ngIf="currentStep === 2">
+    <h3>Récapitulatif</h3>
+    <p><strong>Titre:</strong> {{ form.title }}</p>
+    <p><strong>Description:</strong> {{ form.description }}</p>
+    <p><strong>Email de l'utilisateur:</strong> {{ form.userEmail }}</p>
+    <p *ngIf="form.escalation"><strong>Email du manager:</strong> {{ form.managerEmail }}</p>
+
+    <h4>Questions</h4>
+    <ul>
+      <li *ngFor="let question of form.questions">
+        {{ question.text }} - {{ question.type }}
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="step-actions">
+  <button nz-button nzType="default" (click)="previousStep()" [disabled]="currentStep === 0">Précédent</button>
+  <button nz-button nzType="primary" (click)="nextStep()" *ngIf="currentStep < 2">Suivant</button>
+  <button nz-button nzType="primary" (click)="submitForm()" *ngIf="currentStep === 2">Enregistrer</button>
 </div>
