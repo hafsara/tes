@@ -1,88 +1,67 @@
 <div class="card flex justify-content-center">
-  <p-stepper [linear]="true">
-    <!-- Étape 1 : Configuration du Form Container -->
-    <p-stepperPanel header="Configuration du Form Container">
-      <ng-template pTemplate="content" let-nextCallback="nextCallback">
-        <div class="flex flex-column h-12rem">
-          <div class="border-2 border-dashed surface-border border-round surface-ground full-width-input font-medium">
-            <div class="p-field p-grid section-spacing">
-              <p-floatLabel>
-                <input pInputText id="title" [(ngModel)]="form.title" required/>
-                <label for="title">Form title</label>
-                <small *ngIf="showTitleError" class="p-error">Ce champ est obligatoire</small>
-              </p-floatLabel>
-            </div>
+  <!-- Stepper Header -->
+  <p-steps [model]="steps" [(activeIndex)]="currentStep" [readonly]="true"></p-steps>
 
-            <div class="p-field p-grid section-spacing">
-              <p-floatLabel>
-                <textarea rows="5" cols="30" id="description" pInputTextarea [(ngModel)]="form.description" [autoResize]="true" required></textarea>
-                <label for="description">Description</label>
-                <small *ngIf="showDescriptionError" class="p-error">Ce champ est obligatoire</small>
-              </p-floatLabel>
-            </div>
+  <!-- Step Content -->
+  <div *ngIf="currentStep === 0">
+    <!-- Step 1: Configuration -->
+    <div class="p-field p-grid section-spacing">
+      <p-floatLabel>
+        <input pInputText id="title" [(ngModel)]="form.title" required />
+        <label for="title">Form title</label>
+        <small *ngIf="showErrors && form.title.trim() === ''" class="p-error">Ce champ est obligatoire</small>
+      </p-floatLabel>
+    </div>
 
-            <div class="p-field p-grid section-spacing">
-              <p-floatLabel>
-                <input pInputText id="userEmail" [(ngModel)]="form.userEmail" required/>
-                <label for="userEmail">User Email</label>
-                <small *ngIf="showUserEmailError" class="p-error">Email invalide</small>
-              </p-floatLabel>
-            </div>
+    <div class="p-field p-grid section-spacing">
+      <p-floatLabel>
+        <textarea rows="5" cols="30" id="description" pInputTextarea [(ngModel)]="form.description" [autoResize]="true" required>
+        </textarea>
+        <label for="description">Description</label>
+        <small *ngIf="showErrors && form.description.trim() === ''" class="p-error">Ce champ est obligatoire</small>
+      </p-floatLabel>
+    </div>
 
-            <div class="p-field p-grid section-spacing">
-              <label>Escalade</label>
-              <p-toggleButton [(ngModel)]="form.escalation" onLabel="On" offLabel="Off"/>
-            </div>
+    <div class="p-field p-grid section-spacing">
+      <p-floatLabel>
+        <input pInputText id="userEmail" [(ngModel)]="form.userEmail" required />
+        <label for="userEmail">User Email</label>
+        <small *ngIf="showErrors && !emailPattern.test(form.userEmail)" class="p-error">Email invalide</small>
+      </p-floatLabel>
+    </div>
 
-            <div class="card p-fluid" *ngIf="form.escalation">
-              <p-floatLabel>
-                <p-chips id="managerEmail" [(ngModel)]="form.managerEmail" required [max]="3"></p-chips>
-                <label for="managerEmail">Manager Email</label>
-              </p-floatLabel>
-              <small *ngIf="showManagerEmailError" class="p-error">Email invalide</small>
-            </div>
-          </div>
-        </div>
+    <div class="p-field p-grid section-spacing">
+      <label>Escalade</label>
+      <p-toggleButton [(ngModel)]="form.escalation" onLabel="On" offLabel="Off" />
+    </div>
 
-        <div class="flex pt-4 justify-content-end">
-  <!-- Votre contenu ici -->
-  <p-button
-    label="Next"
-    icon="pi pi-arrow-right"
-    iconPos="right"
-    (onClick)="nextStep(nextCallback)"
-  ></p-button>
-        </div>
-      </ng-template>
-    </p-stepperPanel>
+    <div class="card p-fluid" *ngIf="form.escalation">
+      <p-floatLabel>
+        <p-chips id="managerEmail" [(ngModel)]="form.managerEmail" required [max]="3" />
+        <label for="managerEmail">Manager Email</label>
+      </p-floatLabel>
+      <small *ngIf="showErrors && (!form.managerEmail || !emailPattern.test(form.managerEmail))" class="p-error">Email invalide</small>
+    </div>
 
-    <!-- Étape 2 -->
-    <p-stepperPanel header="Header II">
-      <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback">
-        <div class="flex flex-column h-12rem">
-          <div class="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
-            Content II
-          </div>
-        </div>
-        <div class="flex pt-4 justify-content-between">
-          <p-button label="Back" icon="pi pi-arrow-left" (onClick)="previousStep(prevCallback.emit)" />
-          <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextStep(nextCallback)" />
-        </div>
-      </ng-template>
-    </p-stepperPanel>
+    <div class="flex pt-4 justify-content-end">
+      <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextStep()"></p-button>
+    </div>
+  </div>
 
-    <!-- Étape 3 -->
-    <p-stepperPanel header="Header III">
-      <ng-template pTemplate="content" let-prevCallback="prevCallback">
-        <div class="flex flex-column h-12rem">
-          <div class="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
-            Content III
-          </div>
-        </div>
-        <div class="flex pt-4 justify-content-start">
-          <p-button label="Back" icon="pi pi-arrow-left" (onClick)="previousStep(prevCallback.emit)" />
-        </div>
-      </ng-template>
-    </p-stepperPanel>
-  </p-stepper>
+  <div *ngIf="currentStep === 1">
+    <!-- Step 2: Création du Formulaire -->
+    <p>Contenu de l'étape 2 (Création du Formulaire)</p>
+    <div class="flex pt-4 justify-content-between">
+      <p-button label="Back" icon="pi pi-arrow-left" (onClick)="previousStep()"></p-button>
+      <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextStep()"></p-button>
+    </div>
+  </div>
+
+  <div *ngIf="currentStep === 2">
+    <!-- Step 3: Récapitulatif -->
+    <p>Contenu de l'étape 3 (Récapitulatif)</p>
+    <div class="flex pt-4 justify-content-start">
+      <p-button label="Back" icon="pi pi-arrow-left" (onClick)="previousStep()"></p-button>
+    </div>
+  </div>
 </div>

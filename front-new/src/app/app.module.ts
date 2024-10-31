@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
@@ -47,7 +47,7 @@ import { CreateFormComponent } from './create-form/create-form.component';
     IconFieldModule,
     InputIconModule
   ],
-  providers: [],
-  bootstrap: [AppComponent]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA], // Add this if using custom elements
+  bootstrap: [CreateFormComponent]
 })
-export class AppModule { }
+export class AppModule {}
