@@ -42,3 +42,12 @@ textarea[pInputTextarea] {
     margin: 0 auto;
 }
 
+.sidebar {
+    position: absolute;
+    right: 270px;
+    top: 147px;
+    display: flex;
+    flex-direction: column;
+    }
+
+
