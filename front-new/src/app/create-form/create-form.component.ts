@@ -19,7 +19,7 @@ export class CreateFormComponent {
     title: '',
     description: '',
     userEmail: '',
-    escalation: false,
+    escalate: false,
     managerEmail: ''
   };
 
@@ -32,7 +32,7 @@ validateCurrentStep(): boolean {
       this.form.description.trim() !== '' &&
       this.emailPattern.test(this.form.userEmail || '')
       //&&
-      //(!this.form.escalation ||
+      //(!this.form.escalate ||
        // (this.form.managerEmail && this.emailPattern.test(this.form.managerEmail || '')))
     );
   }

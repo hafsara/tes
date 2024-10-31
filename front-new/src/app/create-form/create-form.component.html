@@ -15,7 +15,7 @@
                             <p-floatLabel>
                                 <textarea
                                         rows="5"
-                                        cols="30"
+                                        cols="10"
                                         pInputTextarea
                                         [autoResize]="true" id="desc" [(ngModel)]="form.description">
                                 </textarea>
@@ -32,11 +32,11 @@
 
                         <div class="centered-container">
                             <p-toggleButton
-                                    [(ngModel)]="form.escalation"
-                                    onLabel="Escalade On"
-                                    offLabel="Escalade Off"/>
+                                    [(ngModel)]="form.escalate"
+                                    onLabel="Escalate On"
+                                    offLabel="Escalate Off"/>
                         </div>
-                        <div *ngIf="form.escalation" class="centered-container">
+                        <div *ngIf="form.escalate" class="centered-container">
                             <p-floatLabel>
                                 <input pInputText id="managerMail" [(ngModel)]="form.managerEmail"/>
                                 <label for="managerMail">User Email</label>
