@@ -54,15 +54,16 @@
                         </div>
 
                         <div class="centered-container flex align-items-center">
-                                <label for="reminder" class="full-width-input mr-2">Configure reminder delay day</label>
-                                <p-inputNumber
-                                        [(ngModel)]="form.reminderDelayDay"
-                                        [step]="1"
-                                        [showButtons]="true"
-                                        inputId="reminder"
-                                        [min]="0"
-                                        [max]="10"
-                                />
+                            <label for="reminder" class="full-width-input mr-2">Configure reminder delay day</label>
+                            <p-inputNumber
+                                    [(ngModel)]="form.reminderDelayDay"
+                                    [step]="1"
+                                    [showButtons]="true"
+                                    inputId="reminder"
+                                    [min]="2"
+                                    [max]="10"
+                                    class="small-input-number"
+                            />
                         </div>
                     </div>
                     <div class="flex pt-4 justify-content-end">
@@ -156,11 +157,9 @@
                         Content III
                     </div>
                 </div>
-                <div class="flex pt-4 justify-content-start">
-                    <p-button
-                            label="Back"
-                            icon="pi pi-arrow-left"
-                            (onClick)="prevCallback.emit()"/>
+                <div class="flex pt-4 justify-content-between">
+                    <p-button label="Back" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()"></p-button>
+                    <p-button label="Submit" icon="pi pi-arrow-right" iconPos="right"></p-button>
                 </div>
             </ng-template>
         </p-stepperPanel>

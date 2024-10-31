@@ -3,3 +3,18 @@
 @import "primeng/resources/primeng.min.css";
 @import "primeicons/primeicons.css";
 
+
+.small-input-number .p-inputtext {
+    font-size: 14px;
+    padding: 2px 6px;
+    height: 40px;
+    width: 123px;
+    text-align: center;
+}
+
+.small-input-number .p-inputnumber-button {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+}
+
