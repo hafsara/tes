@@ -4,7 +4,6 @@
   <nz-step nzTitle="Récapitulatif"></nz-step>
 </nz-steps>
 
-
 <div class="step-content">
   <!-- Step 1: Configuration -->
   <div *ngIf="currentStep === 0">
@@ -85,20 +84,70 @@
     <button nz-button nzType="default" (click)="addQuestion()">Ajouter une question</button>
   </div>
 
-  <!-- Step 3: Récapitulatif -->
-  <div *ngIf="currentStep === 2">
-    <h3>Récapitulatif</h3>
-    <p><strong>Titre:</strong> {{ form.title }}</p>
-    <p><strong>Description:</strong> {{ form.description }}</p>
-    <p><strong>Email de l'utilisateur:</strong> {{ form.userEmail }}</p>
-    <p *ngIf="form.escalation"><strong>Email du manager:</strong> {{ form.managerEmail }}</p>
+<!-- Step 3: Récapitulatif -->
+<div *ngIf="currentStep === 2">
+  <h3>Récapitulatif</h3>
 
-    <h4>Questions</h4>
-    <ul>
-      <li *ngFor="let question of form.questions">
-        {{ question.text }} - {{ question.type }}
-      </li>
-    </ul>
+  <!-- Titre -->
+  <nz-form-item class="full-width-input">
+    <nz-form-label>Titre du formulaire</nz-form-label>
+    <nz-form-control>
+      <input nz-input [value]="form.title" readonly />
+    </nz-form-control>
+  </nz-form-item>
+
+  <!-- Description -->
+  <nz-form-item class="full-width-input">
+    <nz-form-label>Description</nz-form-label>
+    <nz-form-control>
+      <textarea nz-input [value]="form.description" readonly></textarea>
+    </nz-form-control>
+  </nz-form-item>
+
+  <!-- Email de l'utilisateur -->
+  <nz-form-item class="full-width-input">
+    <nz-form-label>Email de l'utilisateur</nz-form-label>
+    <nz-form-control>
+      <input nz-input [value]="form.userEmail" readonly />
+    </nz-form-control>
+  </nz-form-item>
+
+  <!-- Email du manager (si escalade est activée) -->
+  <nz-form-item *ngIf="form.escalation" class="full-width-input">
+    <nz-form-label>Email du manager</nz-form-label>
+    <nz-form-control>
+      <input nz-input [value]="form.managerEmail" readonly />
+    </nz-form-control>
+  </nz-form-item>
+
+  <!-- Questions en mode lecture seule -->
+  <h4>Questions</h4>
+  <div *ngFor="let question of form.questions" class="question-container-readonly">
+    <nz-form-item class="full-width-input">
+      <nz-form-label>Question</nz-form-label>
+      <nz-form-control>
+        <input nz-input [value]="question.text" readonly />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label>Type de question</nz-form-label>
+      <nz-form-control>
+        <input nz-input [value]="question.type" readonly />
+      </nz-form-control>
+    </nz-form-item>
+
+    <!-- Options si le type de question est Choix multiple, Case à cocher ou Liste déroulante -->
+    <div *ngIf="['multipleChoice', 'checkbox', 'dropdown'].includes(question.type)">
+      <h5>Options</h5>
+      <div *ngFor="let option of question.options" class="option-container-readonly">
+        <nz-form-item class="option-field-readonly">
+          <nz-form-control>
+            <input nz-input [value]="option" readonly />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
   </div>
 </div>
 
