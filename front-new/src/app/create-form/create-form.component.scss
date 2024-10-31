@@ -122,3 +122,26 @@ h3 {
   justify-content: space-between;
   margin-top: 20px;
 }
+
+.progress-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px auto;
+  padding: 20px;
+  max-width: 600px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+nz-steps {
+  width: 100%;
+}
+
+h3 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
