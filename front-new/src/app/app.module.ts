@@ -8,9 +8,17 @@ import { en_US } from 'ng-zorro-antd/i18n';
 import { registerLocaleData } from '@angular/common';
 import en from '@angular/common/locales/en';
 import { FormsModule } from '@angular/forms';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideHttpClient } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpClientModule } from '@angular/common/http';
 import { CreateFormComponent } from './create-form/create-form.component';
+
+// NG-Zorro Modules
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 
 registerLocaleData(en);
 
@@ -22,13 +30,20 @@ registerLocaleData(en);
   imports: [
     BrowserModule,
     AppRoutingModule,
-    FormsModule
+    FormsModule,
+    BrowserAnimationsModule, // necessary for NG-Zorro animations
+    HttpClientModule,
+    // NG-Zorro Modules
+    NzButtonModule,
+    NzFormModule,
+    NzInputModule,
+    NzSelectModule,
+    NzSwitchModule,
+    NzIconModule,
   ],
   providers: [
     provideClientHydration(),
     { provide: NZ_I18N, useValue: en_US },
-    provideAnimationsAsync(),
-    provideHttpClient()
   ],
   bootstrap: [AppComponent]
 })
