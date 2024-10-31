@@ -29,10 +29,11 @@ export class CreateFormComponent {
         { label: 'Choix multiples', value: 'multipleChoice' },
         { label: 'Cases à cocher', value: 'checkbox' },
         { label: 'Liste déroulante', value: 'dropdown' },
-        { label: 'Texte', value: 'text' }
+        { label: 'Text', value: 'text' }
   ];
 
   steps = [
+      undefined,
     { label: 'Configuration du Form Container' },
     { label: 'Création du Formulaire' },
     { label: 'Récapitulatif' }
@@ -42,14 +43,14 @@ export class CreateFormComponent {
     title: '',
     description: '',
     userEmail: '',
-    managerEmail: '', // Initialized as an empty string to avoid undefined issues
+    managerEmail: '',
     escalate: false,
     questions: [
       {
         text: '',
-        type: 'multipleChoice',
+        type: 'Text',
         options: ['Option 1'],
-        isRequired: true,
+        isRequired: true
       }
     ]
   };

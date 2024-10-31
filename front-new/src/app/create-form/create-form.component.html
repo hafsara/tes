@@ -2,9 +2,8 @@
     <p-stepper>
         <p-stepperPanel header="Form Configuration">
             <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
-                <div class="flex flex-column h-12rem">
-                    <div class="form-container border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
-                        <div class="centered-container">
+                <div class="flex flex-column">
+                    <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">                        <div class="centered-container">
                             <p-floatLabel>
                                 <input pInputText id="title" [(ngModel)]="form.title"/>
                                 <label for="title">Form Title</label>
@@ -74,10 +73,8 @@
                                     </p-floatLabel>
                                 </div>
 
-                                <!-- Type de question, même largeur que le titre -->
-                                <div class="full-width-input mb-2">
-                                    <p-dropdown [(ngModel)]="question.type" placeholder="Type de question"
-                                                [options]="questionTypes" styleClass="full-width-input">
+                                <div class="dropdown-container mb-2">
+                                    <p-dropdown [(ngModel)]="question.type" placeholder="Select question type" [options]="questionTypes">
                                     </p-dropdown>
                                 </div>
                                 <!-- Options pour les types de questions spécifiques -->
@@ -90,13 +87,13 @@
                                             </p-floatLabel>
                                         </div>
                                         <div class="option-buttons ml-2">
-                                            <button pButton type="button" icon="pi pi-trash"
-                                                    class="p-button-rounded p-button-danger"
-                                                    (click)="removeOption(i, j)">
-                                            </button>
                                             <button pButton type="button" icon="pi pi-plus"
                                                     class="p-button-rounded p-button-primary ml-2"
                                                     (click)="addOption(i)">
+                                            </button>
+                                            <button pButton type="button" icon="pi pi-trash"
+                                                    class="p-button-rounded p-button-danger"
+                                                    (click)="removeOption(i, j)">
                                             </button>
                                         </div>
                                     </div>
