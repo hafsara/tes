@@ -1,3 +1,87 @@
 .p-stepper {
   flex-basis: 50rem;
 }
+.full-width-input {
+  width: 100%;
+}
+
+/* Conteneur principal pour centrer le contenu */
+.card {
+  max-width: 800px;
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Style du p-stepper pour un rendu vert */
+.p-stepper {
+  max-width: 800px;
+  margin: 0 auto 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.p-stepper .p-step-header .p-steps-title {
+  color: #388e3c; /* Couleur verte pour le titre de l'étape */
+}
+
+.p-stepper .p-step-header .p-steps-title.p-highlight {
+  color: #4caf50; /* Couleur verte pour l'étape active */
+  font-weight: bold;
+}
+
+/* Style pour le champ obligatoire et les messages d'erreur */
+.p-error {
+  color: #f44336; /* Rouge pour les erreurs */
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+/* Style des boutons */
+.p-button {
+  border-radius: 8px;
+  font-weight: bold;
+  margin: 0 5px;
+}
+
+.p-button.p-button-primary {
+  background-color: #4caf50 !important; /* Couleur verte */
+  border-color: #4caf50 !important;
+  color: white !important;
+}
+
+.p-button.p-button-primary:hover {
+  background-color: #45a045 !important;
+  border-color: #45a045 !important;
+}
+
+/* Style des étiquettes et des champs de saisie */
+.p-float-label label {
+  font-weight: bold;
+  color: #388e3c; /* Texte vert pour les étiquettes */
+}
+
+input.p-inputtext,
+textarea.p-inputtextarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Espacement entre les sections */
+.section-spacing {
+  margin-bottom: 20px;
+}
+
+/* Centrer les boutons de navigation */
+.step-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+/* Effet au survol des boutons */
+.p-button:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}

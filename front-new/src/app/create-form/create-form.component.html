@@ -3,44 +3,46 @@
         <p-stepperPanel header="Configuration du Form Container">
             <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
                 <div class="flex flex-column h-12rem">
-                    <div class="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
-                      <div class="p-field p-grid">
-                        <label for="title" class="p-col-fixed" style="width: 150px;">Titre du formulaire</label>
-                        <div class="p-col">
-                          <input id="title" pInputText [(ngModel)]="form.title" required />
+                    <div class="border-2 border-dashed surface-border border-round surface-ground full-width-input font-medium">
+                      <div class="p-field p-grid section-spacing">
+                        <p-floatLabel>
+                            <input pInputText id="title" [(ngModel)]="form.title" required/>
+                            <label for="title">Form title</label>
                           <small *ngIf="form.title.trim() === ''" class="p-error">Ce champ est obligatoire</small>
-                        </div>
+                        </p-floatLabel>
                       </div>
 
-                      <div class="p-field p-grid">
-                        <label for="description" class="p-col-fixed" style="width: 150px;">Description</label>
-                        <div class="p-col">
-                          <textarea id="description" pInputTextarea [(ngModel)]="form.description" autoResize required></textarea>
+                      <div class="p-field p-grid section-spacing">
+                        <p-floatLabel>
+                          <textarea rows="5" cols="30" id="description" pInputTextarea [(ngModel)]="form.description"  [autoResize]="true" required>
+                          </textarea>
+                          <label for="description">Description</label>
                           <small *ngIf="form.description.trim() === ''" class="p-error">Ce champ est obligatoire</small>
-                        </div>
+                        </p-floatLabel>
                       </div>
 
-                      <div class="p-field p-grid">
-                        <label for="userEmail" class="p-col-fixed" style="width: 150px;">Email de l'utilisateur</label>
-                        <div class="p-col">
-                          <input id="userEmail" pInputText [(ngModel)]="form.userEmail" type="email" required />
+                      <div class="p-field p-grid section-spacing">
+                        <p-floatLabel>
+                           <input pInputText id="userEmail" [(ngModel)]="form.userEmail"  required/>
+                          <label for="userEmail">User Email</label>
                           <small *ngIf="!emailPattern.test(form.userEmail)" class="p-error">Email invalide</small>
-                        </div>
+                        </p-floatLabel>
                       </div>
 
-                      <div class="p-field-checkbox">
-                        <p-toggleButton [(ngModel)]="form.escalation" onLabel="Escalade" offLabel="Pas d'escalade"></p-toggleButton>
+                      <div class="p-field p-grid section-spacing">
+                        <label>Escalade</label>
+                        <p-toggleButton [(ngModel)]="form.escalation" onLabel="On" offLabel="Off"/>
                       </div>
-
-                      <div class="p-field p-grid" *ngIf="form.escalation">
-                        <label for="managerEmail" class="p-col-fixed" style="width: 150px;">Email du manager</label>
-                        <div class="p-col">
-                          <input id="managerEmail" pInputText [(ngModel)]="form.managerEmail" type="email" required />
-                          <small *ngIf="!form.managerEmail || !emailPattern.test(form.managerEmail)" class="p-error">Email invalide</small>
-                        </div>
+                      <div class="card p-fluid" *ngIf="form.escalation">
+                        <p-floatLabel>
+                          <p-chips id="managerEmail" [(ngModel)]="form.managerEmail" required [max]="3"/>
+                        </p-floatLabel>
+                        <small *ngIf="!form.managerEmail || !emailPattern.test(form.managerEmail)" class="p-error">Email
+                          invalide</small>
                       </div>
                     </div>
                 </div>
+
                 <div class="flex pt-4 justify-content-end">
                     <p-button
                         label="Next"

@@ -17,6 +17,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { StepperModule } from 'primeng/stepper';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { ChipsModule } from 'primeng/chips';
 
 import { CreateFormComponent } from './create-form/create-form.component';
 
@@ -35,9 +37,11 @@ import { CreateFormComponent } from './create-form/create-form.component';
     StepsModule,
     ButtonModule,
     InputTextModule,
+    FloatLabelModule,
     InputTextareaModule,
     DropdownModule,
     ToggleButtonModule,
+    ChipsModule,
     TooltipModule,
     StepperModule,
     IconFieldModule,
