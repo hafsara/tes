@@ -74,35 +74,31 @@
                                     </p-floatLabel>
                                 </div>
 
-                                <!-- Type de question -->
+                                <!-- Type de question, même largeur que le titre -->
                                 <div class="full-width-input mb-2">
                                     <p-dropdown [(ngModel)]="question.type" placeholder="Type de question"
-                                                [options]="questionTypes">
+                                                [options]="questionTypes" styleClass="full-width-input">
                                     </p-dropdown>
                                 </div>
-
-                                <!-- Bouton pour ajouter une option (visible si le type de question n'est pas 'text') -->
-                                <div *ngIf="question.type !== 'text'" class="mb-2">
-                                    <button pButton type="button" icon="pi pi-plus"
-                                            class="p-button-rounded p-button-primary"
-                                            (click)="addOption(i)">
-                                    </button>
-                                </div>
-
                                 <!-- Options pour les types de questions spécifiques -->
                                 <div *ngIf="['multipleChoice', 'checkbox', 'dropdown'].includes(question.type)">
                                     <div *ngFor="let option of question.options; let j = index"
                                          class="option-container flex align-items-center mb-2">
-                                        <div class="option-field flex-auto">
+                                        <div class="option-field flex-grow-1">
                                             <p-floatLabel>
                                                 <input pInputText [(ngModel)]="question.options[j]" required/>
-                                                <label>Option</label>
                                             </p-floatLabel>
                                         </div>
-                                        <button pButton type="button" icon="pi pi-trash"
-                                                class="p-button-rounded p-button-danger ml-2"
-                                                (click)="removeOption(i, j)">
-                                        </button>
+                                        <div class="option-buttons ml-2">
+                                            <button pButton type="button" icon="pi pi-trash"
+                                                    class="p-button-rounded p-button-danger"
+                                                    (click)="removeOption(i, j)">
+                                            </button>
+                                            <button pButton type="button" icon="pi pi-plus"
+                                                    class="p-button-rounded p-button-primary ml-2"
+                                                    (click)="addOption(i)">
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
