@@ -1,0 +1,93 @@
+<div class="form-container nz-elevation-4">
+  <h3>Créer un formulaire</h3>
+
+  <div class="form-info">
+    <nz-form-item class="full-width-input">
+      <nz-form-label [nzRequired]="true">Titre du formulaire</nz-form-label>
+      <nz-form-control>
+        <input nz-input [(ngModel)]="form.title" required />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item class="full-width-input">
+      <nz-form-label [nzRequired]="true">Description du formulaire</nz-form-label>
+      <nz-form-control>
+        <textarea nz-input [(ngModel)]="form.description" required [nzAutosize]="{ minRows: 1, maxRows: 5 }"></textarea>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item class="full-width-input">
+      <nz-form-label [nzRequired]="true">Email de l'utilisateur</nz-form-label>
+      <nz-form-control nzErrorTip="Email non valide">
+        <input nz-input [(ngModel)]="form.userEmail" type="email" [pattern]="emailPattern" required />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-switch [(ngModel)]="form.escalation" (ngModelChange)="toggleEscalation()" class="full-width-input">
+      Escalade
+    </nz-switch>
+
+    <nz-form-item *ngIf="form.escalation" class="full-width-input">
+      <nz-form-label [nzRequired]="true">Email du manager</nz-form-label>
+      <nz-form-control nzErrorTip="Email non valide">
+        <input nz-input [(ngModel)]="form.managerEmail" type="email" [pattern]="emailPattern" required />
+      </nz-form-control>
+    </nz-form-item>
+  </div>
+
+  <div *ngIf="isFormContainerValid()" class="question-section">
+    <div *ngFor="let question of form.questions; let i = index" class="question-container">
+      <nz-form-item class="full-width-input">
+        <nz-form-label>Question sans titre</nz-form-label>
+        <nz-form-control>
+          <input nz-input [(ngModel)]="question.text" required />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>Type de question</nz-form-label>
+        <nz-form-control>
+          <nz-select [(ngModel)]="question.type">
+            <nz-option nzValue="multipleChoice" nzLabel="Choix multiples"></nz-option>
+            <nz-option nzValue="checkbox" nzLabel="Cases à cocher"></nz-option>
+            <nz-option nzValue="dropdown" nzLabel="Liste déroulante"></nz-option>
+            <nz-option nzValue="text" nzLabel="Texte"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <button nz-button nzType="dashed" nzShape="circle" *ngIf="question.type !== 'text'" (click)="addOption(i)">
+        <i nz-icon nzType="plus"></i>
+      </button>
+
+      <div *ngIf="['multipleChoice', 'checkbox', 'dropdown'].includes(question.type)">
+        <div *ngFor="let option of question.options; let j = index" class="option-container">
+          <nz-form-item class="option-field">
+            <nz-form-control>
+              <input nz-input [(ngModel)]="question.options[j]" required placeholder="Option" />
+            </nz-form-control>
+          </nz-form-item>
+          <button nz-button nzType="default" nzShape="circle" nzDanger (click)="removeOption(i, j)">
+            <i nz-icon nzType="delete"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar">
+        <button nz-button nzShape="circle" nzType="default" (click)="addQuestion()" title="Ajouter une question">
+          <i nz-icon nzType="plus"></i>
+        </button>
+        <button nz-button nzShape="circle" nzType="default" nzDanger (click)="removeQuestion(i)" title="Supprimer la question">
+          <i nz-icon nzType="delete"></i>
+        </button>
+        <button nz-button nzShape="circle" nzType="default" nzGhost (click)="duplicateQuestion(i)" title="Dupliquer la question">
+          <i nz-icon nzType="copy"></i>
+        </button>
+      </div>
+    </div>
+
+    <button nz-button nzType="primary" nzBlock (click)="submitForm()" class="submit-btn">
+      Enregistrer le formulaire
+    </button>
+  </div>
+</div>
