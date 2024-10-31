@@ -3,7 +3,8 @@
         <p-stepperPanel header="Form Configuration">
             <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
                 <div class="flex flex-column">
-                    <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">                        <div class="centered-container">
+                    <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
+                        <div class="centered-container">
                             <p-floatLabel>
                                 <input pInputText id="title" [(ngModel)]="form.title"/>
                                 <label for="title">Form Title</label>
@@ -74,7 +75,8 @@
                                 </div>
 
                                 <div class="dropdown-container mb-2">
-                                    <p-dropdown [(ngModel)]="question.type" placeholder="Select question type" [options]="questionTypes">
+                                    <p-dropdown [(ngModel)]="question.type" placeholder="Select question type"
+                                                [options]="questionTypes">
                                     </p-dropdown>
                                 </div>
                                 <!-- Options pour les types de questions spécifiques -->
@@ -87,14 +89,12 @@
                                             </p-floatLabel>
                                         </div>
                                         <div class="option-buttons ml-2">
-                                            <button pButton type="button" icon="pi pi-plus"
-                                                    class="p-button-rounded p-button-primary ml-2"
-                                                    (click)="addOption(i)">
-                                            </button>
-                                            <button pButton type="button" icon="pi pi-trash"
-                                                    class="p-button-rounded p-button-danger"
-                                                    (click)="removeOption(i, j)">
-                                            </button>
+                                            <p-button icon="pi pi-plus" [rounded]="true" [text]="true"
+                                                      (click)="addOption(i)" title="Add option"
+                                                      class="p-button-rounded mb-2"/>
+                                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true"
+                                                      (click)="removeOption(i, j)" title="Delete option"
+                                                      class="p-button-rounded mb-2"/>
                                         </div>
                                     </div>
                                 </div>
@@ -102,18 +102,14 @@
 
                             <!-- Barre latérale (sidebar) avec les boutons d'action -->
                             <div class="sidebar ml-3">
-                                <button pButton type="button" icon="pi pi-plus"
-                                        class="p-button-rounded p-button-primary mb-2"
-                                        (click)="addQuestion()" title="Ajouter une question">
-                                </button>
-                                <button pButton type="button" icon="pi pi-trash"
-                                        class="p-button-rounded p-button-danger mb-2"
-                                        (click)="removeQuestion(i)" title="Supprimer la question">
-                                </button>
-                                <button pButton type="button" icon="pi pi-copy"
-                                        class="p-button-rounded p-button-secondary"
-                                        (click)="duplicateQuestion(i)" title="Dupliquer la question">
-                                </button>
+                                <p-button icon="pi pi-plus" [rounded]="true" [text]="true" [raised]="true"
+                                          (click)="addQuestion()" title="Add question" class="p-button-rounded mb-2"/>
+                                <p-button icon="pi pi-trash" [rounded]="true" [text]="true" [raised]="true"
+                                          (click)="removeQuestion(i)" title="Delete question"
+                                          class="p-button-rounded mb-2"/>
+                                <p-button icon="pi pi-copy" [rounded]="true" [text]="true" [raised]="true"
+                                          (click)="duplicateQuestion(i)" title="Duplicate question"
+                                          class="p-button-rounded mb-2"/>
                             </div>
                         </div>
                     </div>
