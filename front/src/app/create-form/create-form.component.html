@@ -48,11 +48,11 @@
         </mat-select>
       </mat-form-field>
 
-      <div class="button-container" *ngIf="question.type !== 'text'" (click)="addOption(i)">
-        <button mat-fab aria-label="add an option">
-          <mat-icon>add</mat-icon>
-        </button>
-      </div>
+      
+      <button mat-fab aria-label="add an option" class="button-container" *ngIf="question.type !== 'text'" (click)="addOption(i)">
+        <mat-icon>add</mat-icon>
+      </button>
+     
 
       <div *ngIf="['multipleChoice', 'checkbox', 'dropdown'].includes(question.type)">
         <div *ngFor="let option of question.options; let j = index" class="option-container">
