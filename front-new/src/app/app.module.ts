@@ -18,8 +18,6 @@ import { StepperModule } from 'primeng/stepper';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { FloatLabelModule } from 'primeng/floatlabel';
-import { ChipsModule } from 'primeng/chips';
-
 import { CreateFormComponent } from './create-form/create-form.component';
 
 @NgModule({
@@ -41,7 +39,6 @@ import { CreateFormComponent } from './create-form/create-form.component';
     InputTextareaModule,
     DropdownModule,
     ToggleButtonModule,
-    ChipsModule,
     TooltipModule,
     StepperModule,
     IconFieldModule,

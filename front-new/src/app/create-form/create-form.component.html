@@ -29,7 +29,6 @@
                                 <label for="userMail">User Email</label>
                             </p-floatLabel>
                         </div>
-
                         <div class="centered-container flex align-items-center">
                             <div class="full-width-input mr-2">
                                 <p-floatLabel>
@@ -39,13 +38,14 @@
                             </div>
 
                             <div>
-                                <p-toggleButton
-                                        [(ngModel)]="form.escalate"
-                                        onLabel="Escalate On"
-                                        offLabel="Escalate Off"/>
+                                <p-toggleButton pTooltip="Enable escalation" tooltipPosition="top"
+                                                [(ngModel)]="form.escalate"
+                                                styleClass="w-9rem"
+                                                onIcon="pi pi-users"
+                                                offIcon="pi pi-users">
+                                </p-toggleButton>
                             </div>
                         </div>
-
                         <div *ngIf="form.escalate" class="centered-container">
                             <p-floatLabel>
                                 <input pInputText id="managerMail" [(ngModel)]="form.managerEmail"/>
@@ -63,7 +63,7 @@
                 </div>
             </ng-template>
         </p-stepperPanel>
-        <p-stepperPanel header="Add Fields">
+        <p-stepperPanel header="Add question">
             <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback"
                          let-index="index">
                 <div class="flex flex-column">
@@ -73,10 +73,7 @@
                         <div *ngFor="let question of form.questions; let i = index"
                              class="question-wrapper flex align-items-start mb-4">
 
-                            <!-- Conteneur de la question -->
                             <div class="question-content flex-grow-1">
-
-                                <!-- Titre de la question -->
                                 <div class="full-width-input mb-2">
                                     <p-floatLabel>
                                         <input pInputText [(ngModel)]="question.text" required/>
