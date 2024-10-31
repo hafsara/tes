@@ -1,90 +1,89 @@
-<div class="progress-container">
-  <p-steps [(activeIndex)]="currentStep" [model]="steps" [readonly]="true" styleClass="steps-dot"></p-steps>
-</div>
+<div class="card flex justify-content-center">
+    <p-stepper [linear]="true">
+        <p-stepperPanel header="Configuration du Form Container">
+            <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
+                <div class="flex flex-column h-12rem">
+                    <div class="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
+                      <div class="p-field p-grid">
+                        <label for="title" class="p-col-fixed" style="width: 150px;">Titre du formulaire</label>
+                        <div class="p-col">
+                          <input id="title" pInputText [(ngModel)]="form.title" required />
+                          <small *ngIf="form.title.trim() === ''" class="p-error">Ce champ est obligatoire</small>
+                        </div>
+                      </div>
 
-<div class="step-content">
-  <!-- Step 1: Configuration -->
-  <div *ngIf="currentStep === 0">
-    <h3>Configuration du Form Container</h3>
+                      <div class="p-field p-grid">
+                        <label for="description" class="p-col-fixed" style="width: 150px;">Description</label>
+                        <div class="p-col">
+                          <textarea id="description" pInputTextarea [(ngModel)]="form.description" autoResize required></textarea>
+                          <small *ngIf="form.description.trim() === ''" class="p-error">Ce champ est obligatoire</small>
+                        </div>
+                      </div>
 
-    <div class="p-field p-grid">
-      <label for="title" class="p-col-fixed" style="width: 150px;">Titre du formulaire</label>
-      <div class="p-col">
-        <input id="title" pInputText [(ngModel)]="form.title" required />
-        <small *ngIf="form.title.trim() === ''" class="p-error">Ce champ est obligatoire</small>
-      </div>
-    </div>
+                      <div class="p-field p-grid">
+                        <label for="userEmail" class="p-col-fixed" style="width: 150px;">Email de l'utilisateur</label>
+                        <div class="p-col">
+                          <input id="userEmail" pInputText [(ngModel)]="form.userEmail" type="email" required />
+                          <small *ngIf="!emailPattern.test(form.userEmail)" class="p-error">Email invalide</small>
+                        </div>
+                      </div>
 
-    <div class="p-field p-grid">
-      <label for="description" class="p-col-fixed" style="width: 150px;">Description</label>
-      <div class="p-col">
-        <textarea id="description" pInputTextarea [(ngModel)]="form.description" autoResize required></textarea>
-        <small *ngIf="form.description.trim() === ''" class="p-error">Ce champ est obligatoire</small>
-      </div>
-    </div>
+                      <div class="p-field-checkbox">
+                        <p-toggleButton [(ngModel)]="form.escalation" onLabel="Escalade" offLabel="Pas d'escalade"></p-toggleButton>
+                      </div>
 
-    <div class="p-field p-grid">
-      <label for="userEmail" class="p-col-fixed" style="width: 150px;">Email de l'utilisateur</label>
-      <div class="p-col">
-        <input id="userEmail" pInputText [(ngModel)]="form.userEmail" type="email" required />
-        <small *ngIf="!emailPattern.test(form.userEmail)" class="p-error">Email invalide</small>
-      </div>
-    </div>
-
-    <div class="p-field-checkbox">
-      <p-toggleButton [(ngModel)]="form.escalation" onLabel="Escalade" offLabel="Pas d'escalade"></p-toggleButton>
-    </div>
-
-    <div class="p-field p-grid" *ngIf="form.escalation">
-      <label for="managerEmail" class="p-col-fixed" style="width: 150px;">Email du manager</label>
-      <div class="p-col">
-        <input id="managerEmail" pInputText [(ngModel)]="form.managerEmail" type="email" required />
-        <small *ngIf="!form.managerEmail || !emailPattern.test(form.managerEmail)" class="p-error">Email invalide</small>
-      </div>
-    </div>
-  </div>
-
-  <!-- Step 2: Création dynamique du formulaire -->
-  <div *ngIf="currentStep === 1">
-    <h3>Création du formulaire dynamique</h3>
-    <div *ngFor="let question of form.questions; let i = index" class="question-container">
-      <div class="p-field p-grid">
-        <label class="p-col-fixed" style="width: 150px;">Question sans titre</label>
-        <div class="p-col">
-          <input pInputText [(ngModel)]="question.text" required />
-          <small *ngIf="question.text.trim() === ''" class="p-error">Ce champ est obligatoire</small>
-        </div>
-      </div>
-
-      <div class="p-field p-grid">
-        <label class="p-col-fixed" style="width: 150px;">Type de question</label>
-        <div class="p-col">
-          <p-dropdown [(ngModel)]="question.type" [options]="questionTypes" placeholder="Sélectionner"></p-dropdown>
-        </div>
-      </div>
-
-      <button pButton type="button" icon="pi pi-plus" label="Ajouter une option" *ngIf="question.type !== 'text'" (click)="addOption(i)"></button>
-
-      <div *ngIf="['multipleChoice', 'checkbox', 'dropdown'].includes(question.type)">
-        <h5>Options</h5>
-        <div *ngFor="let option of question.options; let j = index" class="option-container">
-          <input pInputText [(ngModel)]="question.options[j]" required placeholder="Option" />
-          <button pButton type="button" icon="pi pi-trash" class="p-button-danger" (click)="removeOption(i, j)"></button>
-        </div>
-      </div>
-    </div>
-    <button pButton type="button" label="Ajouter une question" (click)="addQuestion()"></button>
-  </div>
-
-  <!-- Step 3: Récapitulatif -->
-  <div *ngIf="currentStep === 2">
-    <h3>Récapitulatif</h3>
-    <!-- Contenu du récapitulatif -->
-  </div>
-</div>
-
-<div class="step-actions">
-  <button pButton type="button" label="Précédent" icon="pi pi-arrow-left" (click)="previousStep()" [disabled]="currentStep === 0"></button>
-  <button pButton type="button" label="Suivant" icon="pi pi-arrow-right" (click)="nextStep()" *ngIf="currentStep < 2"></button>
-  <button pButton type="button" label="Enregistrer" icon="pi pi-save" (click)="submitForm()" *ngIf="currentStep === 2"></button>
+                      <div class="p-field p-grid" *ngIf="form.escalation">
+                        <label for="managerEmail" class="p-col-fixed" style="width: 150px;">Email du manager</label>
+                        <div class="p-col">
+                          <input id="managerEmail" pInputText [(ngModel)]="form.managerEmail" type="email" required />
+                          <small *ngIf="!form.managerEmail || !emailPattern.test(form.managerEmail)" class="p-error">Email invalide</small>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+                <div class="flex pt-4 justify-content-end">
+                    <p-button
+                        label="Next"
+                        icon="pi pi-arrow-right"
+                        iconPos="right"
+                        (onClick)="nextCallback.emit()" />
+                </div>
+            </ng-template>
+        </p-stepperPanel>
+        <p-stepperPanel header="Header II">
+            <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback" let-index="index">
+                <div class="flex flex-column h-12rem">
+                    <div class="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
+                        Content II
+                    </div>
+                </div>
+                <div class="flex pt-4 justify-content-between">
+                    <p-button
+                        label="Back"
+                        icon="pi pi-arrow-left"
+                        (onClick)="prevCallback.emit()" />
+                    <p-button
+                        label="Next"
+                        icon="pi pi-arrow-right"
+                        iconPos="right"
+                        (onClick)="nextCallback.emit()" />
+                </div>
+            </ng-template>
+        </p-stepperPanel>
+        <p-stepperPanel header="Header III">
+            <ng-template pTemplate="content" let-prevCallback="prevCallback" let-index="index">
+                <div class="flex flex-column h-12rem">
+                    <div class="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
+                        Content III
+                    </div>
+                </div>
+                <div class="flex pt-4 justify-content-start">
+                    <p-button
+                        label="Back"
+                        icon="pi pi-arrow-left"
+                        (onClick)="prevCallback.emit()" />
+                </div>
+            </ng-template>
+        </p-stepperPanel>
+    </p-stepper>
 </div>

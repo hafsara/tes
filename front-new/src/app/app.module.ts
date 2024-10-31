@@ -14,6 +14,9 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DropdownModule } from 'primeng/dropdown';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { TooltipModule } from 'primeng/tooltip';
+import { StepperModule } from 'primeng/stepper';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 
 import { CreateFormComponent } from './create-form/create-form.component';
 
@@ -35,7 +38,10 @@ import { CreateFormComponent } from './create-form/create-form.component';
     InputTextareaModule,
     DropdownModule,
     ToggleButtonModule,
-    TooltipModule
+    TooltipModule,
+    StepperModule,
+    IconFieldModule,
+    InputIconModule
   ],
   providers: [],
   bootstrap: [AppComponent]
