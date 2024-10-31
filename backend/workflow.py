@@ -14,13 +14,11 @@ class ReminderTask(TaskSpec):
         self.delay = delay
 
     def can_be_started(self, task):
-        # La tâche de rappel peut commencer si le délai est atteint
         return datetime.utcnow() >= (task.created_date + timedelta(days=self.delay))
 
 
 class EscalationTask(TaskSpec):
     def can_be_started(self, task):
-        # La tâche d'escalade peut commencer si le rappel a échoué
         return task.get_data('reminder_sent') is True and not task.get_data('user_response')
 
 

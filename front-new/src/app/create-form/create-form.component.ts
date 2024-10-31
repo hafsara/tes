@@ -15,6 +15,7 @@ interface FormContainer {
   reference: string;
   managerEmail?: string;
   escalate: boolean;
+  reminderDelayDay: number;
   questions: Question[];
 }
 
@@ -27,16 +28,10 @@ export class CreateFormComponent {
   currentStep = 0;
   showErrors = false;
   questionTypes = [
-        { label: 'Choix multiples', value: 'multipleChoice' },
-        { label: 'Cases à cocher', value: 'checkbox' },
-        { label: 'Liste déroulante', value: 'dropdown' },
-        { label: 'Texte', value: 'text' }
-  ];
-
-  steps = [
-    { label: 'Configuration du Form Container' },
-    { label: 'Création du Formulaire' },
-    { label: 'Récapitulatif' }
+        { label: 'Multiple choices', value: 'multipleChoice' },
+        { label: 'Checkboxes', value: 'checkbox' },
+        { label: 'Drop-down list', value: 'dropdown' },
+        { label: 'Text', value: 'text' }
   ];
 
   form: FormContainer = {
@@ -46,6 +41,7 @@ export class CreateFormComponent {
     reference: '',
     managerEmail: '',
     escalate: false,
+    reminderDelayDay: 0,
     questions: [
       {
         text: '',

@@ -18,6 +18,8 @@ import { StepperModule } from 'primeng/stepper';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputNumberModule } from 'primeng/inputnumber';
+
 import { CreateFormComponent } from './create-form/create-form.component';
 
 @NgModule({
@@ -33,6 +35,7 @@ import { CreateFormComponent } from './create-form/create-form.component';
     HttpClientModule,
     // PrimeNG Modules
     StepsModule,
+    InputNumberModule,
     ButtonModule,
     InputTextModule,
     FloatLabelModule,
