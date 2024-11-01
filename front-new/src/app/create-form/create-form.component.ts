@@ -131,4 +131,8 @@ export class CreateFormComponent {
         this.showErrors = true;
     }
  }
+  submitForm() {
+   const jsonForm = JSON.stringify(this.form);
+   console.log('Formulaire soumis :', jsonForm);
+  }
 }
