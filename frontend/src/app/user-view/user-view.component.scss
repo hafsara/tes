@@ -4,7 +4,6 @@
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 8px;
-  background-color: #f9f9f9;
 
   h2 {
     font-size: 1.5em;
@@ -23,3 +22,27 @@
     margin-bottom: 15px;
   }
 }
+
+input[pInputText],
+textarea[pInputTextarea] {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  resize: none;
+}
+
+.full-width-input {
+    width: 100%;
+}
+
+.card-background {
+  width: 100%;
+  background: green;
+ }
+
+ .opts {
+       padding: 8px;
+   }
