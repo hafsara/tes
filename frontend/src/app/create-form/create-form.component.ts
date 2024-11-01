@@ -39,7 +39,7 @@ export class CreateFormComponent {
     userEmail: '',
     reference: '',
     managerEmail: '',
-    escalate: false,
+    escalate: true,
     reminderDelayDay: 1,
     questions: [
       {
