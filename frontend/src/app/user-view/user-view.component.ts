@@ -4,9 +4,10 @@ interface Question {
   text: string;
   type: string;
   options: string[];
+  isRequired?: boolean;
   response?: string;
   selectedOptions?: string[];
-  isRequired?: boolean;
+  formattedOptions?: { label: string; value: string }[];
 }
 
 @Component({
@@ -21,41 +22,53 @@ export class UserViewComponent implements OnInit {
     questions: Question[];
   };
 
-  questionDropdownOptions: { [key: string]: { label: string, value: string }[] } = {};
+  validationErrors: string[] = [];
 
   ngOnInit() {
-    this.initializeOptions();
+    // Format options for each question in ngOnInit
+    this.formData.questions = this.formData.questions.map(question => ({
+      ...question,
+      isRequired: question.isRequired ?? true,  // Default to false if isRequired is undefined
+      formattedOptions: question.options.map(opt => ({ label: opt, value: opt }))
+    }));
   }
 
-  initializeOptions() {
-    this.formData.questions.forEach((question) => {
-      if (question.type === 'dropdown') {
-        this.questionDropdownOptions[question.text] = question.options.map(opt => ({ label: opt, value: opt }));
-      }
-
-      if (question.type === 'checkbox') {
-        // Initialize selectedOptions as an empty array if undefined
-        question.selectedOptions = question.selectedOptions || [];
-      }
-    });
-  }
-
-  // Check if an option is selected
   isChecked(selectedOptions: string[], option: string): boolean {
     return selectedOptions.includes(option);
   }
 
-  // Toggle the selection of an option in the selectedOptions array
-  toggleOption(selectedOptions: string[], option: string) {
+  toggleOption(selectedOptions: string[], option: string): void {
     const index = selectedOptions.indexOf(option);
-    if (index === -1) {
-      selectedOptions.push(option);
-    } else {
+    if (index > -1) {
       selectedOptions.splice(index, 1);
+    } else {
+      selectedOptions.push(option);
     }
   }
 
-  onSubmit() {
-    console.log('Submitted form data:', this.formData);
+  onSubmit(): void {
+    this.validationErrors = []; // Reset errors
+
+    this.formData.questions.forEach((question, index) => {
+      const questionError = `Please respond to question ${index + 1}: ${question.text}`;
+
+      if (question.isRequired) {
+        if (question.type === 'text' && (!question.response || question.response.trim() === '')) {
+          this.validationErrors.push(questionError);
+        } else if (question.type === 'multipleChoice' && !question.response) {
+          this.validationErrors.push(questionError);
+        } else if (question.type === 'checkbox' && (!question.selectedOptions || question.selectedOptions.length === 0)) {
+          this.validationErrors.push(`Please select at least one option for question ${index + 1}: ${question.text}`);
+        } else if (question.type === 'dropdown' && !question.response) {
+          this.validationErrors.push(questionError);
+        }
+      }
+    });
+
+    if (this.validationErrors.length > 0) {
+      console.log("Validation failed:", this.validationErrors);
+    } else {
+      console.log("Form submitted successfully:", this.formData);
+    }
   }
 }
