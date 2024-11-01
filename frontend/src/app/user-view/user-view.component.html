@@ -1,30 +1,48 @@
 <div class="user-view">
   <div class="card">
     <p-card header="{{ formData.title }}" class="card-background">
-      <p class="m-0 ">
-        {{ formData.description }} </p>
+      <p class="m-0">{{ formData.description }}</p>
     </p-card>
   </div>
+
   <div *ngFor="let question of formData.questions; let i = index">
-    <h3>{{ question.text }}</h3>
+    <h5>{{ question.text }}</h5>
     <ng-container [ngSwitch]="question.type">
       <!-- Text Input -->
       <div *ngSwitchCase="'text'">
-        <textarea rows="5" cols="30" pInputTextarea [autoResize]="true" placeholder="Enter your response"
-                  [(ngModel)]="question.response" name="response{{i}}" class="p-inputtextarea"></textarea>
-        <small *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.text)"
-               class="p-error">
+        <textarea
+          rows="5"
+          cols="30"
+          pInputTextarea
+          [autoResize]="true"
+          placeholder="Enter your response"
+          [(ngModel)]="question.response"
+          name="response{{i}}"
+          class="p-inputtextarea"
+        ></textarea>
+        <small
+          *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.text)"
+          class="p-error"
+        >
           This field is required.
         </small>
       </div>
+
       <!-- Radio Buttons for Multiple Choice Questions -->
       <div *ngSwitchCase="'multipleChoice'">
         <div *ngFor="let option of question.formattedOptions" class="opts">
-          <p-radioButton name="group{{i}}" [(ngModel)]="question.response" [value]="option.value" class="mr-2"></p-radioButton>
+          <p-radioButton
+            name="group{{i}}"
+            [(ngModel)]="question.response"
+            [value]="option.value"
+            class="mr-2"
+          ></p-radioButton>
           <label>{{ option.label }}</label>
         </div>
-        <small *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.text)"
-               class="p-error">
+        <small
+          *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.text)"
+          class="p-error"
+        >
           Please select an option.
         </small>
       </div>
@@ -32,25 +50,33 @@
       <!-- Checkboxes for Multiple Selections -->
       <div *ngSwitchCase="'checkbox'">
         <div *ngFor="let option of question.formattedOptions" class="opts">
-          <p-checkbox [binary]="true" [label]="option.label"
-                      [ngModel]="isChecked(question.selectedOptions || [], option.value)"
-                      (ngModelChange)="toggleOption(question.selectedOptions || [], option.value)">
-          </p-checkbox>
+          <p-checkbox
+            [binary]="true"
+            [label]="option.label"
+            [ngModel]="isChecked(question.selectedOptions || [], option.value)"
+            (ngModelChange)="toggleOption(question, option.value)"
+          ></p-checkbox>
         </div>
         <small
           *ngIf="validationErrors.includes('Please select at least one option for question ' + (i + 1) + ': ' + question.text)"
-          class="p-error">
+          class="p-error"
+        >
           Please select at least one option.
         </small>
       </div>
 
       <!-- Dropdown for Select List Questions -->
       <div *ngSwitchCase="'dropdown'">
-        <p-dropdown [(ngModel)]="question.response"
-                    [options]="question.formattedOptions"
-                    placeholder="Select an option" class="w-full"></p-dropdown>
-        <small *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.text)"
-               class="p-error">
+        <p-dropdown
+          [(ngModel)]="question.response"
+          [options]="question.formattedOptions"
+          placeholder="Select an option"
+          class="w-full"
+        ></p-dropdown>
+        <small
+          *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.text)"
+          class="p-error"
+        >
           Please select an option.
         </small>
       </div>

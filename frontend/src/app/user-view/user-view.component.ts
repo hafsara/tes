@@ -25,11 +25,12 @@ export class UserViewComponent implements OnInit {
   validationErrors: string[] = [];
 
   ngOnInit() {
-    // Format options for each question in ngOnInit
-    this.formData.questions = this.formData.questions.map(question => ({
+    // Format options and initialize selectedOptions for each question in ngOnInit
+    this.formData.questions = this.formData.questions.map((question) => ({
       ...question,
-      isRequired: question.isRequired ?? true,  // Default to false if isRequired is undefined
-      formattedOptions: question.options.map(opt => ({ label: opt, value: opt }))
+      isRequired: question.isRequired ?? true,
+      selectedOptions: question.selectedOptions || [], // Initialize as an empty array if undefined
+      formattedOptions: question.options.map((opt) => ({ label: opt, value: opt }))
     }));
   }
 
@@ -37,12 +38,13 @@ export class UserViewComponent implements OnInit {
     return selectedOptions.includes(option);
   }
 
-  toggleOption(selectedOptions: string[], option: string): void {
-    const index = selectedOptions.indexOf(option);
+  toggleOption(question: Question, option: string): void {
+    question.selectedOptions = question.selectedOptions || [];
+    const index = question.selectedOptions.indexOf(option);
     if (index > -1) {
-      selectedOptions.splice(index, 1);
+      question.selectedOptions.splice(index, 1);
     } else {
-      selectedOptions.push(option);
+      question.selectedOptions.push(option);
     }
   }
 
