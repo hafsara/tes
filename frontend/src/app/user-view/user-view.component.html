@@ -1,42 +1,28 @@
-<div class="user-view p-4">
-  <h2 class="mb-2">{{ formData?.title }}</h2>
-  <p class="mb-4">{{ formData?.description }}</p>
+<div class="user-view">
+  <h2>{{ formData.title }}</h2>
+  <p>{{ formData.description }}</p>
 
-  <div *ngFor="let question of formData?.questions" class="mb-4">
+  <div *ngFor="let question of formData.questions">
+    <h3>{{ question.text }}</h3>
     <ng-container [ngSwitch]="question.type">
-
-      <!-- Text Input for Free Text Questions -->
-      <div *ngSwitchCase="'text'" class="mb-2">
-        <p-floatLabel>
-          <input pInputText id="{{ question.text }}" [(ngModel)]="question.response"/>
-          <label for="{{ question.text }}">{{ question.text }}</label>
-        </p-floatLabel>
+      <div *ngSwitchCase="'text'">
+        <input type="text" placeholder="Enter your response" [(ngModel)]="question.response" />
       </div>
-
-      <!-- Radio Buttons for Multiple Choice Questions -->
-      <div *ngSwitchCase="'multipleChoice'" class="mb-2">
-        <div *ngFor="let option of question.primeNgOptions" class="flex align-items-center mb-1">
-          <p-radioButton name="{{ question.text }}" [(ngModel)]="question.response" [value]="option.value"
-                         class="mr-2"></p-radioButton>
-          <label>{{ option.label }}</label>
+      <div *ngSwitchCase="'multipleChoice'">
+        <div *ngFor="let option of question.primeNgOptions">
+          <p-radioButton name="{{ question.text }}" [(ngModel)]="question.response" [value]="option.value">{{ option.label }}</p-radioButton>
         </div>
       </div>
-
-      <!-- Checkboxes for Multiple Selections -->
-      <div *ngSwitchCase="'checkbox'" class="mb-2">
-        <div *ngFor="let option of question.primeNgOptions" class="flex align-items-center mb-1">
-          <p-checkbox [(ngModel)]="question.selectedOptions" [binary]="true" [label]="option.label"
-                      class="mr-2"></p-checkbox>
+      <div *ngSwitchCase="'checkbox'">
+        <div *ngFor="let option of question.primeNgOptions">
+          <p-checkbox [(ngModel)]="question.selectedOptions" [binary]="true" [label]="option.label"></p-checkbox>
         </div>
       </div>
-
-      <!-- Dropdown for Select List Questions -->
-      <div *ngSwitchCase="'dropdown'" class="mb-2">
-        <p-dropdown [(ngModel)]="question.response" [options]="question.primeNgOptions"
-                    placeholder="Select an option" class="w-full"></p-dropdown>
+      <div *ngSwitchCase="'dropdown'">
+        <p-dropdown [(ngModel)]="question.response" [options]="question.primeNgOptions"></p-dropdown>
       </div>
     </ng-container>
   </div>
 
-  <p-button label="Submit" icon="pi pi-check" (click)="onSubmit()" class="p-button-raised"></p-button>
+  <button pButton type="button" label="Submit" (click)="onSubmit()"></button>
 </div>

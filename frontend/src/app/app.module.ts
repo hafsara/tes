@@ -1,4 +1,4 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
@@ -23,14 +23,12 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { CheckboxModule } from 'primeng/checkbox';
 
 
-import { CreateFormComponent } from './create-form/create-form.component';
 import { UserViewComponent } from './user-view/user-view.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    CreateFormComponent,
-    UserViewComponent
+    UserViewComponent,
   ],
   imports: [
     BrowserModule,
@@ -55,7 +53,7 @@ import { UserViewComponent } from './user-view/user-view.component';
     IconFieldModule,
     InputIconModule
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA], // Add this if using custom elements
-  bootstrap: [CreateFormComponent]
+  providers: [],
+  bootstrap: [AppComponent]
 })
 export class AppModule {}
