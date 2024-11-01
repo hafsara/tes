@@ -107,7 +107,8 @@
                                 <div class="dropdown-button-row mb-2">
                                     <div class="dropdown-container">
                                         <p-dropdown [(ngModel)]="question.type" placeholder="Select question type"
-                                                    [options]="questionTypes">
+                                                    [options]="questionTypes"
+                                                    (onChange)="onQuestionTypeChange(question)">
                                         </p-dropdown>
                                     </div>
 

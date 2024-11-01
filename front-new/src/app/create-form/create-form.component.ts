@@ -44,8 +44,8 @@ export class CreateFormComponent {
     questions: [
       {
         text: '',
-        type: 'multipleChoice',
-        options: ['Option 1'],
+        type: 'text',
+        options: [],
         isRequired: true
       }
     ]
@@ -89,8 +89,8 @@ export class CreateFormComponent {
   addQuestion() {
     this.form.questions.push({
       text: '',
-      type: 'multipleChoice',
-      options: ['Option 1'],
+      type: 'text',
+      options: [],
       isRequired: true
     });
   }
@@ -134,5 +134,12 @@ export class CreateFormComponent {
   submitForm() {
    const jsonForm = JSON.stringify(this.form);
    console.log('Formulaire soumis :', jsonForm);
+  }
+  onQuestionTypeChange(question: Question) {
+    if (question.type === 'text') {
+        question.options = []; // Supprime toutes les options si le type est "text"
+    } else if (question.options.length === 0) {
+        question.options = ['Option 1']; // Ajoute une option par défaut pour les autres types
+    }
   }
 }
