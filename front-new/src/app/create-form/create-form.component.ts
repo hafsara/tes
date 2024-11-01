@@ -78,10 +78,11 @@ export class CreateFormComponent {
     return true;
   }
 
-  previousStep() {
+  previousStep(prevCallback: any) {
     if (this.currentStep > 0) {
       this.currentStep--;
       this.showErrors = false;
+      prevCallback.emit();
     }
   }
 
@@ -120,7 +121,7 @@ export class CreateFormComponent {
       this.form.questions[questionIndex].options.splice(optionIndex, 1);
     }
   }
-nextStep(nextCallback: any) {
+  nextStep(nextCallback: any) {
     if (this.validateCurrentStep()) {
         this.showErrors = false;
         this.currentStep++;
@@ -129,6 +130,5 @@ nextStep(nextCallback: any) {
     } else {
         this.showErrors = true;
     }
-}
-
+ }
 }

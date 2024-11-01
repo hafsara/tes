@@ -152,7 +152,7 @@
 
                     <!-- Boutons de navigation -->
                     <div class="flex pt-4 justify-content-between">
-                        <p-button label="Back" icon="pi pi-arrow-left" (onClick)="previousStep()"></p-button>
+                        <p-button label="Back" icon="pi pi-arrow-left" (onClick)="previousStep(prevCallback)"></p-button>
                         <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
                                   (onClick)="nextStep(nextCallback)"></p-button>
                     </div>
@@ -168,7 +168,7 @@
                     </div>
                 </div>
                 <div class="flex pt-4 justify-content-between">
-                    <p-button label="Back" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()"></p-button>
+                    <p-button label="Back" icon="pi pi-arrow-left" (onClick)="previousStep(prevCallback)"></p-button>
                     <p-button label="Submit" icon="pi pi-arrow-right" iconPos="right"></p-button>
                 </div>
             </ng-template>
