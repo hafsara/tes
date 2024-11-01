@@ -1,4 +1,3 @@
-// create-form.component.ts
 import { Component } from '@angular/core';
 
 interface Question {
@@ -25,13 +24,13 @@ interface FormContainer {
   styleUrls: ['./create-form.component.scss']
 })
 export class CreateFormComponent {
-  currentStep = 0;
+  currentStep: number = 0;
   showErrors = false;
   questionTypes = [
-        { label: 'Multiple choices', value: 'multipleChoice' },
-        { label: 'Checkboxes', value: 'checkbox' },
-        { label: 'Drop-down list', value: 'dropdown' },
-        { label: 'Text', value: 'text' }
+    { label: 'Multiple choices', value: 'multipleChoice' },
+    { label: 'Checkboxes', value: 'checkbox' },
+    { label: 'Drop-down list', value: 'dropdown' },
+    { label: 'Text', value: 'text' }
   ];
 
   form: FormContainer = {
@@ -54,13 +53,45 @@ export class CreateFormComponent {
 
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-  addQuestion() {
-      this.form.questions.push({
-        text: '',
-        type: 'multipleChoice',
-        options: ['Option 1'],
-        isRequired: true
+  validateCurrentStep(): boolean {
+    if (this.currentStep === 0) {
+      const isEmailValid = this.emailPattern.test(this.form.userEmail || '');
+      const isManagerEmailValid = !this.form.escalate || (this.form.managerEmail && this.emailPattern.test(this.form.managerEmail || ''));
+
+       const isValid = (
+          this.form.title.trim() !== '' &&
+          this.form.description.trim() !== '' &&
+          this.emailPattern.test(this.form.userEmail || '') &&
+          (!this.form.escalate || (this.form.managerEmail ? this.emailPattern.test(this.form.managerEmail) : false))
+      );
+
+      console.log('Validation result for step', this.currentStep, ':', isValid);
+      return isValid;
+
+    } else if (this.currentStep === 1) {
+      return this.form.questions.every(question => {
+        const isQuestionTextValid = question.text.trim() !== '';
+        const areOptionsValid = question.type === 'text' || (question.options.length > 0 && question.options.every(option => option.trim() !== ''));
+        return isQuestionTextValid && areOptionsValid;
       });
+    }
+    return true;
+  }
+
+  previousStep() {
+    if (this.currentStep > 0) {
+      this.currentStep--;
+      this.showErrors = false;
+    }
+  }
+
+  addQuestion() {
+    this.form.questions.push({
+      text: '',
+      type: 'multipleChoice',
+      options: ['Option 1'],
+      isRequired: true
+    });
   }
 
   removeQuestion(index: number) {
@@ -89,34 +120,15 @@ export class CreateFormComponent {
       this.form.questions[questionIndex].options.splice(optionIndex, 1);
     }
   }
-
-validateCurrentStep(): boolean {
-  if (this.currentStep === 0) {
-    return (
-      this.form.title.trim() !== '' &&
-      this.form.description.trim() !== '' &&
-      this.emailPattern.test(this.form.userEmail || '')
-      //&&
-      //(!this.form.escalate ||
-       // (this.form.managerEmail && this.emailPattern.test(this.form.managerEmail || '')))
-    );
-  }
-  return true;
+nextStep(nextCallback: any) {
+    if (this.validateCurrentStep()) {
+        this.showErrors = false;
+        this.currentStep++;
+        // Emit the next callback to notify the stepper to advance
+        nextCallback.emit();
+    } else {
+        this.showErrors = true;
+    }
 }
 
-  nextStep() {
-    if (this.validateCurrentStep()) {
-      this.showErrors = false;
-      this.currentStep++;
-    } else {
-      this.showErrors = true;
-    }
-  }
-
-  previousStep() {
-    if (this.currentStep > 0) {
-      this.currentStep--;
-      this.showErrors = false;
-    }
-  }
 }
