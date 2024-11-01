@@ -21,7 +21,10 @@
       <!-- Checkboxes for Multiple Selections -->
       <div *ngSwitchCase="'checkbox'">
         <div *ngFor="let option of question.options">
-          <p-checkbox [(ngModel)]="question.selectedOptions" [value]="option" binary="true" label="{{ option }}" class="mr-2"></p-checkbox>
+          <p-checkbox [binary]="true" [label]="option"
+                      [ngModel]="isChecked(question.selectedOptions || [], option)"
+                      (ngModelChange)="toggleOption(question.selectedOptions || [], option)">
+          </p-checkbox>
         </div>
       </div>
 
