@@ -6,7 +6,7 @@ interface Question {
   options: string[];
   response?: string;
   selectedOptions?: string[];
-  primeNgOptions?: { label: string; value: string }[];
+  isRequired?: boolean;
 }
 
 @Component({
@@ -15,20 +15,27 @@ interface Question {
   styleUrls: ['./user-view.component.scss']
 })
 export class UserViewComponent implements OnInit {
-  @Input() formData: {
+  @Input() formData!: {
     title: string;
     description: string;
     questions: Question[];
-  } = { title: '', description: '', questions: [] }; // Default initialization
+  };
 
-  ngOnInit(): void {
-    // Populate primeNgOptions for PrimeNG components
-    this.formData.questions.forEach(question => {
-      question.primeNgOptions = question.options.map(opt => ({ label: opt, value: opt }));
+  questionDropdownOptions: { [key: string]: { label: string, value: string }[] } = {};
+
+  ngOnInit() {
+    this.initializeOptions();
+  }
+
+  initializeOptions() {
+    this.formData.questions.forEach((question) => {
+      if (question.type === 'dropdown') {
+        this.questionDropdownOptions[question.text] = question.options.map(opt => ({ label: opt, value: opt }));
+      }
     });
   }
 
   onSubmit() {
-    console.log("Form Data:", this.formData);
+    console.log('Submitted form data:', this.formData);
   }
 }

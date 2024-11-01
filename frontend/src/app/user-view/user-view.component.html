@@ -5,24 +5,33 @@
   <div *ngFor="let question of formData.questions">
     <h3>{{ question.text }}</h3>
     <ng-container [ngSwitch]="question.type">
+      <!-- Text Input -->
       <div *ngSwitchCase="'text'">
-        <input type="text" placeholder="Enter your response" [(ngModel)]="question.response" />
+        <input type="text" placeholder="Enter your response" [(ngModel)]="question.response" name="response{{question.text}}" />
       </div>
+
+      <!-- Radio Buttons for Multiple Choice Questions -->
       <div *ngSwitchCase="'multipleChoice'">
-        <div *ngFor="let option of question.primeNgOptions">
-          <p-radioButton name="{{ question.text }}" [(ngModel)]="question.response" [value]="option.value">{{ option.label }}</p-radioButton>
+        <div *ngFor="let option of question.options">
+          <p-radioButton name="group{{question.text}}" [(ngModel)]="question.response" [value]="option" class="mr-2"></p-radioButton>
+          <label>{{ option }}</label>
         </div>
       </div>
+
+      <!-- Checkboxes for Multiple Selections -->
       <div *ngSwitchCase="'checkbox'">
-        <div *ngFor="let option of question.primeNgOptions">
-          <p-checkbox [(ngModel)]="question.selectedOptions" [binary]="true" [label]="option.label"></p-checkbox>
+        <div *ngFor="let option of question.options">
+          <p-checkbox [(ngModel)]="question.selectedOptions" [value]="option" binary="true" label="{{ option }}" class="mr-2"></p-checkbox>
         </div>
       </div>
+
+      <!-- Dropdown for Select List Questions -->
       <div *ngSwitchCase="'dropdown'">
-        <p-dropdown [(ngModel)]="question.response" [options]="question.primeNgOptions"></p-dropdown>
+        <p-dropdown [(ngModel)]="question.response" [options]="questionDropdownOptions[question.text]"
+                    placeholder="Select an option" class="w-full"></p-dropdown>
       </div>
     </ng-container>
   </div>
 
-  <button pButton type="button" label="Submit" (click)="onSubmit()"></button>
+  <button pButton label="Submit" icon="pi pi-check" class="p-button-raised mt-4" (click)="onSubmit()"></button>
 </div>
