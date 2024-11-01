@@ -8,11 +8,10 @@
       <!-- Text Input for Free Text Questions -->
       <div *ngSwitchCase="'text'" class="mb-2">
         <p-floatLabel>
-          <input pInputText id="question.text" [(ngModel)]="question.response"/>
-          <label for="question.text">{{ question.text }}</label>
+          <input pInputText id="{{ question.text }}" [(ngModel)]="question.response"/>
+          <label for="{{ question.text }}">{{ question.text }}</label>
         </p-floatLabel>
       </div>
-
 
       <!-- Radio Buttons for Multiple Choice Questions -->
       <div *ngSwitchCase="'multipleChoice'" class="mb-2">
