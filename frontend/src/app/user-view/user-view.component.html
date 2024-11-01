@@ -8,7 +8,7 @@
       <!-- Text Input -->
       <div *ngSwitchCase="'text'">
         <input type="text" placeholder="Enter your response" [(ngModel)]="question.response" name="response{{i}}" />
-        <small *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.text)">
+        <small *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.text)" class="p-error">
           This field is required.
         </small>
       </div>
@@ -19,7 +19,7 @@
           <p-radioButton name="group{{i}}" [(ngModel)]="question.response" [value]="option.value" class="mr-2"></p-radioButton>
           <label>{{ option.label }}</label>
         </div>
-        <small *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.text)">
+        <small *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.text)" class="p-error">
           Please select an option.
         </small>
       </div>
@@ -32,7 +32,7 @@
                       (ngModelChange)="toggleOption(question.selectedOptions || [], option.value)">
           </p-checkbox>
         </div>
-        <small *ngIf="validationErrors.includes('Please select at least one option for question ' + (i + 1) + ': ' + question.text)">
+        <small *ngIf="validationErrors.includes('Please select at least one option for question ' + (i + 1) + ': ' + question.text)" class="p-error">
           Please select at least one option.
         </small>
       </div>
@@ -42,7 +42,7 @@
         <p-dropdown [(ngModel)]="question.response"
                     [options]="question.formattedOptions"
                     placeholder="Select an option" class="w-full"></p-dropdown>
-        <small *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.text)">
+        <small *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.text)" class="p-error">
           Please select an option.
         </small>
       </div>
