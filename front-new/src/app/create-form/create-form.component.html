@@ -152,7 +152,8 @@
 
                     <!-- Boutons de navigation -->
                     <div class="flex pt-4 justify-content-between">
-                        <p-button label="Back" icon="pi pi-arrow-left" (onClick)="previousStep(prevCallback)"></p-button>
+                        <p-button label="Back" icon="pi pi-arrow-left"
+                                  (onClick)="previousStep(prevCallback)"></p-button>
                         <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
                                   (onClick)="nextStep(nextCallback)"></p-button>
                     </div>
@@ -162,9 +163,62 @@
 
         <p-stepperPanel header="Submit">
             <ng-template pTemplate="content" let-prevCallback="prevCallback">
-                <div class="flex flex-column h-12rem">
-                    <div class="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
-                        Content III
+                <div class="flex flex-column">
+                    <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
+                        <!-- Title Recap -->
+                        <div class="mb-3">
+                            <label class="font-bold">Titre:</label>
+                            <div>{{ form.title }}</div>
+                        </div>
+
+                        <!-- Description Recap -->
+                        <div class="mb-3">
+                            <label class="font-bold">Description:</label>
+                            <div>{{ form.description }}</div>
+                        </div>
+
+                        <!-- User Email Recap -->
+                        <div class="mb-3">
+                            <label class="font-bold">Email de l'utilisateur:</label>
+                            <div>{{ form.userEmail }}</div>
+                        </div>
+
+                        <!-- Reference Recap -->
+                        <div class="mb-3">
+                            <label class="font-bold">Référence:</label>
+                            <div>{{ form.reference || 'Not specified' }}</div>
+                        </div>
+
+                        <!-- Escalation Recap -->
+                        <div class="mb-3">
+                            <label class="font-bold">Escalade:</label>
+                            <div>{{ form.escalate ? 'Oui' : 'Non' }}</div>
+                        </div>
+
+                        <!-- Manager Email Recap (conditional) -->
+                        <div *ngIf="form.escalate" class="mb-3">
+                            <label class="font-bold">Email du Manager:</label>
+                            <div>{{ form.managerEmail }}</div>
+                        </div>
+
+                        <!-- Reminder Delay Day Recap -->
+                        <div class="mb-3">
+                            <label class="font-bold">Jour de Rappel:</label>
+                            <div>{{ form.reminderDelayDay }}</div>
+                        </div>
+
+                        <!-- Questions Recap -->
+                        <h3>Questions :</h3>
+                        <div *ngFor="let question of form.questions; let i = index" class="recap-question">
+                            <strong>Question {{ i + 1 }} :</strong> {{ question.text }}
+                            <div class="recap-question-type">Type : {{ question.type }}</div>
+                            <div class="recap-options" *ngIf="question.options?.length">
+                                <label>Options :</label>
+                                <ul>
+                                    <li *ngFor="let option of question.options">{{ option }}</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="flex pt-4 justify-content-between">

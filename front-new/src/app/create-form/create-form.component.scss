@@ -98,3 +98,20 @@ textarea[pInputTextarea] {
     justify-content: center;
     align-items: center;
 }
+
+.font-bold {
+    font-weight: bold;
+}
+.mb-3 {
+    margin-bottom: 1rem;
+}
+.recap-question {
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.recap-question-type, .recap-options {
+    font-size: 0.9rem;
+    color: #666;
+}
