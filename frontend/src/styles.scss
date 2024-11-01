@@ -25,3 +25,113 @@
     background: var(--highlight-bg);
     color: var(--highlight-text-color);
 }
+/* General Container Styling */
+.centered-container {
+    max-width: 600px;
+    margin: 0 auto;
+    border-radius: 8px;
+}
+
+/* Stepper Styling */
+.p-stepper .p-step {
+    font-weight: bold;
+    color: #00796b;
+}
+
+.p-stepper .p-step-active .p-step-icon {
+    background-color: #00796b !important;
+    color: white;
+}
+
+.p-stepper .p-step-indicator {
+    font-size: 14px;
+}
+
+/* Form Input Styling */
+input, textarea, .p-dropdown, .p-inputnumber {
+    width: 100%;
+    border-radius: 4px;
+}
+
+input:focus, textarea:focus, .p-dropdown:focus, .p-inputnumber:focus {
+    outline: none;
+    border-color: #00796b;
+    box-shadow: 0 0 5px rgba(0, 121, 107, 0.5);
+}
+
+/* Button Styling */
+.p-button {
+    background-color: #00796b !important;
+    border: none !important;
+    border-radius: 4px !important;
+    font-weight: bold;
+    color: white !important;
+}
+
+.p-button:hover {
+    background-color: #004d40 !important;
+}
+
+/* Recap Panel Styling */
+.recap-question {
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #e0f2f1;
+    margin-bottom: 10px;
+}
+
+.recap-options ul {
+    padding-left: 20px;
+}
+
+.p-card {
+    background-color: #e8f5e9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Alignments */
+.question-content {
+    margin-right: 10px;
+}
+
+.option-buttons {
+    display: flex;
+    align-items: center;
+}
+
+.card, .input-container, .question-container {
+    border-radius: 8px;
+}
+.form-container {
+    background-color: #f9f9f9;
+}
+.form-header {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #3a3a3a;
+    margin-bottom: 15px;
+}
+.p-button {
+    background-color: #28a745;
+    border: none;
+    color: white;
+    border-radius: 5px;
+}
+.p-button:hover {
+    background-color: #218838;
+}
+.p-step {
+    color: #28a745;
+}
+.p-step-active {
+    color: #218838;
+    font-weight: bold;
+}
+.form-section {
+    margin-top: 20px;
+    padding: 15px;
+}
+.form-input {
+    margin-bottom: 10px;
+}
