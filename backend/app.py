@@ -1,6 +1,7 @@
 from flask import Flask
 from config import Config
 from extensions import db
+from flask_migrate import Migrate
 from routes import api
 from flask_swagger_ui import get_swaggerui_blueprint
 from auth import setup_oauth, auth_bp
@@ -14,9 +15,9 @@ app.config.from_object(Config)
 
 # Initialize extensions
 db.init_app(app)
+migrate = Migrate(app, db)
 setup_oauth(app)
 
-# Enregistrer les blueprints
 app.register_blueprint(api)
 app.register_blueprint(auth_bp, url_prefix='/auth')
 
