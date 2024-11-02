@@ -1,5 +1,6 @@
 import os
 
+
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'your_secret_key')
     SQLALCHEMY_DATABASE_URI = 'postgresql://hafsa:toto@localhost/formulaire_db'
@@ -16,7 +17,7 @@ class Config:
 
     SWAGGER_URL = '/api/docs'
     API_URL = '/static/swagger.json'
-    
+
     # Configuration de mail
     SMTP_SERVER = 'smtp.example.com'
     SMTP_PORT = 587
@@ -25,4 +26,3 @@ class Config:
     EMAIL_FROM = 'no-reply@example.com'
     REMINDER_DELAY_DAYS = 3
     APP_URL = 'https://yourapp.com'
-

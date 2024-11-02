@@ -18,8 +18,8 @@ def create_form_container():
         title=data['title'],
         user_email=data['user_email'],
         manager_email=data['manager_email'],
-        ticket=data.get('ticket'),
-        escalation=data.get('escalation', False),
+        ticket=data.get('reference'),
+        escalate=data.get('escalate', False),
         initiated_by=super_admin_id
     )
     form_container.generate_unique_link()
@@ -33,7 +33,7 @@ def create_form_container():
 
     form = Form(
         form_container_id=form_container.id,
-        fields=form_data['fields']
+        questions=form_data['questions']
     )
     db.session.add(form)
     db.session.commit()
@@ -58,7 +58,7 @@ def add_form_to_container(container_id):
     data = request.json
     form = Form(
         form_container_id=container_id,
-        fields=data['fields']
+        questions=data['questions']
     )
     db.session.add(form)
     db.session.commit()
@@ -69,7 +69,7 @@ def add_form_to_container(container_id):
 @api.route('/form-containers/<int:container_id>/forms/<int:form_id>/submit-response', methods=['POST'])
 def submit_form_response(container_id, form_id):
     data = request.json
-    responder_email = data.get('responder_email')
+    responder_uid = data.get('responder_uid')
 
     form = Form.query.filter_by(id=form_id, form_container_id=container_id).first_or_404()
 
@@ -77,7 +77,7 @@ def submit_form_response(container_id, form_id):
         return jsonify({"error": "La réponse a déjà été soumise pour ce formulaire"}), 400
 
     form.response = data['response']
-    form.responder_email = responder_email
+    form.responder_uid = responder_uid
     form.status = 'answered'
     db.session.commit()
 
@@ -98,8 +98,8 @@ def get_form_containers_by_super_admin():
             "title": fc.title,
             "user_email": fc.user_email,
             "manager_email": fc.manager_email,
-            "ticket": fc.ticket,
-            "escalation": fc.escalation,
+            "reference": fc.reference,
+            "escalate": fc.escalate,
             "validated": fc.validated,
             "forms_count": len(fc.forms)
         }
@@ -116,14 +116,14 @@ def get_form_container_by_id(container_id):
         "title": form_container.title,
         "user_email": form_container.user_email,
         "manager_email": form_container.manager_email,
-        "ticket": form_container.ticket,
-        "escalation": form_container.escalation,
+        "reference": form_container.reference,
+        "escalate": form_container.escalate,
         "validated": form_container.validated,
         "initiated_by": form_container.initiated_by,
         "forms": [
             {
                 "form_id": form.id,
-                "fields": form.fields,
+                "questions": form.questions,
                 "response": form.response,
                 "responder_id": form.responder_id,
                 "status": form.status
@@ -143,8 +143,8 @@ def get_all_form_containers():
             "title": fc.title,
             "user_email": fc.user_email,
             "manager_email": fc.manager_email,
-            "ticket": fc.ticket,
-            "escalation": fc.escalation,
+            "reference": fc.reference,
+            "escalate": fc.escalate,
             "validated": fc.validated,
             "forms_count": len(fc.forms),
             "initiated_by": fc.initiated_by
@@ -163,8 +163,8 @@ def get_form_containers_by_specific_super_admin(super_admin_id):
             "title": fc.title,
             "user_email": fc.user_email,
             "manager_email": fc.manager_email,
-            "ticket": fc.ticket,
-            "escalation": fc.escalation,
+            "reference": fc.reference,
+            "escalate": fc.escalate,
             "validated": fc.validated,
             "forms_count": len(fc.forms)
         }
@@ -191,7 +191,7 @@ def view_form_container(encoded_id):
         "forms": [
             {
                 "form_id": form.id,
-                "fields": form.fields,
+                "questions": form.questions,
                 "response": form.response,
                 "status": form.status
             }
@@ -239,12 +239,12 @@ def get_form_container_history(unique_link):
         "title": form_container.title,
         "user_email": form_container.user_email,
         "manager_email": form_container.manager_email,
-        "ticket": form_container.ticket,
-        "escalation": form_container.escalation,
+        "reference": form_container.reference,
+        "escalate": form_container.escalate,
         "forms": [
             {
                 "form_id": form.id,
-                "fields": form.fields,
+                "questions": form.questions,
                 "response": form.response,
                 "status": form.status,
                 "created_at": form.created_at,

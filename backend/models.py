@@ -11,10 +11,10 @@ class FormContainer(db.Model):
     title = db.Column(db.String(100), nullable=False)
     user_email = db.Column(db.String(100), nullable=False)
     manager_email = db.Column(db.String(100), nullable=False)
-    ticket = db.Column(db.String(50), nullable=True)
-    escalation = db.Column(db.Boolean, default=False)
+    reference = db.Column(db.String(50), nullable=True)
+    escalate = db.Column(db.Boolean, default=False)
     validated = db.Column(db.Boolean, default=False)
-    initiated_by = db.Column(db.Integer, nullable=False)  # ID du SuperAdmin
+    initiated_by = db.Column(db.Integer, nullable=False)  # todo ID du SuperAdmin
     unique_link = db.Column(db.String(200), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -38,9 +38,9 @@ class Form(db.Model):
     __tablename__ = 'forms'
     id = db.Column(db.Integer, primary_key=True)
     form_container_id = db.Column(db.Integer, db.ForeignKey('form_containers.id'), nullable=False)
-    fields = db.Column(db.JSON, nullable=False)
+    questions = db.Column(db.JSON, nullable=False)
     response = db.Column(db.JSON, nullable=True)
-    responder_email = db.Column(db.String(100), nullable=True)
+    responder_uid = db.Column(db.String(100), nullable=True)
     status = db.Column(db.String(50), default='open')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)

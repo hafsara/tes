@@ -6,7 +6,7 @@
   </div>
 
   <div *ngFor="let question of formData.questions; let i = index">
-    <h5>{{ question.text }}</h5>
+    <h5>{{ question.label }}</h5>
     <ng-container [ngSwitch]="question.type">
       <!-- Text Input -->
       <div *ngSwitchCase="'text'">
@@ -21,7 +21,7 @@
           class="p-inputtextarea"
         ></textarea>
         <small
-          *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.text)"
+          *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.label)"
           class="p-error"
         >
           This field is required.
@@ -40,7 +40,7 @@
           <label>{{ option.label }}</label>
         </div>
         <small
-          *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.text)"
+          *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.label)"
           class="p-error"
         >
           Please select an option.
@@ -58,7 +58,7 @@
           ></p-checkbox>
         </div>
         <small
-          *ngIf="validationErrors.includes('Please select at least one option for question ' + (i + 1) + ': ' + question.text)"
+          *ngIf="validationErrors.includes('Please select at least one option for question ' + (i + 1) + ': ' + question.label)"
           class="p-error"
         >
           Please select at least one option.
@@ -74,7 +74,7 @@
           class="w-full"
         ></p-dropdown>
         <small
-          *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.text)"
+          *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.label)"
           class="p-error"
         >
           Please select an option.

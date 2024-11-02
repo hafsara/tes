@@ -10,10 +10,10 @@ export class AppComponent {
     title: "Title test",
     description: "desc test",
     questions: [
-      { text: "Text titre", type: "text", options: [] },
-      { text: "Multichoice example", type: "multipleChoice", options: ["Option 1", "Option 2"]},
-      { text: "Checkbox example", type: "checkbox", options: ["Option A", "Option B"] },
-      { text: "Dropdown example", type: "dropdown", options: ["Option X", "Option Y"] }
+      { label: "Text titre", type: "text", options: [] },
+      { label: "Multichoice example", type: "multipleChoice", options: ["Option 1", "Option 2"]},
+      { label: "Checkbox example", type: "checkbox", options: ["Option A", "Option B"] },
+      { label: "Dropdown example", type: "dropdown", options: ["Option X", "Option Y"] }
     ]
   };
 }

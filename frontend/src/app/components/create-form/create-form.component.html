@@ -96,10 +96,10 @@
               <div class="question-content flex-grow-1">
                 <div class="full-width-input mb-2">
                   <p-floatLabel>
-                    <input pInputText [(ngModel)]="question.text" required/>
+                    <input pInputText [(ngModel)]="question.label" required/>
                     <label>Question sans titre</label>
                   </p-floatLabel>
-                  <small *ngIf="showErrors && question.text.trim() === ''" class="p-error">Question
+                  <small *ngIf="showErrors && question.label.trim() === ''" class="p-error">Question
                     text is required</small>
 
                 </div>

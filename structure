@@ -45,7 +45,7 @@
      POST http://localhost:5000/form-containers/<container_id>/forms
      Body (JSON):
      {
-       "fields": {
+       "questions": {
          "question1": "Answer1",
          "question2": "Answer2"
        }

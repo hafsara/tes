@@ -7,3 +7,4 @@ SpiffWorkflow
 Celery
 redis
 psycopg2-binary
+flask-cors

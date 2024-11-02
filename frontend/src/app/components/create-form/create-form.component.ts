@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
+import { FormService } from '../../services/form.service';
+
 
 interface Question {
-  text: string;
+  label: string;
   type: string;
   options: string[];
   isRequired: boolean;
@@ -26,6 +28,7 @@ interface FormContainer {
 export class CreateFormComponent {
   currentStep: number = 0;
   showErrors = false;
+  constructor(private formService: FormService) {}
   questionTypes = [
     { label: 'Multiple choices', value: 'multipleChoice' },
     { label: 'Checkboxes', value: 'checkbox' },
@@ -43,7 +46,7 @@ export class CreateFormComponent {
     reminderDelayDay: 1,
     questions: [
       {
-        text: '',
+        label: '',
         type: 'text',
         options: [],
         isRequired: true
@@ -70,7 +73,7 @@ export class CreateFormComponent {
 
     } else if (this.currentStep === 1) {
       return this.form.questions.every(question => {
-        const isQuestionTextValid = question.text.trim() !== '';
+        const isQuestionTextValid = question.label.trim() !== '';
         const areOptionsValid = question.type === 'text' || (question.options.length > 0 && question.options.every(option => option.trim() !== ''));
         return isQuestionTextValid && areOptionsValid;
       });
@@ -88,7 +91,7 @@ export class CreateFormComponent {
 
   addQuestion() {
     this.form.questions.push({
-      text: '',
+      label: '',
       type: 'text',
       options: [],
       isRequired: true
@@ -104,7 +107,7 @@ export class CreateFormComponent {
   duplicateQuestion(index: number) {
     const questionToDuplicate = this.form.questions[index];
     this.form.questions.splice(index + 1, 0, {
-      text: questionToDuplicate.text,
+      label: questionToDuplicate.label,
       type: questionToDuplicate.type,
       options: [...questionToDuplicate.options],
       isRequired: questionToDuplicate.isRequired
@@ -132,17 +135,24 @@ export class CreateFormComponent {
     }
  }
   submitForm() {
-   const jsonForm = JSON.stringify(this.form);
-   console.log('Formulaire soumis :', jsonForm);
+      this.formService.createFormContainer(this.form).subscribe(
+        response => {
+          console.log('Form created successfully:', response);
+        },
+        error => {
+          console.error('Error creating form:', error);
+        }
+      );
   }
+
   onQuestionTypeChange(question: Question) {
     if (question.type === 'text') {
-        question.options = []; // Supprime toutes les options si le type est "text"
+        question.options = [];
     } else if (question.options.length === 0) {
-        question.options = ['Option 1']; // Ajoute une option par défaut pour les autres types
+        question.options = ['Option 1'];
     }
   }
 trackByIndex(index: number, item: any): number {
     return index;
-}
-}
+    }
+  }

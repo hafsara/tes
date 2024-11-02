@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Question, formatQuestions } from '../../utils/question-formatter';
+import { FormService } from '../../services/form.service';
 
 @Component({
   selector: 'app-user-view',
@@ -13,6 +14,7 @@ export class UserViewComponent implements OnInit {
     questions: Question[];
   };
 
+  constructor(private formService: FormService) {}
   validationErrors: string[] = [];
 
   ngOnInit() {
@@ -37,7 +39,7 @@ export class UserViewComponent implements OnInit {
     this.validationErrors = []; // Reset errors
 
     this.formData.questions.forEach((question, index) => {
-      const questionError = `Please respond to question ${index + 1}: ${question.text}`;
+      const questionError = `Please respond to question ${index + 1}: ${question.label}`;
 
       if (question.isRequired) {
         if (question.type === 'text' && (!question.response || question.response.trim() === '')) {
@@ -45,7 +47,7 @@ export class UserViewComponent implements OnInit {
         } else if (question.type === 'multipleChoice' && !question.response) {
           this.validationErrors.push(questionError);
         } else if (question.type === 'checkbox' && (!question.selectedOptions || question.selectedOptions.length === 0)) {
-          this.validationErrors.push(`Please select at least one option for question ${index + 1}: ${question.text}`);
+          this.validationErrors.push(`Please select at least one option for question ${index + 1}: ${question.label}`);
         } else if (question.type === 'dropdown' && !question.response) {
           this.validationErrors.push(questionError);
         }
