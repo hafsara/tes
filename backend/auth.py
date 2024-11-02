@@ -7,7 +7,6 @@ oauth = OAuth()
 
 auth_bp = Blueprint('auth', __name__)
 
-# Configurez le fournisseur OAuth ici
 def setup_oauth(app):
     oauth.init_app(app)
     oauth.register(

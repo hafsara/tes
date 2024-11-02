@@ -4,7 +4,6 @@ from workflow_manager import FormWorkflowManager
 
 @celery.task
 def check_reminders_and_escalations():
-    """Tâche périodique pour gérer les rappels et escalades des formulaires."""
     open_containers = FormContainer.query.filter_by(validated=False).all()
     for container in open_containers:
         workflow_manager = FormWorkflowManager(container_id=container.id)

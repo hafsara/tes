@@ -14,7 +14,6 @@ def create_form_container():
     if not super_admin_id:
         return jsonify({"error": "SuperAdmin non authentifié"}), 401
 
-    # Créer le FormContainer avec un lien unique
     form_container = FormContainer(
         title=data['title'],
         user_email=data['user_email'],
@@ -28,7 +27,6 @@ def create_form_container():
     db.session.add(form_container)
     db.session.commit()
 
-    # Ajouter le premier formulaire au conteneur
     form_data = data.get('form')
     if not form_data:
         return jsonify({"error": "Un formulaire est requis pour créer un conteneur"}), 400
@@ -43,7 +41,6 @@ def create_form_container():
     return jsonify({"container_id": form_container.id, "form_id": form.id, "link": form_container.unique_link}), 201
 
 
-# Endpoint pour ajouter un formulaire supplémentaire dans un conteneur (max 5)
 @api.route('/form-containers/<int:container_id>/forms', methods=['POST'])
 def add_form_to_container(container_id):
     super_admin_id = session.get('super_admin_id')
@@ -55,7 +52,6 @@ def add_form_to_container(container_id):
     if form_container.initiated_by != super_admin_id:
         return jsonify({"error": "Vous n'êtes pas autorisé à modifier ce conteneur"}), 403
 
-    # Vérifier le nombre de formulaires dans le conteneur
     if len(form_container.forms) >= 5:
         return jsonify({"error": "Vous ne pouvez pas ajouter plus de 5 formulaires à ce conteneur"}), 400
 
@@ -70,7 +66,6 @@ def add_form_to_container(container_id):
     return jsonify({"form_id": form.id}), 201
 
 
-# Endpoint pour soumettre une réponse à un formulaire dans un Form Container
 @api.route('/form-containers/<int:container_id>/forms/<int:form_id>/submit-response', methods=['POST'])
 def submit_form_response(container_id, form_id):
     data = request.json
@@ -89,7 +84,6 @@ def submit_form_response(container_id, form_id):
     return jsonify({"message": "Réponse soumise avec succès"}), 200
 
 
-# Endpoint pour obtenir tous les conteneurs de formulaires créés par le SuperAdmin courant
 @api.route('/form-containers', methods=['GET'])
 def get_form_containers_by_super_admin():
     super_admin_id = session.get('super_admin_id')
@@ -114,7 +108,6 @@ def get_form_containers_by_super_admin():
     return jsonify(result), 200
 
 
-# Endpoint pour obtenir les détails d'un conteneur de formulaire par ID
 @api.route('/form-containers/<int:container_id>', methods=['GET'])
 def get_form_container_by_id(container_id):
     form_container = FormContainer.query.get_or_404(container_id)
@@ -141,7 +134,6 @@ def get_form_container_by_id(container_id):
     return jsonify(result), 200
 
 
-# Endpoint pour obtenir tous les conteneurs de formulaires pour tous les SuperAdmins
 @api.route('/form-containers/all', methods=['GET'])
 def get_all_form_containers():
     form_containers = FormContainer.query.all()
@@ -162,7 +154,6 @@ def get_all_form_containers():
     return jsonify(result), 200
 
 
-# Endpoint pour obtenir les conteneurs de formulaires initiés par un SuperAdmin spécifique (en utilisant son ID)
 @api.route('/form-containers/super-admin/<int:super_admin_id>', methods=['GET'])
 def get_form_containers_by_specific_super_admin(super_admin_id):
     form_containers = FormContainer.query.filter_by(initiated_by=super_admin_id).all()
@@ -185,17 +176,14 @@ def get_form_containers_by_specific_super_admin(super_admin_id):
 @api.route('/form-container/<string:encoded_id>', methods=['GET'])
 def view_form_container(encoded_id):
     try:
-        # Décodage de l'ID
         container_id = int(base64.urlsafe_b64decode(encoded_id).decode())
     except (ValueError, TypeError):
-        return abort(404)  # Si le lien est invalide
+        return abort(404)
 
-    # Récupérer le FormContainer
     form_container = FormContainer.query.get(container_id)
     if not form_container or form_container.validated:
-        return abort(404)  # Conteneur inexistant ou validé
+        return abort(404)
 
-    # Retourner les détails du FormContainer et des formulaires associés
     result = {
         "id": form_container.id,
         "title": form_container.title,
@@ -226,8 +214,6 @@ def validate_form_container(container_id):
 
     form_container.validated = True
     db.session.commit()
-
-    # Utilisation de FormWorkflowManager pour stopper le workflow
     form_workflow = FormWorkflowManager(container_id=form_container.id)
     form_workflow.stop_workflow()
 
@@ -241,11 +227,9 @@ def get_form_container_history(unique_link):
     if not form_container:
         return jsonify({"error": "Form Container introuvable ou déjà validé"}), 404
 
-    # Récupération de l'email ou de l'ID utilisateur de la session pour vérifier l'accès
     user_email = session.get('user_email')
     super_admin_id = session.get('super_admin_id')
 
-    # Vérification de l'autorisation
     if (form_container.user_email != user_email) and (form_container.initiated_by != super_admin_id):
         return jsonify({"error": "Accès refusé"}), 403
 

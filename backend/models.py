@@ -38,10 +38,10 @@ class Form(db.Model):
     __tablename__ = 'forms'
     id = db.Column(db.Integer, primary_key=True)
     form_container_id = db.Column(db.Integer, db.ForeignKey('form_containers.id'), nullable=False)
-    fields = db.Column(db.JSON, nullable=False)  # Champs dynamiques du formulaire
-    response = db.Column(db.JSON, nullable=True)  # Réponse du formulaire
-    responder_email = db.Column(db.String(100), nullable=True)  # Email du User ayant répondu au formulaire
-    status = db.Column(db.String(50), default='open')  # Statut du formulaire ('open', 'answered', etc.)
+    fields = db.Column(db.JSON, nullable=False)
+    response = db.Column(db.JSON, nullable=True)
+    responder_email = db.Column(db.String(100), nullable=True)
+    status = db.Column(db.String(50), default='open')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
