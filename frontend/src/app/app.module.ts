@@ -26,12 +26,14 @@ import { CardModule } from 'primeng/card';
 
 import { CreateFormComponent } from './create-form/create-form.component';
 import { UserViewComponent } from './user-view/user-view.component';
+import { FormPreviewComponent } from './form-preview/form-preview.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     CreateFormComponent,
-    UserViewComponent
+    UserViewComponent,
+    FormPreviewComponent
   ],
   imports: [
     BrowserModule,

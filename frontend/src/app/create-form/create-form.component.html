@@ -208,18 +208,10 @@
                             <div>{{ form.reminderDelayDay }}</div>
                         </div>
 
-                        <!-- Questions Recap -->
-                        <h3>Questions :</h3>
-                        <div *ngFor="let question of form.questions; let i = index" class="recap-question">
-                            <strong>Question {{ i + 1 }} :</strong> {{ question.text }}
-                            <div class="recap-question-type">Type : {{ question.type }}</div>
-                            <div class="recap-options" *ngIf="question.options?.length">
-                                <label>Options :</label>
-                                <ul>
-                                    <li *ngFor="let option of question.options">{{ option }}</li>
-                                </ul>
-                            </div>
-                        </div>
+                      <h5>Questions :</h5>
+                      <div class="from-preview">
+                        <app-form-preview [formQuestions]="form"></app-form-preview>
+                      </div>
                     </div>
                 </div>
                 <div class="flex pt-4 justify-content-between">

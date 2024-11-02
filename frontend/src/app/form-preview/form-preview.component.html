@@ -1,0 +1,47 @@
+<div *ngFor="let question of formQuestions.questions; let i = index">
+  <h5>{{ question.text }}</h5>
+  <ng-container [ngSwitch]="question.type">
+    <div *ngSwitchCase="'text'">
+      <textarea
+        rows="5"
+        cols="30"
+        pInputTextarea
+        [autoResize]="true"
+        class="disable-text"
+        [disabled]="true"
+      ></textarea>
+    </div>
+
+<div *ngSwitchCase="'multipleChoice'">
+  <div *ngFor="let option of question.formattedOptions" class="opts">
+    <p-radioButton
+      name="group{{i}}"
+      [value]="option.value"
+      [(ngModel)]="question.response"
+      class="mr-2"
+      [disabled]="true"
+    ></p-radioButton>
+    <label>{{ option.label }}</label>
+  </div>
+</div>
+
+    <div *ngSwitchCase="'checkbox'">
+      <div *ngFor="let option of question.formattedOptions" class="opts">
+        <p-checkbox
+          [binary]="true"
+          [label]="option.label"
+          [disabled]="true"
+        ></p-checkbox>
+      </div>
+    </div>
+
+    <div *ngSwitchCase="'dropdown'">
+      <p-dropdown
+        [options]="question.formattedOptions"
+        placeholder="Select an option"
+        class="w-full"
+        [disabled]="true"
+      ></p-dropdown>
+    </div>
+  </ng-container>
+</div>

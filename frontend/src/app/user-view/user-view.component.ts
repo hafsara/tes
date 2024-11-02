@@ -25,7 +25,6 @@ export class UserViewComponent implements OnInit {
   validationErrors: string[] = [];
 
   ngOnInit() {
-    // Format options and initialize selectedOptions for each question in ngOnInit
     this.formData.questions = this.formData.questions.map((question) => ({
       ...question,
       isRequired: question.isRequired ?? true,
