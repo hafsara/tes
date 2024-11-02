@@ -24,9 +24,9 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { CardModule } from 'primeng/card';
 
 
-import { CreateFormComponent } from './create-form/create-form.component';
-import { UserViewComponent } from './user-view/user-view.component';
-import { FormPreviewComponent } from './form-preview/form-preview.component';
+import { CreateFormComponent } from './components/create-form/create-form.component';
+import { UserViewComponent } from './components/user-view/user-view.component';
+import { FormPreviewComponent } from './components/form-preview/form-preview.component';
 
 @NgModule({
   declarations: [
@@ -62,4 +62,4 @@ import { FormPreviewComponent } from './form-preview/form-preview.component';
   schemas: [CUSTOM_ELEMENTS_SCHEMA], // Add this if using custom elements
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }

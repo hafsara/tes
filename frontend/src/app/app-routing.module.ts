@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { CreateFormComponent } from './create-form/create-form.component';
-import { UserViewComponent } from './user-view/user-view.component';
+import { CreateFormComponent } from './components/create-form/create-form.component';
+import { UserViewComponent } from './components/user-view/user-view.component';
 
 const routes: Routes = [
   { path: 'create-form', component: CreateFormComponent },

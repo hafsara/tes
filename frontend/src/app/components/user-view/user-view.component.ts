@@ -1,14 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-
-interface Question {
-  text: string;
-  type: string;
-  options: string[];
-  isRequired?: boolean;
-  response?: string;
-  selectedOptions?: string[];
-  formattedOptions?: { label: string; value: string }[];
-}
+import { Question, formatQuestions } from '../../utils/question-formatter';
 
 @Component({
   selector: 'app-user-view',
@@ -25,12 +16,7 @@ export class UserViewComponent implements OnInit {
   validationErrors: string[] = [];
 
   ngOnInit() {
-    this.formData.questions = this.formData.questions.map((question) => ({
-      ...question,
-      isRequired: question.isRequired ?? true,
-      selectedOptions: question.selectedOptions || [], // Initialize as an empty array if undefined
-      formattedOptions: question.options.map((opt) => ({ label: opt, value: opt }))
-    }));
+    this.formData.questions = formatQuestions(this.formData.questions);
   }
 
   isChecked(selectedOptions: string[], option: string): boolean {
