@@ -142,4 +142,7 @@ export class CreateFormComponent {
         question.options = ['Option 1']; // Ajoute une option par défaut pour les autres types
     }
   }
+trackByIndex(index: number, item: any): number {
+    return index;
+}
 }

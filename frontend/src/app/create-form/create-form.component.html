@@ -1,224 +1,221 @@
 <div class="card flex justify-content-center">
-    <p-stepper [(activeIndex)]="currentStep" [readOnly]="true">
-        <p-stepperPanel header="Form Configuration">
-            <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
-                <div class="flex flex-column">
-                    <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
-                        <div class="centered-container">
-                            <p-floatLabel>
-                                <input pInputText id="title" [(ngModel)]="form.title"/>
-                                <label for="title">Form Title</label>
-                            </p-floatLabel>
-                            <small *ngIf="showErrors && form.title.trim() === ''" class="p-error">Title is
-                                required</small>
-                        </div>
+  <p-stepper [(activeIndex)]="currentStep" [readOnly]="true">
+    <p-stepperPanel header="Form Configuration">
+      <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
+        <div class="flex flex-column">
+          <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
+            <div class="centered-container">
+              <p-floatLabel>
+                <input pInputText id="title" [(ngModel)]="form.title"/>
+                <label for="title">Form Title</label>
+              </p-floatLabel>
+              <small *ngIf="showErrors && form.title.trim() === ''" class="p-error">Title is
+                required</small>
+            </div>
 
-                        <div class="centered-container">
-                            <p-floatLabel>
+            <div class="centered-container">
+              <p-floatLabel>
                                 <textarea rows="5" cols="30" pInputTextarea [autoResize]="true" id="desc"
                                           [(ngModel)]="form.description"></textarea>
-                                <label for="desc">Description</label>
-                            </p-floatLabel>
-                            <small *ngIf="showErrors && form.description.trim() === ''" class="p-error">Description is
-                                required</small>
-                        </div>
+                <label for="desc">Description</label>
+              </p-floatLabel>
+              <small *ngIf="showErrors && form.description.trim() === ''" class="p-error">Description is
+                required</small>
+            </div>
 
-                        <div class="centered-container">
-                            <p-floatLabel>
-                                <input pInputText id="userMail" [(ngModel)]="form.userEmail"/>
-                                <label for="userMail">User Email</label>
-                            </p-floatLabel>
-                            <small *ngIf="showErrors && !emailPattern.test(form.userEmail || '')" class="p-error">Invalid
-                                email format</small>
-                        </div>
+            <div class="centered-container">
+              <p-floatLabel>
+                <input pInputText id="userMail" [(ngModel)]="form.userEmail"/>
+                <label for="userMail">User Email</label>
+              </p-floatLabel>
+              <small *ngIf="showErrors && !emailPattern.test(form.userEmail || '')" class="p-error">Invalid
+                email format</small>
+            </div>
 
-                        <div class="centered-container flex align-items-center">
-                            <div class="full-width-input mr-2">
-                                <p-floatLabel>
-                                    <input pInputText id="reference" [(ngModel)]="form.reference"/>
-                                    <label for="reference">Reference</label>
-                                </p-floatLabel>
-                            </div>
+            <div class="centered-container flex align-items-center">
+              <div class="full-width-input mr-2">
+                <p-floatLabel>
+                  <input pInputText id="reference" [(ngModel)]="form.reference"/>
+                  <label for="reference">Reference</label>
+                </p-floatLabel>
+              </div>
 
-                            <div>
-                                <p-toggleButton pTooltip="Disable escalate" tooltipPosition="top"
-                                                [(ngModel)]="form.escalate"
-                                                styleClass="w-9rem"
-                                                onIcon="pi pi-users"
-                                                offIcon="pi pi-user">
-                                </p-toggleButton>
-                            </div>
-                        </div>
-                        <div *ngIf="form.escalate" class="centered-container">
-                            <p-floatLabel>
-                                <input pInputText id="managerMail" [(ngModel)]="form.managerEmail"/>
-                                <label for="managerMail">Manager Email</label>
-                            </p-floatLabel>
-                            <small *ngIf="showErrors && (!form.managerEmail || !emailPattern.test(form.managerEmail || ''))"
-                                   class="p-error">Invalid manager email</small>
-                        </div>
+              <div>
+                <p-toggleButton pTooltip="Disable escalate" tooltipPosition="top"
+                                [(ngModel)]="form.escalate"
+                                styleClass="w-9rem"
+                                onIcon="pi pi-users"
+                                offIcon="pi pi-user">
+                </p-toggleButton>
+              </div>
+            </div>
+            <div *ngIf="form.escalate" class="centered-container">
+              <p-floatLabel>
+                <input pInputText id="managerMail" [(ngModel)]="form.managerEmail"/>
+                <label for="managerMail">Manager Email</label>
+              </p-floatLabel>
+              <small *ngIf="showErrors && (!form.managerEmail || !emailPattern.test(form.managerEmail || ''))"
+                     class="p-error">Invalid manager email</small>
+            </div>
 
-                        <div class="centered-container flex align-items-center">
-                            <label for="reminder" class="full-width-input mr-2">Configure reminder delay day</label>
-                            <p-inputNumber
-                                    [(ngModel)]="form.reminderDelayDay"
-                                    [step]="1"
-                                    [showButtons]="true"
-                                    inputId="reminder"
-                                    [min]="2"
-                                    [max]="10"
-                                    class="small-input-number"
-                            />
-                        </div>
-                    </div>
-                    <div class="flex pt-4 justify-content-end">
-                        <p-button
-                                label="Next"
-                                icon="pi pi-arrow-right"
-                                iconPos="right"
-                                (onClick)="nextStep(nextCallback)"/>
-                    </div>
+            <div class="centered-container flex align-items-center">
+              <label for="reminder" class="full-width-input mr-2">Configure reminder delay day</label>
+              <p-inputNumber
+                [(ngModel)]="form.reminderDelayDay"
+                [step]="1"
+                [showButtons]="true"
+                inputId="reminder"
+                [min]="2"
+                [max]="10"
+                class="small-input-number"
+              />
+            </div>
+          </div>
+          <div class="flex pt-4 justify-content-end">
+            <p-button
+              label="Next"
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              (onClick)="nextStep(nextCallback)"/>
+          </div>
+        </div>
+      </ng-template>
+    </p-stepperPanel>
+
+    <!-- Add question step -->
+    <p-stepperPanel header="Add question">
+      <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback"
+                   let-index="index">
+        <div class="flex flex-column">
+          <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
+
+            <!-- Boucle principale pour chaque question -->
+            <div *ngFor="let question of form.questions; let i = index"
+                 class="question-wrapper flex align-items-start mb-4">
+
+              <div class="question-content flex-grow-1">
+                <div class="full-width-input mb-2">
+                  <p-floatLabel>
+                    <input pInputText [(ngModel)]="question.text" required/>
+                    <label>Question sans titre</label>
+                  </p-floatLabel>
+                  <small *ngIf="showErrors && question.text.trim() === ''" class="p-error">Question
+                    text is required</small>
+
                 </div>
-            </ng-template>
-        </p-stepperPanel>
 
-        <!-- Add question step -->
-        <p-stepperPanel header="Add question">
-            <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback"
-                         let-index="index">
-                <div class="flex flex-column">
-                    <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
+                <div class="dropdown-button-row mb-2">
+                  <div class="dropdown-container">
+                    <p-dropdown [(ngModel)]="question.type" placeholder="Select question type"
+                                [options]="questionTypes"
+                                (onChange)="onQuestionTypeChange(question)">
+                    </p-dropdown>
+                  </div>
 
-                        <!-- Boucle principale pour chaque question -->
-                        <div *ngFor="let question of form.questions; let i = index"
-                             class="question-wrapper flex align-items-start mb-4">
-
-                            <div class="question-content flex-grow-1">
-                                <div class="full-width-input mb-2">
-                                    <p-floatLabel>
-                                        <input pInputText [(ngModel)]="question.text" required/>
-                                        <label>Question sans titre</label>
-                                    </p-floatLabel>
-                                    <small *ngIf="showErrors && question.text.trim() === ''" class="p-error">Question
-                                        text is required</small>
-
-                                </div>
-
-                                <div class="dropdown-button-row mb-2">
-                                    <div class="dropdown-container">
-                                        <p-dropdown [(ngModel)]="question.type" placeholder="Select question type"
-                                                    [options]="questionTypes"
-                                                    (onChange)="onQuestionTypeChange(question)">
-                                        </p-dropdown>
-                                    </div>
-
-                                    <div *ngIf="question.type !== 'text'" class="button-container">
-                                        <button pButton type="button" icon="pi pi-plus"
-                                                class="p-button-rounded p-button-primary" (click)="addOption(i)">
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div *ngIf="['multipleChoice', 'checkbox', 'dropdown'].includes(question.type)">
-                                    <div *ngFor="let option of question.options; let j = index"
-                                         class="option-container flex align-items-center mb-2">
-                                        <div class="option-field flex-grow-1">
-                                            <p-floatLabel>
-                                                <input pInputText [(ngModel)]="question.options[j]" required/>
-                                            </p-floatLabel>
-                                        </div>
-                                        <div class="option-buttons ml-2">
-
-                                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true"
-                                                      (click)="removeOption(i, j)" title="Delete option"
-                                                      class="p-button-rounded mb-2"/>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Barre latérale (sidebar) avec les boutons d'action -->
-                            <div class="sidebar ml-3">
-                                <p-button icon="pi pi-plus" [rounded]="true" [text]="true" [raised]="true"
-                                          (click)="addQuestion()" title="Add question" class="p-button-rounded mb-2"/>
-                                <p-button icon="pi pi-trash" [rounded]="true" [text]="true" [raised]="true"
-                                          (click)="removeQuestion(i)" title="Delete question"
-                                          class="p-button-rounded mb-2"/>
-                                <p-button icon="pi pi-copy" [rounded]="true" [text]="true" [raised]="true"
-                                          (click)="duplicateQuestion(i)" title="Duplicate question"
-                                          class="p-button-rounded mb-2"/>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Boutons de navigation -->
-                    <div class="flex pt-4 justify-content-between">
-                        <p-button label="Back" icon="pi pi-arrow-left"
-                                  (onClick)="previousStep(prevCallback)"></p-button>
-                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
-                                  (onClick)="nextStep(nextCallback)"></p-button>
-                    </div>
+                  <div *ngIf="question.type !== 'text'" class="button-container">
+                    <button pButton type="button" icon="pi pi-plus"
+                            class="p-button-rounded p-button-primary" (click)="addOption(i)">
+                    </button>
+                  </div>
                 </div>
-            </ng-template>
-        </p-stepperPanel>
 
-        <p-stepperPanel header="Submit">
-            <ng-template pTemplate="content" let-prevCallback="prevCallback">
-                <div class="flex flex-column">
-                    <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
-                        <!-- Title Recap -->
-                        <div class="mb-3">
-                            <label class="font-bold">Titre:</label>
-                            <div>{{ form.title }}</div>
-                        </div>
-
-                        <!-- Description Recap -->
-                        <div class="mb-3">
-                            <label class="font-bold">Description:</label>
-                            <div>{{ form.description }}</div>
-                        </div>
-
-                        <!-- User Email Recap -->
-                        <div class="mb-3">
-                            <label class="font-bold">Email de l'utilisateur:</label>
-                            <div>{{ form.userEmail }}</div>
-                        </div>
-
-                        <!-- Reference Recap -->
-                        <div class="mb-3">
-                            <label class="font-bold">Référence:</label>
-                            <div>{{ form.reference || 'Not specified' }}</div>
-                        </div>
-
-                        <!-- Escalation Recap -->
-                        <div class="mb-3">
-                            <label class="font-bold">Escalade:</label>
-                            <div>{{ form.escalate ? 'Oui' : 'Non' }}</div>
-                        </div>
-
-                        <!-- Manager Email Recap (conditional) -->
-                        <div *ngIf="form.escalate" class="mb-3">
-                            <label class="font-bold">Email du Manager:</label>
-                            <div>{{ form.managerEmail }}</div>
-                        </div>
-
-                        <!-- Reminder Delay Day Recap -->
-                        <div class="mb-3">
-                            <label class="font-bold">Jour de Rappel:</label>
-                            <div>{{ form.reminderDelayDay }}</div>
-                        </div>
-
-                      <h5>Questions :</h5>
-                      <div class="from-preview">
-                        <app-form-preview [formQuestions]="form"></app-form-preview>
-                      </div>
-                    </div>
+                <div *ngFor="let option of question.options; let j = index; trackBy: trackByIndex"
+                     class="option-container flex align-items-center mb-2">
+                  <div class="option-field flex-grow-1">
+                    <p-floatLabel>
+                      <input pInputText [(ngModel)]="question.options[j]" required/>
+                    </p-floatLabel>
+                  </div>
+                  <div class="option-buttons ml-2">
+                    <p-button icon="pi pi-trash" [rounded]="true" [text]="true"
+                              (click)="removeOption(i, j)" title="Delete option"
+                              class="p-button-rounded mb-2"/>
+                  </div>
                 </div>
-                <div class="flex pt-4 justify-content-between">
-                    <p-button label="Back" icon="pi pi-arrow-left" (onClick)="previousStep(prevCallback)"></p-button>
-                    <p-button label="Submit" icon="pi pi-arrow-right" iconPos="right" (click)="submitForm()"></p-button>
-                </div>
-            </ng-template>
-        </p-stepperPanel>
-    </p-stepper>
+              </div>
+
+              <!-- Barre latérale (sidebar) avec les boutons d'action -->
+              <div class="sidebar ml-3">
+                <p-button icon="pi pi-plus" [rounded]="true" [text]="true" [raised]="true"
+                          (click)="addQuestion()" title="Add question" class="p-button-rounded mb-2"/>
+                <p-button icon="pi pi-trash" [rounded]="true" [text]="true" [raised]="true"
+                          (click)="removeQuestion(i)" title="Delete question"
+                          class="p-button-rounded mb-2"/>
+                <p-button icon="pi pi-copy" [rounded]="true" [text]="true" [raised]="true"
+                          (click)="duplicateQuestion(i)" title="Duplicate question"
+                          class="p-button-rounded mb-2"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Boutons de navigation -->
+          <div class="flex pt-4 justify-content-between">
+            <p-button label="Back" icon="pi pi-arrow-left"
+                      (onClick)="previousStep(prevCallback)"></p-button>
+            <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
+                      (onClick)="nextStep(nextCallback)"></p-button>
+          </div>
+        </div>
+      </ng-template>
+    </p-stepperPanel>
+
+    <p-stepperPanel header="Submit">
+      <ng-template pTemplate="content" let-prevCallback="prevCallback">
+        <div class="flex flex-column">
+          <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
+            <!-- Title Recap -->
+            <div class="mb-3">
+              <label class="font-bold">Titre:</label>
+              <div>{{ form.title }}</div>
+            </div>
+
+            <!-- Description Recap -->
+            <div class="mb-3">
+              <label class="font-bold">Description:</label>
+              <div>{{ form.description }}</div>
+            </div>
+
+            <!-- User Email Recap -->
+            <div class="mb-3">
+              <label class="font-bold">Email de l'utilisateur:</label>
+              <div>{{ form.userEmail }}</div>
+            </div>
+
+            <!-- Reference Recap -->
+            <div class="mb-3">
+              <label class="font-bold">Référence:</label>
+              <div>{{ form.reference || 'Not specified' }}</div>
+            </div>
+
+            <!-- Escalation Recap -->
+            <div class="mb-3">
+              <label class="font-bold">Escalade:</label>
+              <div>{{ form.escalate ? 'Oui' : 'Non' }}</div>
+            </div>
+
+            <!-- Manager Email Recap (conditional) -->
+            <div *ngIf="form.escalate" class="mb-3">
+              <label class="font-bold">Email du Manager:</label>
+              <div>{{ form.managerEmail }}</div>
+            </div>
+
+            <!-- Reminder Delay Day Recap -->
+            <div class="mb-3">
+              <label class="font-bold">Jour de Rappel:</label>
+              <div>{{ form.reminderDelayDay }}</div>
+            </div>
+
+            <h5>Questions :</h5>
+            <div class="from-preview">
+              <app-form-preview [formQuestions]="form"></app-form-preview>
+            </div>
+          </div>
+        </div>
+        <div class="flex pt-4 justify-content-between">
+          <p-button label="Back" icon="pi pi-arrow-left" (onClick)="previousStep(prevCallback)"></p-button>
+          <p-button label="Submit" icon="pi pi-arrow-right" iconPos="right" (click)="submitForm()"></p-button>
+        </div>
+      </ng-template>
+    </p-stepperPanel>
+  </p-stepper>
 </div>
