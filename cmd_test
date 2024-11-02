@@ -7,6 +7,7 @@ curl -X GET http://127.0.0.1:5000/form-containers
 
 flask db init
 flask db migrate -m "Update Form and FormContainer models"
+flask db stamp head
 flask db upgrade
 
 ng add @angular/material

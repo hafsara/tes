@@ -28,7 +28,9 @@ interface FormContainer {
 export class CreateFormComponent {
   currentStep: number = 0;
   showErrors = false;
+
   constructor(private formService: FormService) {}
+
   questionTypes = [
     { label: 'Multiple choices', value: 'multipleChoice' },
     { label: 'Checkboxes', value: 'checkbox' },
@@ -59,13 +61,13 @@ export class CreateFormComponent {
   validateCurrentStep(): boolean {
     if (this.currentStep === 0) {
       const isEmailValid = this.emailPattern.test(this.form.userEmail || '');
-      const isManagerEmailValid = !this.form.escalate || (this.form.managerEmail && this.emailPattern.test(this.form.managerEmail || ''));
+      const isManagerEmailValid = (!this.form.escalate || (this.form.managerEmail ? this.emailPattern.test(this.form.managerEmail) : false))
 
-       const isValid = (
-          this.form.title.trim() !== '' &&
-          this.form.description.trim() !== '' &&
-          this.emailPattern.test(this.form.userEmail || '') &&
-          (!this.form.escalate || (this.form.managerEmail ? this.emailPattern.test(this.form.managerEmail) : false))
+      const isValid = (
+        this.form.title.trim() !== '' &&
+        this.form.description.trim() !== '' &&
+        isEmailValid &&
+        isManagerEmailValid
       );
 
       console.log('Validation result for step', this.currentStep, ':', isValid);
@@ -135,14 +137,24 @@ export class CreateFormComponent {
     }
  }
   submitForm() {
-      this.formService.createFormContainer(this.form).subscribe(
-        response => {
-          console.log('Form created successfully:', response);
-        },
-        error => {
-          console.error('Error creating form:', error);
-        }
-      );
+    const payload = {
+      title: this.form.title,
+      description: this.form.description,
+      user_email: this.form.userEmail,
+      manager_email: this.form.managerEmail,
+      reference: this.form.reference,
+      escalate: this.form.escalate,
+      form: { questions: this.form.questions }
+    };
+
+    this.formService.createFormContainer(payload).subscribe(
+      response => {
+        console.log('Form created successfully:', response);
+      },
+      error => {
+        console.error('Error creating form:', error);
+      }
+    );
   }
 
   onQuestionTypeChange(question: Question) {
