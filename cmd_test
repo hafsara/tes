@@ -2,6 +2,13 @@
 >>> db.create_all()
 curl -X POST http://127.0.0.1:5000/form-containers -H "Content-Type: application/json" -d '{"title": "Sample Form", "user_id": 1, "manager_email": "manager@example.com"}'
 curl -X GET http://127.0.0.1:5000/form-containers
+
+# update models
+
+flask db init
+flask db migrate -m "Update Form and FormContainer models"
+flask db upgrade
+
 ng add @angular/material
 npm install
 npm install primeng primeicons --save
@@ -9,4 +16,3 @@ npm install primeflex --save
 npm install -g @angular/cli
 npm install -g npm
 @angular-devkit/build-angular
-pip install flask-cors
