@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import base64
+import os
+import hashlib
 
 db = SQLAlchemy()
 
@@ -14,7 +16,7 @@ class FormContainer(db.Model):
     reference = db.Column(db.String(50), nullable=True)
     escalate = db.Column(db.Boolean, default=False)
     validated = db.Column(db.Boolean, default=False)
-    initiated_by = db.Column(db.Integer, nullable=False)  # todo ID du SuperAdmin
+    initiated_by = db.Column(db.Integer, nullable=False)
     unique_link = db.Column(db.String(200), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -22,6 +24,7 @@ class FormContainer(db.Model):
     forms = db.relationship('Form', backref='form_container', cascade="all, delete-orphan", lazy=True)
 
     def generate_unique_link(self):
+        # todo changer cette fonction
         """Generates a unique link for the form container."""
         random_data = os.urandom(16)
         hash_object = hashlib.sha256(random_data)

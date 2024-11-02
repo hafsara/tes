@@ -83,3 +83,15 @@ ng add @angular/material
 Ces étapes devraient vous permettre de tester toutes les fonctionnalités principales du backend. Une fois les tests réussis, nous pourrons avancer avec le développement des pages frontend.
 
 sudo -u postgres psql -d dbname
+from flask.cli import FlaskGroup
+from app import app, db
+
+cli = FlaskGroup(app)
+
+@cli.command("create_db")
+def create_db():
+    with app.app_context():
+        db.create_all()
+
+if __name__ == "__main__":
+    cli()

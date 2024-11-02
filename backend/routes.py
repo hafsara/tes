@@ -4,23 +4,23 @@ from datetime import datetime
 from workflow import FormWorkflowManager
 
 api = Blueprint('api', __name__)
-
+ADMIN_ID = 'd76476' # todo enlever cette ligne et la remplcer par ADMIN_ID
 
 @api.route('/form-containers', methods=['POST'])
 def create_form_container():
     data = request.json
-    super_admin_id = session.get('super_admin_id')
+    admin_id = ADMIN_ID 
 
-    if not super_admin_id:
+    if not admin_id:
         return jsonify({"error": "SuperAdmin non authentifié"}), 401
 
     form_container = FormContainer(
         title=data['title'],
         user_email=data['user_email'],
         manager_email=data['manager_email'],
-        ticket=data.get('reference'),
+        reference=data.get('reference'),
         escalate=data.get('escalate', False),
-        initiated_by=super_admin_id
+        initiated_by=admin_id
     )
     form_container.generate_unique_link()
 
@@ -43,13 +43,13 @@ def create_form_container():
 
 @api.route('/form-containers/<int:container_id>/forms', methods=['POST'])
 def add_form_to_container(container_id):
-    super_admin_id = session.get('super_admin_id')
-    if not super_admin_id:
+    admin_id = ADMIN_ID
+    if not admin_id:
         return jsonify({"error": "SuperAdmin non authentifié"}), 401
 
     form_container = FormContainer.query.get_or_404(container_id)
-
-    if form_container.initiated_by != super_admin_id:
+    # todo enlever cette condition
+    if form_container.initiated_by != admin_id:
         return jsonify({"error": "Vous n'êtes pas autorisé à modifier ce conteneur"}), 403
 
     if len(form_container.forms) >= 5:
@@ -86,12 +86,12 @@ def submit_form_response(container_id, form_id):
 
 @api.route('/form-containers', methods=['GET'])
 def get_form_containers_by_super_admin():
-    super_admin_id = session.get('super_admin_id')
-
-    if not super_admin_id:
+    admin_id = ADMIN_ID
+    
+    if not admin_id:
         return jsonify({"error": "SuperAdmin non authentifié"}), 401
 
-    form_containers = FormContainer.query.filter_by(initiated_by=super_admin_id).all()
+    form_containers = FormContainer.query.filter_by(initiated_by=admin_id).all()
     result = [
         {
             "id": fc.id,
@@ -154,9 +154,9 @@ def get_all_form_containers():
     return jsonify(result), 200
 
 
-@api.route('/form-containers/super-admin/<int:super_admin_id>', methods=['GET'])
-def get_form_containers_by_specific_super_admin(super_admin_id):
-    form_containers = FormContainer.query.filter_by(initiated_by=super_admin_id).all()
+@api.route('/form-containers/super-admin/<int:admin_id>', methods=['GET'])
+def get_form_containers_by_specific_super_admin(admin_id):
+    form_containers = FormContainer.query.filter_by(initiated_by=admin_id).all()
     result = [
         {
             "id": fc.id,
@@ -203,13 +203,13 @@ def view_form_container(encoded_id):
 
 @api.route('/form-containers/<int:container_id>/validate', methods=['POST'])
 def validate_form_container(container_id):
-    super_admin_id = session.get('super_admin_id')
-    if not super_admin_id:
+    admin_id = ADMIN_ID
+    if not admin_id:
         return jsonify({"error": "SuperAdmin non authentifié"}), 401
 
     form_container = FormContainer.query.get_or_404(container_id)
 
-    if form_container.initiated_by != super_admin_id:
+    if form_container.initiated_by != admin_id:
         return jsonify({"error": "Vous n'êtes pas autorisé à valider ce conteneur"}), 403
 
     form_container.validated = True
@@ -228,9 +228,9 @@ def get_form_container_history(unique_link):
         return jsonify({"error": "Form Container introuvable ou déjà validé"}), 404
 
     user_email = session.get('user_email')
-    super_admin_id = session.get('super_admin_id')
+    admin_id = ADMIN_ID
 
-    if (form_container.user_email != user_email) and (form_container.initiated_by != super_admin_id):
+    if (form_container.user_email != user_email) and (form_container.initiated_by != admin_id):
         return jsonify({"error": "Accès refusé"}), 403
 
     # Historique des interactions

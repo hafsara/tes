@@ -35,5 +35,5 @@ def auth_callback():
     if not super_admin:
         return "Accès refusé : Vous n'êtes pas autorisé", 403
 
-    session['super_admin_id'] = super_admin.id
+    session['admin_id'] = super_admin.id
     return redirect(url_for('home'))
