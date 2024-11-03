@@ -15,7 +15,7 @@ class FormContainer(db.Model):
     reference = db.Column(db.String(50), nullable=True)
     escalate = db.Column(db.Boolean, default=False)
     validated = db.Column(db.Boolean, default=False)
-    initiated_by = db.Column(db.Integer, nullable=False)
+    initiated_by = db.Column(db.String(50), nullable=False)
     unique_link = db.Column(db.String(200), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
