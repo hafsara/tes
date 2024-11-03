@@ -18,9 +18,9 @@ class FormContainer(db.Model):
     initiated_by = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    reminder_delay = db.Column(db.Integer, nullable=True)
 
     forms = db.relationship('Form', backref='form_container', lazy=True)
-    reminders = db.relationship('Reminder', backref='form_container', lazy=True)
     timeline = db.relationship('TimelineEntry', backref='form_container', lazy=True)
 
 
@@ -53,15 +53,6 @@ class Response(db.Model):
     user_id = db.Column(db.String(255), nullable=False)
     submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
     answers = db.Column(db.JSON, nullable=False)  # Storing all answers as JSON {questionId: response}
-
-
-class Reminder(db.Model):
-    __tablename__ = 'reminders'
-    __table_args__ = {'sqlite_autoincrement': True}
-    id = db.Column(db.Integer, primary_key=True)
-    form_container_id = db.Column(db.Integer, db.ForeignKey('form_containers.id'), nullable=False)
-    sent_at = db.Column(db.DateTime, default=datetime.utcnow)
-    status = db.Column(db.String(50), nullable=False, default='pending')
 
 
 class TimelineEntry(db.Model):
