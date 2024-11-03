@@ -5,7 +5,7 @@ import { UserViewComponent } from './components/user-view/user-view.component';
 
 const routes: Routes = [
   { path: 'create-form', component: CreateFormContainerComponent },
-  { path: 'user-view', component: UserViewComponent },
+  { path: 'user-view/:containerId', component: UserViewComponent },
   { path: '', redirectTo: '/create-form', pathMatch: 'full' }
 ];
 
