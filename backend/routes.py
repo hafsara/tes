@@ -76,12 +76,16 @@ def add_form_to_container(container_id):
     return jsonify({"form_id": form.id}), 201
 
 
-@api.route('/form-containers/<int:container_id>/forms/<int:form_id>/submit-response', methods=['POST'])
-def submit_form_response(container_id, form_id):
+@api.route('/form-containers/<string:access_token>/forms/<int:form_id>/submit-response', methods=['POST'])
+def submit_form_response(access_token, form_id):
     data = request.json
-    responder_uid = data.get('responder_uid')
+    responder_uid = ADMIN_ID
 
-    form = Form.query.filter_by(id=form_id, form_container_id=container_id).first_or_404()
+    # Fetch the FormContainer using the access_token
+    form_container = FormContainer.query.filter_by(access_token=access_token).first_or_404()
+
+    # Ensure the form belongs to this container
+    form = Form.query.filter_by(id=form_id, form_container_id=form_container.id).first_or_404()
 
     if form.response:
         return jsonify({"error": "La réponse a déjà été soumise pour ce formulaire"}), 400
