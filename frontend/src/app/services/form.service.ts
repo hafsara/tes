@@ -20,12 +20,15 @@ export class FormService {
   }
 
   submitUserForm(formData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${formData.access_token}/forms/${formData.forms[0].form_id}/submit-response`, {
-      response: formData.forms[0].questions.map((q: any) => ({
-        questionId: q.id,
-        response: q.response || q.selectedOptions
-      }))
-    });
+      return this.http.post(
+          `${this.apiUrl}/${formData.access_token}/forms/${formData.forms[0].form_id}/submit-response`,
+          {
+              questions: formData.forms[0].questions.map((q: any) => ({
+                  id: q.id,
+                  response: q.response || q.selectedOptions
+              }))
+          }
+      );
   }
 
   getFormContainerTimeline(accessToken: string): Observable<any> {

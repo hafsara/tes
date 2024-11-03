@@ -79,7 +79,7 @@ def add_form_to_container(container_id):
 @api.route('/form-containers/<string:access_token>/forms/<int:form_id>/submit-response', methods=['POST'])
 def submit_form_response(access_token, form_id):
     data = request.json
-    responder_uid = ADMIN_ID
+    responder_uid = ADMIN_ID  # Assuming this comes from session or other context
 
     # Fetch the FormContainer using the access_token
     form_container = FormContainer.query.filter_by(access_token=access_token).first_or_404()
@@ -87,11 +87,15 @@ def submit_form_response(access_token, form_id):
     # Ensure the form belongs to this container
     form = Form.query.filter_by(id=form_id, form_container_id=form_container.id).first_or_404()
 
-    if form.response:
-        return jsonify({"error": "La réponse a déjà été soumise pour ce formulaire"}), 400
+    # Iterate over the provided questions to save responses
+    for question_data in data.get('questions', []):
+        question_id = question_data.get('id')
+        response_content = question_data.get('response')  # Could be a string or list
 
-    form.response = data['response']
-    form.responder_uid = responder_uid
+        # Find the question in the database
+        question = Question.query.filter_by(id=question_id, form_id=form.id).first_or_404()
+        question.response = response_content if isinstance(response_content, str) else ','.join(response_content)
+
     form.status = 'answered'
     db.session.commit()
 
