@@ -5,7 +5,7 @@
     </p-card>
   </div>
 
-  <div *ngFor="let question of formData.questions; let i = index">
+  <div *ngFor="let question of formData.forms?.[0]?.questions || []; let i = index">
     <h5>{{ question.label }}</h5>
     <ng-container *ngIf="!isSubmitted; else viewResponse" [ngSwitch]="question.type">
       <!-- Text Input -->

@@ -9,7 +9,7 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./user-view.component.scss']
 })
 export class UserViewComponent implements OnInit {
-  @Input() formData: any = {};
+  @Input() formData: any = { forms: [] };
   validationErrors: string[] = [];
   isSubmitted: boolean = false;
 
