@@ -28,6 +28,10 @@ def create_form_container():
     db.session.add(form_container)
     db.session.commit()
 
+    form_data = data.get('form')
+    if not form_data:
+        return jsonify({"error": "Un formulaire est requis pour créer un conteneur"}), 400
+
     form = Form(form_container_id=form_container.id)
 
     for question_data in form_data['questions']:
