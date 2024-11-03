@@ -23,9 +23,6 @@ class FormContainer(db.Model):
     reminders = db.relationship('Reminder', backref='form_container', lazy=True)
     timeline = db.relationship('TimelineEntry', backref='form_container', lazy=True)
 
-    def generate_access_token(self):
-        self.access_token = str(uuid.uuid4())
-
 
 class Form(db.Model):
     __tablename__ = 'forms'
