@@ -7,7 +7,7 @@
 
   <div *ngFor="let question of formData.questions; let i = index">
     <h5>{{ question.label }}</h5>
-    <ng-container [ngSwitch]="question.type">
+    <ng-container *ngIf="!isSubmitted; else viewResponse" [ngSwitch]="question.type">
       <!-- Text Input -->
       <div *ngSwitchCase="'text'">
         <textarea
@@ -81,10 +81,19 @@
         </small>
       </div>
     </ng-container>
+
+    <ng-template #viewResponse>
+      <div>{{ getDisplayResponse(question) }}</div>
+    </ng-template>
   </div>
-<div class="centered-container">.
-  <div class="flex justify-content-end">
-    <p-button label="Submit" icon="pi pi-send" iconPos="left" (onClick)="onSubmit()"/>
+
+  <div class="centered-container" *ngIf="!isSubmitted">
+    <div class="flex justify-content-end">
+      <p-button label="Submit" icon="pi pi-send" iconPos="left" (onClick)="onSubmit()"></p-button>
+    </div>
   </div>
-</div>
+
+  <div class="submitted-view" *ngIf="isSubmitted">
+    <p>Your responses have been submitted. Thank you!</p>
+  </div>
 </div>

@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Question, formatQuestions } from '../../utils/question-formatter';
 import { FormService } from '../../services/form.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-user-view',
@@ -8,17 +9,20 @@ import { FormService } from '../../services/form.service';
   styleUrls: ['./user-view.component.scss']
 })
 export class UserViewComponent implements OnInit {
-  @Input() formData!: {
-    title: string;
-    description: string;
-    questions: Question[];
-  };
-
-  constructor(private formService: FormService) {}
+  @Input() formData: any = {};
   validationErrors: string[] = [];
+  isSubmitted: boolean = false;
+
+  constructor(
+    private formService: FormService,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit() {
-    this.formData.questions = formatQuestions(this.formData.questions);
+    const containerId = +this.route.snapshot.paramMap.get('containerId')!;
+    this.formService.getFormContainerById(containerId).subscribe(data => {
+      this.formData = data;
+    });
   }
 
   isChecked(selectedOptions: string[], option: string): boolean {
@@ -35,10 +39,9 @@ export class UserViewComponent implements OnInit {
     }
   }
 
-  onSubmit(): void {
-    this.validationErrors = []; // Reset errors
 
-    this.formData.questions.forEach((question, index) => {
+  validateResponses(): void {
+    this.formData.forms[0].questions.forEach((question: any, index: number) => {
       const questionError = `Please respond to question ${index + 1}: ${question.label}`;
 
       if (question.isRequired) {
@@ -53,11 +56,33 @@ export class UserViewComponent implements OnInit {
         }
       }
     });
+  }
+
+  onSubmit(): void {
+    this.validationErrors = []; // Reset errors
+    this.validateResponses();
 
     if (this.validationErrors.length > 0) {
       console.log("Validation failed:", this.validationErrors);
     } else {
       console.log("Form submitted successfully:", this.formData);
+      this.formService.submitUserForm(this.formData).subscribe(
+        () => {
+          this.isSubmitted = true;  // Mark form as submitted
+          console.log("Response saved successfully.");
+        },
+        error => {
+          console.error("Error submitting form:", error);
+        }
+      );
+    }
+  }
+
+  getDisplayResponse(question: Question): string {
+    if (question.type === 'checkbox') {
+      return (question.selectedOptions || []).join(', ');
+    } else {
+      return question.response || 'No response';
     }
   }
 }
