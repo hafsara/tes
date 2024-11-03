@@ -13,7 +13,6 @@ app = Flask(__name__)
 CORS(app)
 app.config.from_object(Config)
 
-# Initialize extensions
 db.init_app(app)
 migrate = Migrate(app, db)
 setup_oauth(app)

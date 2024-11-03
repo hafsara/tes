@@ -1,14 +1,13 @@
-from flask_sqlalchemy import SQLAlchemy
+from extensions import db
 from datetime import datetime
 import base64
 import os
 import hashlib
 
-db = SQLAlchemy()
-
 
 class FormContainer(db.Model):
     __tablename__ = 'form_containers'
+    # todo __table_args__ = (db.Index('idx_form_container_id', 'form_container_id'),)
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     user_email = db.Column(db.String(100), nullable=False)
