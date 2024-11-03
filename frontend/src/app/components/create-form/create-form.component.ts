@@ -148,7 +148,7 @@ export class CreateFormComponent {
       manager_email: this.form.managerEmail,
       reference: this.form.reference,
       escalate: this.form.escalate,
-      reminder_delay_day: this.from.reminderDelayDay,
+      reminder_delay_day: this.form.reminderDelayDay,
       form: { questions: this.form.questions }
     };
     this.formService.createFormContainer(payload).subscribe(
