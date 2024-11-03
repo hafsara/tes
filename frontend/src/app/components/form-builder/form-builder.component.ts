@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 interface Question {
   label: string;
@@ -15,7 +15,6 @@ interface Question {
 export class FormBuilderComponent {
   @Input() form!: { questions: Question[] };
   @Input() showErrors: boolean = false;
-  @Output() onStepValid = new EventEmitter<boolean>();
 
   questionTypes = [
     { label: 'Multiple choices', value: 'multipleChoice' },
@@ -39,16 +38,6 @@ export class FormBuilderComponent {
       options: [],
       isRequired: true
     });
-  }
-
-  validateQuestions(): boolean {
-    const isValid = this.form.questions.every(question => {
-      const isQuestionTextValid = question.label.trim() !== '';
-      const areOptionsValid = question.type === 'text' || (question.options.length > 0 && question.options.every(option => option.trim() !== ''));
-      return isQuestionTextValid && areOptionsValid;
-    });
-    this.onStepValid.emit(isValid);
-    return isValid;
   }
 
   removeQuestion(index: number) {
