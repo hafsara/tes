@@ -18,27 +18,14 @@ export class UserViewComponent implements OnInit {
     private route: ActivatedRoute
   ) {}
 
-  ngOnInit() {
-    const containerId = +this.route.snapshot.paramMap.get('containerId')!;
-    this.formService.getFormContainerById(containerId).subscribe(data => {
-      this.formData = data;
-    });
-  }
-
-  isChecked(selectedOptions: string[], option: string): boolean {
-    return selectedOptions.includes(option);
-  }
-
-  toggleOption(question: Question, option: string): void {
-    question.selectedOptions = question.selectedOptions || [];
-    const index = question.selectedOptions.indexOf(option);
-    if (index > -1) {
-      question.selectedOptions.splice(index, 1);
-    } else {
-      question.selectedOptions.push(option);
-    }
-  }
-
+ngOnInit() {
+  const containerId = +this.route.snapshot.paramMap.get('containerId')!;
+  this.formService.getFormContainerById(containerId).subscribe(data => {
+    this.formData = data;
+    // Apply formatting to the questions after fetching
+    this.formData.forms[0].questions = formatQuestions(this.formData.forms[0].questions);
+  });
+}
 
   validateResponses(): void {
     this.formData.forms[0].questions.forEach((question: any, index: number) => {
@@ -57,6 +44,21 @@ export class UserViewComponent implements OnInit {
       }
     });
   }
+
+  isChecked(selectedOptions: string[], option: string): boolean {
+    return selectedOptions.includes(option);
+  }
+
+  toggleOption(question: Question, option: string): void {
+    question.selectedOptions = question.selectedOptions || [];
+    const index = question.selectedOptions.indexOf(option);
+    if (index > -1) {
+      question.selectedOptions.splice(index, 1);
+    } else {
+      question.selectedOptions.push(option);
+    }
+  }
+
 
   onSubmit(): void {
     this.validationErrors = []; // Reset errors
