@@ -19,7 +19,7 @@ class FormContainer(db.Model):
     unique_link = db.Column(db.String(200), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
-
+    reminder_delay = db.Column(db.Integer, nullable=False)
     forms = db.relationship('Form', backref='form_container', cascade="all, delete-orphan", lazy=True)
 
     def generate_unique_link(self):

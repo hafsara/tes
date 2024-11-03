@@ -20,7 +20,8 @@ def create_form_container():
         manager_email=data['manager_email'],
         reference=data.get('reference'),
         escalate=data.get('escalate', False),
-        initiated_by=admin_id
+        initiated_by=admin_id,
+        reminder_delay=data.get('reminder_delay_day')
     )
     form_container.generate_unique_link()
 

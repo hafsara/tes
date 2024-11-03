@@ -22,18 +22,21 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { CheckboxModule } from 'primeng/checkbox';
 import { CardModule } from 'primeng/card';
-
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 import { CreateFormComponent } from './components/create-form/create-form.component';
 import { UserViewComponent } from './components/user-view/user-view.component';
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
+import { CreateFormContainerComponent } from './components/create-form-container/create-form-container.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     CreateFormComponent,
     UserViewComponent,
-    FormPreviewComponent
+    FormPreviewComponent,
+    CreateFormContainerComponent
   ],
   imports: [
     BrowserModule,
@@ -44,6 +47,7 @@ import { FormPreviewComponent } from './components/form-preview/form-preview.com
     HttpClientModule,
     // PrimeNG Modules
     StepsModule,
+    ToastModule,
     InputNumberModule,
     ButtonModule,
     InputTextModule,
@@ -59,7 +63,8 @@ import { FormPreviewComponent } from './components/form-preview/form-preview.com
     InputIconModule,
     CardModule
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA], // Add this if using custom elements
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  providers: [MessageService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

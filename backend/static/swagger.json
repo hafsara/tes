@@ -1,0 +1,286 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Form Management API",
+    "description": "API for managing form containers and forms",
+    "contact": {
+      "name": "API Support",
+      "url": "http://www.example.com",
+      "email": "support@example.com"
+    }
+  },
+  "host": "localhost:5000",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "form-containers",
+      "description": "Operations related to form containers"
+    }
+  ],
+  "schemes": ["http"],
+  "paths": {
+    "/form-containers": {
+      "get": {
+        "tags": ["form-containers"],
+        "summary": "List all form containers",
+        "description": "Fetch a list of all form containers created by the authenticated admin.",
+        "responses": {
+          "200": {
+            "description": "A list of form containers",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/FormContainerSummary"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["form-containers"],
+        "summary": "Create a new form container",
+        "description": "Creates a new form container with the provided details.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FormContainerInput"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Form container created",
+            "schema": {
+              "$ref": "#/definitions/FormContainerResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/form-containers/{container_id}": {
+      "get": {
+        "tags": ["form-containers"],
+        "summary": "Get a form container by ID",
+        "description": "Fetch the details of a specific form container by its ID.",
+        "parameters": [
+          {
+            "name": "container_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the form container to fetch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Details of the form container",
+            "schema": {
+              "$ref": "#/definitions/FormContainerDetail"
+            }
+          },
+          "404": {
+            "description": "Form container not found"
+          }
+        }
+      }
+    },
+    "/form-containers/{container_id}/forms": {
+      "post": {
+        "tags": ["form-containers"],
+        "summary": "Add a form to a container",
+        "description": "Add a new form to the specified form container.",
+        "parameters": [
+          {
+            "name": "container_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the form container"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FormInput"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Form added to the container",
+            "schema": {
+              "$ref": "#/definitions/FormResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/form-containers/{container_id}/forms/{form_id}/submit-response": {
+      "post": {
+        "tags": ["form-containers"],
+        "summary": "Submit a response to a form",
+        "description": "Submit a user's response to a specific form in a container.",
+        "parameters": [
+          {
+            "name": "container_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the form container"
+          },
+          {
+            "name": "form_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the form"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SubmitResponseInput"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response submitted successfully"
+          },
+          "400": {
+            "description": "Response already submitted"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "FormContainerSummary": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
+    "FormContainerInput": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "example": "Project Feedback Form"
+        },
+        "user_email": {
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "manager_email": {
+          "type": "string",
+          "example": "manager@example.com"
+        },
+        "reference": {
+          "type": "string",
+          "example": "12345"
+        },
+        "escalate": {
+          "type": "boolean"
+        },
+        "reminderDelayDay": {
+          "type": "integer",
+          "example": 3
+        },
+        "questions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Question"
+          }
+        }
+      }
+    },
+    "FormContainerResponse": {
+      "type": "object",
+      "properties": {
+        "container_id": {
+          "type": "integer"
+        },
+        "form_id": {
+          "type": "integer"
+        },
+        "link": {
+          "type": "string"
+        }
+      }
+    },
+    "FormInput": {
+      "type": "object",
+      "properties": {
+        "questions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Question"
+          }
+        }
+      }
+    },
+    "FormResponse": {
+      "type": "object",
+      "properties": {
+        "form_id": {
+          "type": "integer"
+        }
+      }
+    },
+    "Question": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "isRequired": {
+          "type": "boolean"
+        }
+      }
+    },
+    "SubmitResponseInput": {
+      "type": "object",
+      "properties": {
+        "response": {
+          "type": "object"
+        },
+        "responder_uid": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

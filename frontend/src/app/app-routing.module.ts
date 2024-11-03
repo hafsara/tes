@@ -6,7 +6,7 @@ import { UserViewComponent } from './components/user-view/user-view.component';
 const routes: Routes = [
   { path: 'create-form', component: CreateFormComponent },
   { path: 'user-view', component: UserViewComponent },
-  { path: '', redirectTo: '/create-form', pathMatch: 'full' }, // Default route
+  { path: '', redirectTo: '/create-form', pathMatch: 'full' }
 ];
 
 @NgModule({

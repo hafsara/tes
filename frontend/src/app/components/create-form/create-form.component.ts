@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormService } from '../../services/form.service';
-
+import { MessageService } from 'primeng/api';
 
 interface Question {
   label: string;
@@ -29,7 +29,10 @@ export class CreateFormComponent {
   currentStep: number = 0;
   showErrors = false;
 
-  constructor(private formService: FormService) {}
+  constructor(
+    private formService: FormService,
+    private messageService: MessageService
+  ) {}
 
   questionTypes = [
     { label: 'Multiple choices', value: 'multipleChoice' },
@@ -137,22 +140,16 @@ export class CreateFormComponent {
     }
  }
   submitForm() {
-    const payload = {
-      title: this.form.title,
-      description: this.form.description,
-      user_email: this.form.userEmail,
-      manager_email: this.form.managerEmail,
-      reference: this.form.reference,
-      escalate: this.form.escalate,
-      form: { questions: this.form.questions }
-    };
-
-    this.formService.createFormContainer(payload).subscribe(
+    this.formService.createFormContainer(this.form).subscribe(
       response => {
-        console.log('Form created successfully:', response);
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Form created successfully' });
+        setTimeout(() => {
+          // Reload the page after a short delay
+          window.location.reload();
+        }, 2000);
       },
       error => {
-        console.error('Error creating form:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error creating form' });
       }
     );
   }
