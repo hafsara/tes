@@ -10,6 +10,7 @@ class FormContainer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     access_token = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.String(1024), nullable=False)
     user_email = db.Column(db.String(255), nullable=False)
     manager_email = db.Column(db.String(255), nullable=True)
     reference = db.Column(db.String(255), nullable=True)
@@ -41,7 +42,7 @@ class Question(db.Model):
     form_id = db.Column(db.Integer, db.ForeignKey('forms.id'), nullable=False)
     label = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(50), nullable=False)
-    options = db.Column(db.List, nullable=True)
+    options = db.Column(db.JSON, nullable=True)
     is_required = db.Column(db.Boolean, default=True)
 
 

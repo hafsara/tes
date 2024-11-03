@@ -16,6 +16,7 @@ def create_form_container():
 
     form_container = FormContainer(
         title=data['title'],
+        description=data['description'],
         user_email=data['user_email'],
         manager_email=data['manager_email'],
         reference=data.get('reference'),
@@ -97,6 +98,7 @@ def get_form_containers_by_super_admin():
         {
             "id": fc.id,
             "title": fc.title,
+            "description": fc.description,
             "user_email": fc.user_email,
             "manager_email": fc.manager_email,
             "reference": fc.reference,
@@ -115,6 +117,7 @@ def get_form_container_by_access_token(access_token):
     result = {
         "id": form_container.id,
         "title": form_container.title,
+        "description": form_container.description,
         "user_email": form_container.user_email,
         "manager_email": form_container.manager_email,
         "reference": form_container.reference,
@@ -166,6 +169,7 @@ def get_form_container_timeline(access_token):
     interaction_timeline = {
         "container_id": form_container.id,
         "title": form_container.title,
+        "description": form_container.description,
         "user_email": form_container.user_email,
         "manager_email": form_container.manager_email,
         "reference": form_container.reference,
