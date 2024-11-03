@@ -28,13 +28,15 @@ import { MessageService } from 'primeng/api';
 import { UserViewComponent } from './components/user-view/user-view.component';
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
 import { CreateFormContainerComponent } from './components/create-form-container/create-form-container.component';
+import { FormBuilderComponent } from './components/form-builder/form-builder.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     UserViewComponent,
     FormPreviewComponent,
-    CreateFormContainerComponent
+    CreateFormContainerComponent,
+    FormBuilderComponent
   ],
   imports: [
     BrowserModule,

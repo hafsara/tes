@@ -1,6 +1,6 @@
 <p-toast></p-toast>
 <div class="card flex justify-content-center">
-  <p-stepper [(activeIndex)]="currentStep" [readOnly]="true">
+  <p-stepper [(activeIndex)]="currentStep" [linear]="true">
     <p-stepperPanel header="Form Configuration">
       <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
         <div class="flex flex-column">
