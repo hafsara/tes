@@ -41,7 +41,7 @@ class Question(db.Model):
     form_id = db.Column(db.Integer, db.ForeignKey('forms.id'), nullable=False)
     label = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(50), nullable=False)
-    options = db.Column(db.JSON, nullable=True)  # To store options for multiple choice, checkbox, etc.
+    options = db.Column(db.List, nullable=True)
     is_required = db.Column(db.Boolean, default=True)
 
 
