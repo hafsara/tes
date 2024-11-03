@@ -6,10 +6,11 @@ from workflow import FormWorkflowManager
 api = Blueprint('api', __name__)
 ADMIN_ID = 'd76476' # todo enlever cette ligne et la remplcer par ADMIN_ID
 
+
 @api.route('/form-containers', methods=['POST'])
 def create_form_container():
     data = request.json
-    admin_id = ADMIN_ID 
+    admin_id = ADMIN_ID
 
     if not admin_id:
         return jsonify({"error": "SuperAdmin non authentifié"}), 401
@@ -96,7 +97,7 @@ def submit_form_response(container_id, form_id):
 @api.route('/form-containers', methods=['GET'])
 def get_form_containers_by_super_admin():
     admin_id = ADMIN_ID
-    
+
     if not admin_id:
         return jsonify({"error": "SuperAdmin non authentifié"}), 401
 
@@ -134,9 +135,25 @@ def get_form_container_by_access_token(access_token):
         "forms": [
             {
                 "form_id": form.id,
-                "questions": form.questions,
-                "response": form.response,
-                "responder_uid": form.responder_uid,
+                "questions": [
+                    {
+                        "id": question.id,
+                        "label": question.label,
+                        "type": question.type,
+                        "options": question.options,
+                        "is_required": question.is_required
+                    }
+                    for question in form.questions
+                ],
+                "responses": [
+                    {
+                        "id": response.id,
+                        "responder_uid": response.responder_uid,
+                        "answers": response.answers,
+                        "submitted_at": response.submitted_at,
+                    }
+                    for response in form.responses
+                ],
                 "status": form.status
             }
             for form in form_container.forms
