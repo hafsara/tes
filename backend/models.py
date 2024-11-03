@@ -30,11 +30,11 @@ class Form(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     form_container_id = db.Column(db.Integer, db.ForeignKey('form_containers.id'), nullable=False)
     status = db.Column(db.String(50), nullable=False, default='open')
-    linked_to = db.Column(db.Integer, nullable=True)  # Points to the parent form ID for follow-up forms
-
-    questions = db.relationship('Question', backref='form', lazy=True)
+    questions = db.relationship('Question', backref='form', lazy=True, cascade="all, delete-orphan")
     responses = db.relationship('Response', backref='form', lazy=True)
 
+    def __repr__(self):
+        return f"<Form {self.id} for Container {self.form_container_id}>"
 
 class Question(db.Model):
     __tablename__ = 'questions'
@@ -45,14 +45,16 @@ class Question(db.Model):
     options = db.Column(db.JSON, nullable=True)
     is_required = db.Column(db.Boolean, default=True)
 
+    def __repr__(self):
+        return f"<Question {self.id} for Form {self.form_id}>"
 
 class Response(db.Model):
     __tablename__ = 'responses'
     id = db.Column(db.Integer, primary_key=True)
     form_id = db.Column(db.Integer, db.ForeignKey('forms.id'), nullable=False)
-    user_id = db.Column(db.String(255), nullable=False)
+    responder_uid = db.Column(db.String(255), nullable=False)
     submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
-    answers = db.Column(db.JSON, nullable=False)  # Storing all answers as JSON {questionId: response}
+    answers = db.Column(db.JSON, nullable=False)
 
 
 class TimelineEntry(db.Model):
