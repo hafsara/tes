@@ -23,7 +23,6 @@ def create_form_container():
         initiated_by=admin_id,
         reminder_delay=data.get('reminder_delay_day')
     )
-    form_container.generate_unique_link()
 
     db.session.add(form_container)
     db.session.commit()
@@ -39,7 +38,8 @@ def create_form_container():
     db.session.add(form)
     db.session.commit()
 
-    return jsonify({"container_id": form_container.id, "form_id": form.id, "link": form_container.unique_link}), 201
+    return jsonify(
+        {"container_id": form_container.id, "form_id": form.id, "access_token": form_container.access_token}), 201
 
 
 @api.route('/form-containers/<int:container_id>/forms', methods=['POST'])
@@ -109,9 +109,9 @@ def get_form_containers_by_super_admin():
     return jsonify(result), 200
 
 
-@api.route('/form-containers/<int:container_id>', methods=['GET'])
-def get_form_container_by_id(container_id):
-    form_container = FormContainer.query.get_or_404(container_id)
+@api.route('/form-containers/<string:access_token>', methods=['GET'])
+def get_form_container_by_access_token(access_token):
+    form_container = FormContainer.query.filter_by(access_token=access_token).first_or_404()
     result = {
         "id": form_container.id,
         "title": form_container.title,
@@ -126,74 +126,7 @@ def get_form_container_by_id(container_id):
                 "form_id": form.id,
                 "questions": form.questions,
                 "response": form.response,
-                "responder_id": form.responder_id,
-                "status": form.status
-            }
-            for form in form_container.forms
-        ]
-    }
-    return jsonify(result), 200
-
-
-@api.route('/form-containers/all', methods=['GET'])
-def get_all_form_containers():
-    form_containers = FormContainer.query.all()
-    result = [
-        {
-            "id": fc.id,
-            "title": fc.title,
-            "user_email": fc.user_email,
-            "manager_email": fc.manager_email,
-            "reference": fc.reference,
-            "escalate": fc.escalate,
-            "validated": fc.validated,
-            "forms_count": len(fc.forms),
-            "initiated_by": fc.initiated_by
-        }
-        for fc in form_containers
-    ]
-    return jsonify(result), 200
-
-
-@api.route('/form-containers/super-admin/<int:admin_id>', methods=['GET'])
-def get_form_containers_by_specific_super_admin(admin_id):
-    form_containers = FormContainer.query.filter_by(initiated_by=admin_id).all()
-    result = [
-        {
-            "id": fc.id,
-            "title": fc.title,
-            "user_email": fc.user_email,
-            "manager_email": fc.manager_email,
-            "reference": fc.reference,
-            "escalate": fc.escalate,
-            "validated": fc.validated,
-            "forms_count": len(fc.forms)
-        }
-        for fc in form_containers
-    ]
-    return jsonify(result), 200
-
-
-@api.route('/form-container/<string:encoded_id>', methods=['GET'])
-def view_form_container(encoded_id):
-    try:
-        container_id = int(base64.urlsafe_b64decode(encoded_id).decode())
-    except (ValueError, TypeError):
-        return abort(404)
-
-    form_container = FormContainer.query.get(container_id)
-    if not form_container or form_container.validated:
-        return abort(404)
-
-    result = {
-        "id": form_container.id,
-        "title": form_container.title,
-        "user_email": form_container.user_email,
-        "forms": [
-            {
-                "form_id": form.id,
-                "questions": form.questions,
-                "response": form.response,
+                "responder_uid": form.responder_uid,
                 "status": form.status
             }
             for form in form_container.forms
@@ -210,9 +143,6 @@ def validate_form_container(container_id):
 
     form_container = FormContainer.query.get_or_404(container_id)
 
-    if form_container.initiated_by != admin_id:
-        return jsonify({"error": "Vous n'êtes pas autorisé à valider ce conteneur"}), 403
-
     form_container.validated = True
     db.session.commit()
     form_workflow = FormWorkflowManager(container_id=form_container.id)
@@ -221,10 +151,9 @@ def validate_form_container(container_id):
     return jsonify({"message": "Form Container validé avec succès."}), 200
 
 
-@api.route('/form-containers/<string:unique_link>/history', methods=['GET'])
-def get_form_container_history(unique_link):
-    # Récupération du Form Container par lien unique
-    form_container = FormContainer.query.filter_by(unique_link=unique_link, validated=False).first()
+@api.route('/form-containers/<string:access_token>/timeline', methods=['GET'])
+def get_form_container_timeline(access_token):
+    form_container = FormContainer.query.filter_by(access_token=access_token, validated=False).first()
     if not form_container:
         return jsonify({"error": "Form Container introuvable ou déjà validé"}), 404
 
@@ -234,8 +163,7 @@ def get_form_container_history(unique_link):
     if (form_container.user_email != user_email) and (form_container.initiated_by != admin_id):
         return jsonify({"error": "Accès refusé"}), 403
 
-    # Historique des interactions
-    interaction_history = {
+    interaction_timeline = {
         "container_id": form_container.id,
         "title": form_container.title,
         "user_email": form_container.user_email,
@@ -254,4 +182,4 @@ def get_form_container_history(unique_link):
             for form in form_container.forms
         ]
     }
-    return jsonify(interaction_history), 200
+    return jsonify(interaction_timeline), 200

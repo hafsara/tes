@@ -1,53 +1,76 @@
-from extensions import db
+import uuid
 from datetime import datetime
-import base64
-import os
-import hashlib
-
+from flask_sqlalchemy import SQLAlchemy
+from extensions import db
 
 class FormContainer(db.Model):
     __tablename__ = 'form_containers'
-    # todo __table_args__ = (db.Index('idx_form_container_id', 'form_container_id'),)
+    __table_args__ = db.Index('idx_form_container_access_token', 'access_token')
+
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    user_email = db.Column(db.String(100), nullable=False)
-    manager_email = db.Column(db.String(100), nullable=False)
-    reference = db.Column(db.String(50), nullable=True)
+    access_token = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
+    title = db.Column(db.String(255), nullable=False)
+    user_email = db.Column(db.String(255), nullable=False)
+    manager_email = db.Column(db.String(255), nullable=True)
+    reference = db.Column(db.String(255), nullable=True)
     escalate = db.Column(db.Boolean, default=False)
     validated = db.Column(db.Boolean, default=False)
-    initiated_by = db.Column(db.String(50), nullable=False)
-    unique_link = db.Column(db.String(200), unique=True, nullable=False)
+    initiated_by = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
-    reminder_delay = db.Column(db.Integer, nullable=False)
-    forms = db.relationship('Form', backref='form_container', cascade="all, delete-orphan", lazy=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def generate_unique_link(self):
-        # todo changer cette fonction
-        """Generates a unique link for the form container."""
-        random_data = os.urandom(16)
-        hash_object = hashlib.sha256(random_data)
-        self.unique_link = hash_object.hexdigest()
+    forms = db.relationship('Form', backref='form_container', lazy=True)
+    reminders = db.relationship('Reminder', backref='form_container', lazy=True)
+    timeline = db.relationship('TimelineEntry', backref='form_container', lazy=True)
 
-    def save(self):
-        if not self.unique_link:
-            self.generate_unique_link()
-        db.session.add(self)
-        db.session.commit()
+    def generate_access_token(self):
+        self.access_token = str(uuid.uuid4())
 
 
 class Form(db.Model):
     __tablename__ = 'forms'
     id = db.Column(db.Integer, primary_key=True)
     form_container_id = db.Column(db.Integer, db.ForeignKey('form_containers.id'), nullable=False)
-    questions = db.Column(db.JSON, nullable=False)
-    response = db.Column(db.JSON, nullable=True)
-    responder_uid = db.Column(db.String(100), nullable=True)
-    status = db.Column(db.String(50), default='open')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+    status = db.Column(db.String(50), nullable=False, default='open')
+    linked_to = db.Column(db.Integer, nullable=True)  # Points to the parent form ID for follow-up forms
+    reason_for_additional_form = db.Column(db.Text, nullable=True)
+
+    questions = db.relationship('Question', backref='form', lazy=True)
+    responses = db.relationship('Response', backref='form', lazy=True)
 
 
-def generate_form_container_link(container_id):
-    encoded_id = base64.urlsafe_b64encode(str(container_id).encode()).decode()
-    return f"https://yourdomain.com/form-container/{encoded_id}"
+class Question(db.Model):
+    __tablename__ = 'questions'
+    id = db.Column(db.Integer, primary_key=True)
+    form_id = db.Column(db.Integer, db.ForeignKey('forms.id'), nullable=False)
+    label = db.Column(db.String(255), nullable=False)
+    type = db.Column(db.String(50), nullable=False)
+    options = db.Column(db.JSON, nullable=True)  # To store options for multiple choice, checkbox, etc.
+    is_required = db.Column(db.Boolean, default=True)
+
+
+class Response(db.Model):
+    __tablename__ = 'responses'
+    id = db.Column(db.Integer, primary_key=True)
+    form_id = db.Column(db.Integer, db.ForeignKey('forms.id'), nullable=False)
+    user_id = db.Column(db.String(255), nullable=False)
+    submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
+    answers = db.Column(db.JSON, nullable=False)  # Storing all answers as JSON {questionId: response}
+
+
+class Reminder(db.Model):
+    __tablename__ = 'reminders'
+    __table_args__ = {'sqlite_autoincrement': True}
+    id = db.Column(db.Integer, primary_key=True)
+    form_container_id = db.Column(db.Integer, db.ForeignKey('form_containers.id'), nullable=False)
+    sent_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(50), nullable=False, default='pending')
+
+
+class TimelineEntry(db.Model):
+    __tablename__ = 'timeline_entries'
+    id = db.Column(db.Integer, primary_key=True)
+    form_container_id = db.Column(db.Integer, db.ForeignKey('form_containers.id'), nullable=False)
+    event = db.Column(db.String(255), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    details = db.Column(db.Text, nullable=True)

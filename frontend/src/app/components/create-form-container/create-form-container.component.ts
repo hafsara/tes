@@ -59,16 +59,12 @@ export class CreateFormContainerComponent {
       const isEmailValid = this.emailPattern.test(this.form.userEmail || '');
       const isManagerEmailValid = !this.form.escalate || (this.form.managerEmail ? this.emailPattern.test(this.form.managerEmail) : false)
 
-      const isValid = (
+      return (
         this.form.title.trim() !== '' &&
         this.form.description.trim() !== '' &&
         isEmailValid &&
         isManagerEmailValid
       );
-
-      console.log('Validation result for step', this.currentStep, ':', isValid);
-      return isValid;
-
     } else if (this.currentStep === 1) {
       return this.form.questions.every(question => {
         const isQuestionTextValid = question.label.trim() !== '';
@@ -81,14 +77,13 @@ export class CreateFormContainerComponent {
 
   nextStep(nextCallback: any) {
     if (this.validateCurrentStep()) {
-        this.showErrors = false;
-        this.currentStep++;
-        // Emit the next callback to notify the stepper to advance
-        nextCallback.emit();
+      this.showErrors = false;
+      this.currentStep++;
+      nextCallback.emit();
     } else {
-        this.showErrors = true;
+      this.showErrors = true;
     }
- }
+  }
 
   previousStep(prevCallback: any) {
     if (this.currentStep > 0) {
@@ -109,6 +104,7 @@ export class CreateFormContainerComponent {
       reminder_delay_day: this.form.reminderDelayDay,
       form: { questions: this.form.questions }
     };
+
     this.formService.createFormContainer(payload).subscribe(
       response => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Form created successfully' });

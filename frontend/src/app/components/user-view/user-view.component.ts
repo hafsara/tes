@@ -18,14 +18,18 @@ export class UserViewComponent implements OnInit {
     private route: ActivatedRoute
   ) {}
 
-ngOnInit() {
-  const containerId = +this.route.snapshot.paramMap.get('containerId')!;
-  this.formService.getFormContainerById(containerId).subscribe(data => {
-    this.formData = data;
-    // Apply formatting to the questions after fetching
-    this.formData.forms[0].questions = formatQuestions(this.formData.forms[0].questions);
-  });
-}
+  ngOnInit() {
+    const accessToken = this.route.snapshot.paramMap.get('access_token');
+    if (accessToken) {
+      this.formService.getFormContainerByAccessToken(accessToken).subscribe(data => {
+        this.formData = data;
+        // Apply formatting to the questions after fetching
+        if (this.formData.forms && this.formData.forms.length > 0) {
+          this.formData.forms[0].questions = formatQuestions(this.formData.forms[0].questions);
+        }
+      });
+    }
+  }
 
   validateResponses(): void {
     this.formData.forms[0].questions.forEach((question: any, index: number) => {
@@ -58,7 +62,6 @@ ngOnInit() {
       question.selectedOptions.push(option);
     }
   }
-
 
   onSubmit(): void {
     this.validationErrors = []; // Reset errors

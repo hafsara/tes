@@ -67,18 +67,18 @@
         }
       }
     },
-    "/form-containers/{container_id}": {
+    "/form-containers/{access_token}": {
       "get": {
         "tags": ["form-containers"],
-        "summary": "Get a form container by ID",
-        "description": "Fetch the details of a specific form container by its ID.",
+        "summary": "Get a form container by access token",
+        "description": "Fetch the details of a specific form container by its access token.",
         "parameters": [
           {
-            "name": "container_id",
+            "name": "access_token",
             "in": "path",
             "required": true,
-            "type": "integer",
-            "description": "ID of the form container to fetch"
+            "type": "string",
+            "description": "Access token of the form container to fetch"
           }
         ],
         "responses": {
@@ -170,6 +170,33 @@
           }
         }
       }
+    },
+    "/form-containers/{access_token}/timeline": {
+      "get": {
+        "tags": ["form-containers"],
+        "summary": "Get form container timeline",
+        "description": "Fetch the timeline of interactions for a specific form container by its access token.",
+        "parameters": [
+          {
+            "name": "access_token",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Access token of the form container"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Timeline of form container interactions",
+            "schema": {
+              "$ref": "#/definitions/FormContainerTimeline"
+            }
+          },
+          "404": {
+            "description": "Form container not found"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -227,7 +254,7 @@
         "form_id": {
           "type": "integer"
         },
-        "link": {
+        "access_token": {
           "type": "string"
         }
       }
@@ -279,6 +306,63 @@
         },
         "responder_uid": {
           "type": "string"
+        }
+      }
+    },
+    "FormContainerTimeline": {
+      "type": "object",
+      "properties": {
+        "container_id": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "user_email": {
+          "type": "string"
+        },
+        "manager_email": {
+          "type": "string"
+        },
+        "reference": {
+          "type": "string"
+        },
+        "escalate": {
+          "type": "boolean"
+        },
+        "forms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FormTimelineEntry"
+          }
+        }
+      }
+    },
+    "FormTimelineEntry": {
+      "type": "object",
+      "properties": {
+        "form_id": {
+          "type": "integer"
+        },
+        "questions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Question"
+          }
+        },
+        "response": {
+          "type": "object"
+        },
+        "status": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     }
