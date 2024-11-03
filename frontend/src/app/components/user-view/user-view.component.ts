@@ -23,6 +23,7 @@ export class UserViewComponent implements OnInit {
     if (accessToken) {
       this.formService.getFormContainerByAccessToken(accessToken).subscribe(data => {
         this.formData = data;
+        this.formData.access_token = accessToken;
         // Apply formatting to the questions after fetching
         if (this.formData.forms && this.formData.forms.length > 0) {
           this.formData.forms[0].questions = formatQuestions(this.formData.forms[0].questions);
