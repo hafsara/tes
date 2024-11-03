@@ -5,7 +5,7 @@ from extensions import db
 
 class FormContainer(db.Model):
     __tablename__ = 'form_containers'
-    __table_args__ = db.Index('idx_form_container_access_token', 'access_token')
+    __table_args__ = (db.Index('idx_form_container_access_token', 'access_token'), )
 
     id = db.Column(db.Integer, primary_key=True)
     access_token = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
