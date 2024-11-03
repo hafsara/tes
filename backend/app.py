@@ -9,7 +9,7 @@ from celery_app import celery
 from flask_cors import CORS
 
 app = Flask(__name__)
-
+# todo configure CORS
 CORS(app)
 app.config.from_object(Config)
 

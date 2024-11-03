@@ -99,8 +99,16 @@ export class CreateFormContainerComponent {
   }
 
   submitForm() {
-    // Simplified payload for demonstration
-    const payload = { ...this.form, form: { questions: this.form.questions } };
+    const payload = {
+      title: this.form.title,
+      description: this.form.description,
+      user_email: this.form.userEmail,
+      manager_email: this.form.managerEmail,
+      reference: this.form.reference,
+      escalate: this.form.escalate,
+      reminder_delay_day: this.form.reminderDelayDay,
+      form: { questions: this.form.questions }
+    };
     this.formService.createFormContainer(payload).subscribe(
       response => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Form created successfully' });
