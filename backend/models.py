@@ -30,7 +30,6 @@ class Form(db.Model):
     form_container_id = db.Column(db.Integer, db.ForeignKey('form_containers.id'), nullable=False)
     status = db.Column(db.String(50), nullable=False, default='open')
     linked_to = db.Column(db.Integer, nullable=True)  # Points to the parent form ID for follow-up forms
-    reason_for_additional_form = db.Column(db.Text, nullable=True)
 
     questions = db.relationship('Question', backref='form', lazy=True)
     responses = db.relationship('Response', backref='form', lazy=True)
