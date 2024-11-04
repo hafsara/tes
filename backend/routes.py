@@ -79,16 +79,14 @@ def add_form_to_container(container_id):
 @api.route('/form-containers/<string:access_token>/forms/<int:form_id>/submit-response', methods=['POST'])
 def submit_form_response(access_token, form_id):
     data = request.json
-    responder_uid = ADMIN_ID  # Assuming this comes from session or other context
+    responder_uid = ADMIN_ID
 
     # Fetch the FormContainer using the access_token
     form_container = FormContainer.query.filter_by(access_token=access_token).first_or_404()
-
-    # Ensure the form belongs to this container
     form = Form.query.filter_by(id=form_id, form_container_id=form_container.id).first_or_404()
 
-    # Iterate over the provided questions to save responses
     for question_data in data.get('questions', []):
+        # todo timeline + khass responses twali m9ada
         question_id = question_data.get('id')
         response_content = question_data.get('response')  # Could be a string or list
 
