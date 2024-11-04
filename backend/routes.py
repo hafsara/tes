@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, session
-from models import db, FormContainer, Form, Question
+from models import db, FormContainer, Form, Question, TimelineEntry
 from datetime import datetime
 from workflow import FormWorkflowManager
 
@@ -45,6 +45,16 @@ def create_form_container():
         form.questions.append(question)
 
     db.session.add(form)
+
+    # Ajout d'une entrée dans timeline_entry
+    timeline_entry = TimelineEntry(
+        form_container_id=form_container.id,
+        event_type='container_created',
+        details=f'Form container created with title {form_container.title}',
+        timestamp=datetime.utcnow()
+    )
+    db.session.add(timeline_entry)
+
     db.session.commit()
 
     return jsonify(
@@ -85,16 +95,38 @@ def submit_form_response(access_token, form_id):
     form_container = FormContainer.query.filter_by(access_token=access_token).first_or_404()
     form = Form.query.filter_by(id=form_id, form_container_id=form_container.id).first_or_404()
 
+    # Create a new response record
+    response_record = {
+        "responder_uid": responder_uid,
+        "submittedAt": datetime.utcnow().isoformat(),
+        "answers": []
+    }
+
     for question_data in data.get('questions', []):
-        # todo timeline + khass responses twali m9ada
         question_id = question_data.get('id')
-        response_content = question_data.get('response')  # Could be a string or list
+        response_content = question_data.get('response')
 
         # Find the question in the database
         question = Question.query.filter_by(id=question_id, form_id=form.id).first_or_404()
-        question.response = response_content if isinstance(response_content, str) else ','.join(response_content)
 
+        # Append the answer to the response record
+        response_record["answers"].append({
+            "questionId": question.id,
+            "response": response_content
+        })
+
+    form.responses.append(response_record)
     form.status = 'answered'
+
+    # Save timeline entry
+    timeline_entry = TimelineEntry(
+        form_container_id=form_container.id,
+        event_type='response_submitted',
+        details=f'Response submitted for form ID {form_id}',
+        timestamp=datetime.utcnow()
+    )
+    db.session.add(timeline_entry)
+
     db.session.commit()
 
     return jsonify({"message": "Réponse soumise avec succès"}), 200
@@ -141,26 +173,26 @@ def get_form_container_by_access_token(access_token):
         "forms": [
             {
                 "form_id": form.id,
+                "status": form.status,
                 "questions": [
                     {
                         "id": question.id,
                         "label": question.label,
                         "type": question.type,
                         "options": question.options,
-                        "is_required": question.is_required
+                        "is_required": question.is_required,
+                        "response": getattr(question, 'response', None)
                     }
                     for question in form.questions
                 ],
                 "responses": [
                     {
-                        "id": response.id,
-                        "responder_uid": response.responder_uid,
-                        "answers": response.answers,
-                        "submitted_at": response.submitted_at,
+                        "responder_uid": response["responder_uid"],
+                        "submittedAt": response["submittedAt"],
+                        "answers": response["answers"]
                     }
                     for response in form.responses
-                ],
-                "status": form.status
+                ]
             }
             for form in form_container.forms
         ]
