@@ -1,9 +1,10 @@
 <div class="dashboard">
   <div class="sidebar">
-      <p-button label="Create New Form" [outlined]="true" (click)="toggleCreateForm()"></p-button>
-  <div class="card">
-    <p-menu [model]="statuses"></p-menu>
-  </div>
+      <button (click)="toggleCreateForm()" class="button-17">Create New Form</button>
+<div class="card flex justify-content-center">
+    <p-menu [model]="statuses" />
+</div>
+
 </div>
 
 
