@@ -70,7 +70,7 @@ export class UserViewComponent implements OnInit {
   onSubmit(): void {
       this.formService.submitUserForm(this.formData).subscribe(
         () => {
-          this.isSubmitted = true;  // Mark form as submitted
+          this.isSubmitted = true;
           console.log("Response saved successfully.");
         },
         error => {
@@ -102,7 +102,7 @@ export class UserViewComponent implements OnInit {
         rejectIcon:"none",
         rejectButtonStyleClass:"p-button-text",
         accept: () => {
-          this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Your responses has been submitted' });
+          this.messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'Your responses has been submitted' });
           setTimeout(() => this.onSubmit(), 1000);
         }});
     }
