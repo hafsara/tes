@@ -1,6 +1,6 @@
 from celery_app import celery
 from models import FormContainer
-from workflow_manager import FormWorkflowManager
+from workflow import FormWorkflowManager
 
 
 @celery.task
