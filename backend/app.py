@@ -5,7 +5,6 @@ from flask_migrate import Migrate
 from routes import api
 from flask_swagger_ui import get_swaggerui_blueprint
 from auth import setup_oauth, auth_bp
-from celery_app import celery
 from flask_cors import CORS
 
 app = Flask(__name__)

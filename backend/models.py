@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
 from extensions import db
 
 class FormContainer(db.Model):
