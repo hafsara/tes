@@ -49,7 +49,7 @@ def create_form_container():
     # Ajout d'une entrée dans timeline_entry
     timeline_entry = TimelineEntry(
         form_container_id=form_container.id,
-        event_type='container_created',
+        event='container_created',
         details=f'Form container created with title {form_container.title}',
         timestamp=datetime.utcnow()
     )
@@ -121,7 +121,7 @@ def submit_form_response(access_token, form_id):
     # Save timeline entry
     timeline_entry = TimelineEntry(
         form_container_id=form_container.id,
-        event_type='response_submitted',
+        event='response_submitted',
         details=f'Response submitted for form ID {form_id}',
         timestamp=datetime.utcnow()
     )
