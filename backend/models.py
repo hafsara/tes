@@ -44,6 +44,7 @@ class Question(db.Model):
     type = db.Column(db.String(50), nullable=False)
     options = db.Column(db.JSON, nullable=True)
     is_required = db.Column(db.Boolean, default=True)
+    response = db.Column(db.JSON, nullable=True)
 
     def __repr__(self):
         return f"<Question {self.id} for Form {self.form_id}>"

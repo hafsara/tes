@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, session
-from models import db, FormContainer, Form, Question, TimelineEntry
+from models import db, FormContainer, Form, Question, TimelineEntry, Response
 from datetime import datetime
 from workflow import FormWorkflowManager
 
@@ -106,9 +106,10 @@ def submit_form_response(access_token, form_id):
         question_id = question_data.get('id')
         response_content = question_data.get('response')
         question = Question.query.filter_by(id=question_id, form_id=form.id).first_or_404()
+        question.response = response_content
         response_record.answers.append({
             "questionId": question.id,
-            "response": response_content if isinstance(response_content, str) else ','.join(response_content)
+            "response": response_content
         })
 
     # Add the response record to the database
@@ -182,9 +183,9 @@ def get_form_container_by_access_token(access_token):
                 ],
                 "responses": [
                     {
-                        "responder_uid": response["responder_uid"],
-                        "submittedAt": response["submittedAt"],
-                        "answers": response["answers"]
+                        "responder_uid": response.responder_uid,
+                        "submitted_at": response.submitted_at,
+                        "answers": response.answers
                     }
                     for response in form.responses
                 ]
