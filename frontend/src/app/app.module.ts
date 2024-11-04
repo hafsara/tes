@@ -24,6 +24,8 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
 
 import { UserViewComponent } from './components/user-view/user-view.component';
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
@@ -43,6 +45,7 @@ import { FormBuilderComponent } from './components/form-builder/form-builder.com
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
+    ConfirmDialogModule,
     BrowserAnimationsModule,
     HttpClientModule,
     // PrimeNG Modules
@@ -64,7 +67,7 @@ import { FormBuilderComponent } from './components/form-builder/form-builder.com
     CardModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

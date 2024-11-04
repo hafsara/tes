@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Question, formatQuestions } from '../../utils/question-formatter';
 import { FormService } from '../../services/form.service';
 import { ActivatedRoute } from '@angular/router';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-user-view',
@@ -15,7 +16,9 @@ export class UserViewComponent implements OnInit {
 
   constructor(
     private formService: FormService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private confirmationService: ConfirmationService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit() {
@@ -65,13 +68,6 @@ export class UserViewComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.validationErrors = []; // Reset errors
-    this.validateResponses();
-
-    if (this.validationErrors.length > 0) {
-      console.log("Validation failed:", this.validationErrors);
-    } else {
-      console.log("Form submitted successfully:", this.formData);
       this.formService.submitUserForm(this.formData).subscribe(
         () => {
           this.isSubmitted = true;  // Mark form as submitted
@@ -82,7 +78,6 @@ export class UserViewComponent implements OnInit {
         }
       );
     }
-  }
 
   getDisplayResponse(question: Question): string {
     if (question.type === 'checkbox') {
@@ -91,4 +86,25 @@ export class UserViewComponent implements OnInit {
       return question.response || 'No response';
     }
   }
-}
+
+  confirm(event: Event) {
+    this.validationErrors = [];
+    this.validateResponses();
+    if (this.validationErrors.length > 0) {
+        console.log("Validation failed:", this.validationErrors);
+    } else {
+        this.confirmationService.confirm({
+        target: event.target as EventTarget,
+        message: 'Are you sure that you want to proceed?',
+        header: 'Confirmation',
+        icon: 'pi pi-exclamation-triangle',
+        acceptIcon:"none",
+        rejectIcon:"none",
+        rejectButtonStyleClass:"p-button-text",
+        accept: () => {
+          this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Your responses has been submitted' });
+          this.onSubmit();
+        }});
+    }
+ }
+ }
