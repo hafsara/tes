@@ -3,7 +3,7 @@ import os
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'your_secret_key')
-    SQLALCHEMY_DATABASE_URI = 'postgresql://hafsa:toto@localhost/formulaire_db'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///your_database_name.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Celery configuration (utilisé pour les rappels et escalades)
