@@ -86,11 +86,12 @@
       <div>{{ getDisplayResponse(question) }}</div>
     </ng-template>
   </div>
-
-  <div class="card flex justify-content-center gap-2" *ngIf="!isSubmitted">
-    <p-toast/>
-    <p-confirmDialog/>
-    <p-button (onClick)="confirm($event)" label="Submit" [outlined]="true"/>
+  <div class="centered-container" *ngIf="!isSubmitted">
+    <div class="flex justify-content-end">
+      <p-toast/>
+      <p-confirmDialog/>
+      <p-button (onClick)="confirm($event)" label="Submit" [outlined]="true"/>
+    </div>
   </div>
 
   <div class="submitted-view" *ngIf="isSubmitted">
