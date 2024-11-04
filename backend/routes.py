@@ -95,26 +95,23 @@ def submit_form_response(access_token, form_id):
     form_container = FormContainer.query.filter_by(access_token=access_token).first_or_404()
     form = Form.query.filter_by(id=form_id, form_container_id=form_container.id).first_or_404()
 
-    # Create a new response record
-    response_record = {
-        "responder_uid": responder_uid,
-        "submittedAt": datetime.utcnow().isoformat(),
-        "answers": []
-    }
+    # Initialize a new response record
+    response_record = Response(
+        form_id=form.id,
+        responder_uid=responder_uid,
+        answers=[]
+    )
 
     for question_data in data.get('questions', []):
         question_id = question_data.get('id')
         response_content = question_data.get('response')
-
-        # Find the question in the database
         question = Question.query.filter_by(id=question_id, form_id=form.id).first_or_404()
-
-        # Append the answer to the response record
-        response_record["answers"].append({
+        response_record.answers.append({
             "questionId": question.id,
-            "response": response_content
+            "response": response_content if isinstance(response_content, str) else ','.join(response_content)
         })
 
+    # Add the response record to the database
     form.responses.append(response_record)
     form.status = 'answered'
 
@@ -126,9 +123,7 @@ def submit_form_response(access_token, form_id):
         timestamp=datetime.utcnow()
     )
     db.session.add(timeline_entry)
-
     db.session.commit()
-
     return jsonify({"message": "Réponse soumise avec succès"}), 200
 
 
