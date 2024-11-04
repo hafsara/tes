@@ -26,6 +26,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
+import { MenuModule } from 'primeng/menu';
 
 import { UserViewComponent } from './components/user-view/user-view.component';
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
@@ -66,7 +67,8 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
     StepperModule,
     IconFieldModule,
     InputIconModule,
-    CardModule
+    CardModule,
+    MenuModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [MessageService, ConfirmationService],

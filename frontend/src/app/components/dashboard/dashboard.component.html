@@ -1,10 +1,11 @@
 <div class="dashboard">
   <div class="sidebar">
-    <button (click)="toggleCreateForm()">Create New Form</button>
-    <ul>
-      <li *ngFor="let status of statuses">{{ status }}</li>
-    </ul>
+      <p-button label="Create New Form" [outlined]="true" (click)="toggleCreateForm()"></p-button>
+  <div class="card">
+    <p-menu [model]="statuses"></p-menu>
   </div>
+</div>
+
 
   <div class="content">
     <div *ngIf="!showCreateFormFlag">
@@ -26,7 +27,7 @@
     </div>
 
     <div *ngIf="showCreateFormFlag">
-      <button (click)="toggleCreateForm()">Back</button>
+      <p-button icon="pi pi-chevron-left" (click)="toggleCreateForm()"/>
       <app-create-form-container></app-create-form-container>
     </div>
   </div>

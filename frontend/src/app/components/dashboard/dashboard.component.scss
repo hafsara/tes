@@ -9,30 +9,21 @@
   padding: 20px;
   background-color: #f4f4f4;
   border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.sidebar button {
+.sidebar p-button {
   width: 100%;
-  padding: 10px;
   margin-bottom: 20px;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  cursor: pointer;
-  text-align: left;
-  font-size: 16px;
 }
 
-.sidebar button:hover {
-  background-color: #e6e6e6;
+.sidebar .card {
+  width: 100%;
 }
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
-.sidebar li {
-  margin: 10px 0;
+.full {
+  width: 100%;
 }
 
 .content {
@@ -62,4 +53,23 @@ td {
 
 tr:nth-child(even) {
   background-color: #f2f2f2;
+}
+
+.content .create-form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.content .create-form-container p-button {
+  margin-bottom: 20px;
+}
+
+p-button {
+  display: inline-flex;
+  align-items: center;
+}
+
+.p-button-icon-left {
+  margin-right: 8px;
 }

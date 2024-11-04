@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { MenuItem } from 'primeng/api';
+import { MenuModule } from 'primeng/menu';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -6,8 +9,17 @@ import { Component } from '@angular/core';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent {
+  statuses: MenuItem[] | undefined;
   showCreateFormFlag = false;
-  statuses = ['To validate 10', 'En cours', 'Relancé', 'Escaladé', 'Expiré'];
+    ngOnInit() {
+        this.statuses = [
+            { label: 'To validate' },
+            { label: 'En cours' },
+            { label: 'Relancé'},
+            { label: 'Escaladé' },
+            { label: 'Expiré'}
+        ];
+    }
 
   toggleCreateForm() {
     this.showCreateFormFlag = !this.showCreateFormFlag;
