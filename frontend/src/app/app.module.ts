@@ -31,6 +31,9 @@ import { UserViewComponent } from './components/user-view/user-view.component';
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
 import { CreateFormContainerComponent } from './components/create-form-container/create-form-container.component';
 import { FormBuilderComponent } from './components/form-builder/form-builder.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { MainComponent } from './components/main/main.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +41,10 @@ import { FormBuilderComponent } from './components/form-builder/form-builder.com
     UserViewComponent,
     FormPreviewComponent,
     CreateFormContainerComponent,
-    FormBuilderComponent
+    FormBuilderComponent,
+    DashboardComponent,
+    MainComponent,
+    SidebarComponent
   ],
   imports: [
     BrowserModule,

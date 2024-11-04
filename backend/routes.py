@@ -56,7 +56,7 @@ def create_form_container():
     db.session.add(timeline_entry)
 
     db.session.commit()
-
+    print(form_container.access_token)
     return jsonify(
         {"container_id": form_container.id, "form_id": form.id, "access_token": form_container.access_token}), 201
 

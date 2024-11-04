@@ -1,0 +1,33 @@
+<div class="dashboard">
+  <div class="sidebar">
+    <button (click)="toggleCreateForm()">Create New Form</button>
+    <ul>
+      <li *ngFor="let status of statuses">{{ status }}</li>
+    </ul>
+  </div>
+
+  <div class="content">
+    <div *ngIf="!showCreateFormFlag">
+      <!-- Static List -->
+      <table>
+        <tr>
+          <th>Title</th>
+          <th>Date</th>
+        </tr>
+        <tr>
+          <td>Apply These 7 Secret Techniques To Improve Event</td>
+          <td>May 30, 2022</td>
+        </tr>
+        <tr>
+          <td>Eget ipsum quam eu a, sit pellentesque molestie tristique.</td>
+          <td>May 28, 2022</td>
+        </tr>
+      </table>
+    </div>
+
+    <div *ngIf="showCreateFormFlag">
+      <button (click)="toggleCreateForm()">Back</button>
+      <app-create-form-container></app-create-form-container>
+    </div>
+  </div>
+</div>

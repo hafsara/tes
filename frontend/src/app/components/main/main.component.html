@@ -1,0 +1,9 @@
+<div class="main-layout">
+  <app-sidebar (viewSelected)="changeView($event)"></app-sidebar>
+  <div class="main-content">
+    <ng-container [ngSwitch]="currentView">
+      <app-dashboard *ngSwitchCase="'dashboard'"></app-dashboard>
+      <app-create-form *ngSwitchCase="'createForm'"></app-create-form>
+    </ng-container>
+  </div>
+</div>
