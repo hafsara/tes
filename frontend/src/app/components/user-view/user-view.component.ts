@@ -103,7 +103,7 @@ export class UserViewComponent implements OnInit {
         rejectButtonStyleClass:"p-button-text",
         accept: () => {
           this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Your responses has been submitted' });
-          setTimeout(() => this.onSubmit();, 1000);
+          setTimeout(() => this.onSubmit(), 1000);
         }});
     }
  }
