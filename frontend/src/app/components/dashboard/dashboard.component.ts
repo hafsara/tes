@@ -1,7 +1,4 @@
 import { Component } from '@angular/core';
-import { MenuItem } from 'primeng/api';
-import { MenuModule } from 'primeng/menu';
-
 
 @Component({
   selector: 'app-dashboard',
@@ -9,19 +6,46 @@ import { MenuModule } from 'primeng/menu';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent {
-  statuses: MenuItem[] | undefined;
+  menuItems: any[];
   showCreateFormFlag = false;
-    ngOnInit() {
-        this.statuses = [
-            { label: 'To validate' },
-            { label: 'En cours' },
-            { label: 'Relancé'},
-            { label: 'Escaladé' },
-            { label: 'Expiré'}
-        ];
-    }
+  constructor() {
+    this.menuItems = [
+      {
+        label: 'To validate',
+        icon: 'pi pi-envelope',
+        command: () => this.onMenuItemClick('To validate'),
+      },
+      {
+        label: 'En cours',
+        icon: 'pi pi-star',
+        command: () => this.onMenuItemClick('En cours'),
+      },
+      {
+        label: 'Relancé',
+        icon: 'pi pi-refresh',
+        command: () => this.onMenuItemClick('Relancé'),
+      },
+      {
+        label: 'Escaladé',
+        icon: 'pi pi-flag',
+        command: () => this.onMenuItemClick('Escaladé'),
+      },
+      {
+        label: 'Expiré',
+        icon: 'pi pi-send',
+        command: () => this.onMenuItemClick('Expiré'),
+      }
+    ];
+  }
+
+  onMenuItemClick(status: string) {
+    console.log(`${status} selected`);
+    // Implémenter la logique de navigation ou mise à jour de contenu ici
+  }
 
   toggleCreateForm() {
     this.showCreateFormFlag = !this.showCreateFormFlag;
   }
 }
+
+
