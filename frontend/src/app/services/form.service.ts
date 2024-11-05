@@ -35,8 +35,8 @@ export class FormService {
     return this.http.get(`${this.apiUrl}/${accessToken}/timeline`);
   }
 
-  getFormContainerByStatus(status: string): Observable<any> {
-  const url = `${this.apiUrl}?status=${status}`;
+  getFormContainersByStatus(status: string): Observable<any> {
+  const url = `${this.apiUrl}?filter=status&status=${status}`;
   return this.http.get<any[]>(url);
   }
 }

@@ -129,53 +129,34 @@ def submit_form_response(access_token, form_id):
 
 
 @api.route('/form-containers', methods=['GET'])
-def get_form_containers_by_super_admin():
+def get_form_containers():
     admin_id = ADMIN_ID
 
     if not admin_id:
         return jsonify({"error": "SuperAdmin non authentifié"}), 401
 
-    form_containers = FormContainer.query.filter_by(initiated_by=admin_id).all()
-    result = [
-        {
-            "id": fc.id,
-            "title": fc.title,
-            "description": fc.description,
-            "user_email": fc.user_email,
-            "manager_email": fc.manager_email,
-            "reference": fc.reference,
-            "escalate": fc.escalate,
-            "validated": fc.validated,
-            "forms_count": len(fc.forms)
-        }
-        for fc in form_containers
-    ]
-    return jsonify(result), 200
+    filter_type = request.args.get('filter')
 
+    if filter_type == 'status':
+        status = request.args.get('status')
+        if not status:
+            return jsonify({"error": "Le paramètre 'status' est requis"}), 400
 
-@api.route('/form-containers', methods=['GET'])
-def get_form_containers_by_status():
-    status = request.args.get('status')
-    admin_id = ADMIN_ID
+        form_containers = FormContainer.query.join(Form).filter(Form.status == status).all()
+        result = [
+            {
+                "access_token": fc.access_token,
+                "title": fc.title,
+                "created_at": fc.created_at,
+                "user_email": fc.user_email,
+                "manager_email": fc.manager_email,
+                "reference": fc.reference,
+            }
+            for fc in form_containers
+        ]
+    else:
+        return jsonify({"error": "Type de requête non valide"}), 400
 
-    if not admin_id:
-        return jsonify({"error": "SuperAdmin non authentifié"}), 401
-
-    if not status:
-        return jsonify({"error": "Le paramètre 'status' est requis"}), 400
-
-    form_containers = FormContainer.query.join(Form).filter(Form.status == status).all()
-    result = [
-        {
-            "access_token": fc.id,
-            "title": fc.title,
-            "created_at": fc.created_at,
-            "user_email": fc.user_email,
-            "manager_email": fc.manager_email,
-            "reference": fc.reference,
-        }
-        for fc in form_containers
-    ]
     return jsonify(result), 200
 
 

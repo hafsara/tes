@@ -20,64 +20,52 @@ export class DashboardComponent implements OnInit {
       {
         label: 'To be checked',
         icon: 'pi pi-verified',
-        command: () => this.onMenuItemClick('To be checked'),
+        command: () => this.onMenuItemClick('answered'),
       },
       {
         label: 'In progress',
         icon: 'pi pi-star',
-        command: () => this.onMenuItemClick('In progress'),
+        command: () => this.onMenuItemClick('open'),
       },
       {
         label: 'Reminder',
         icon: 'pi pi-refresh',
-        command: () => this.onMenuItemClick('Reminder'),
+        command: () => this.onMenuItemClick('reminder'),
       },
       {
         label: 'Escalate',
         icon: 'pi pi-flag',
-        command: () => this.onMenuItemClick('Escalate'),
+        command: () => this.onMenuItemClick('escalate'),
       }
     ];
   }
 
   ngOnInit() {
-    const status = 'open';
-    this.formService.getFormContainerByStatus(status).subscribe(
-      data => {
+    this.loadCustomers('answered');
+  }
+
+  onMenuItemClick(status: string) {
+    console.log(`${status} selected`);
+    this.loadCustomers(status);
+  }
+
+  loadCustomers(status: string) {
+    this.loading = true;
+    this.formService.getFormContainersByStatus(status).subscribe(
+      (data) => {
         this.forms = data;
         this.loading = false;
-        console.log(data)
       },
-      error => {
-        console.error('Error fetching form data:', error);
+      (error) => {
+        console.error('Erreur lors de la récupération des données', error);
         this.loading = false;
       }
     );
-
   }
 
   clear(table: Table) {
     table.clear();
     this.searchValue = '';
-  }
-
-  getSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | undefined {
-    switch (status) {
-      case 'unqualified':
-        return 'danger';
-      case 'qualified':
-        return 'success';
-      case 'new':
-        return 'info';
-      case 'negotiation':
-        return 'warning';
-      default:
-        return undefined;
-    }
-  }
-
-  onMenuItemClick(status: string) {
-    console.log(`${status} selected`);
   }
 
   toggleCreateForm() {
