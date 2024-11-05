@@ -1,14 +1,14 @@
 <div class="dashboard">
   <div class="sidebar">
-    <button (click)="toggleCreateForm()" class="button-17">Create New Form</button>
+    <button (click)="switchTo('createForm')" class="button-17">Create New Form</button>
     <div class="card flex justify-content-center">
       <p-menu [model]="menuItems" class="custom-menu"></p-menu>
     </div>
   </div>
 
-  <div class="content">
-    <div *ngIf="!showQuestions; else questionsTemplate">
-      <!-- Static List -->
+  <div class="content" [ngSwitch]="currentView">
+    <!-- Table View -->
+    <div *ngSwitchCase="'table'">
       <div class="card">
         <p-table
           #dt1
@@ -71,19 +71,24 @@
       </div>
     </div>
 
-    <div *ngIf="showCreateFormFlag">
-      <p-button icon="pi pi-chevron-left" (click)="toggleCreateForm()"/>
+    <!-- Questions View -->
+    <div *ngSwitchCase="'questions'">
+      <p-button icon="pi pi-chevron-left" (click)="switchTo('table')"/>
+      <h3>Questions for "{{ selectedForm?.title }}"</h3>
+      <ul>
+        <li *ngFor="let question of questions">{{ question.label }} (Type: {{ question.type }})</li>
+      </ul>
+    </div>
+
+    <!-- Create Form View -->
+    <div *ngSwitchCase="'createForm'">
+                  <p-button icon="pi pi-chevron-left" (click)="switchTo('table')"/>
       <app-create-form-container></app-create-form-container>
     </div>
 
-    <ng-template #questionsTemplate>
-  <button (click)="backToTable()">Back to Table</button>
-  <h3>Questions for"</h3>
-  <ul>
-    <li *ngFor="let question of questions">
-      {{ question.label }} (Type: {{ question.type }})
-    </li>
-  </ul>
-</ng-template>
+    <!-- Default View -->
+    <div *ngSwitchDefault>
+      <p>Invalid view selected</p>
+    </div>
   </div>
 </div>

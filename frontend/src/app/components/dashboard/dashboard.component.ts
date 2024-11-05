@@ -10,36 +10,19 @@ import { formatQuestions } from '../../utils/question-formatter';
 })
 export class DashboardComponent implements OnInit {
   menuItems: any[];
-  forms!: any[];
-  showCreateFormFlag = false;
+  forms: any[] = [];
+  selectedForm: any = null;
+  questions: any[] = [];
+  currentView: string = 'table';
   loading: boolean = false;
   searchValue: string | undefined;
-  selectedForm!: any[];
-  questions: any[] = [];
-  showQuestions: boolean = false;
 
   constructor(private formService: FormService) {
     this.menuItems = [
-      {
-        label: 'To be checked',
-        icon: 'pi pi-verified',
-        command: () => this.onMenuItemClick('answered'),
-      },
-      {
-        label: 'In progress',
-        icon: 'pi pi-star',
-        command: () => this.onMenuItemClick('open'),
-      },
-      {
-        label: 'Reminder',
-        icon: 'pi pi-refresh',
-        command: () => this.onMenuItemClick('reminder'),
-      },
-      {
-        label: 'Escalate',
-        icon: 'pi pi-flag',
-        command: () => this.onMenuItemClick('escalate'),
-      }
+      { label: 'To be checked', icon: 'pi pi-verified', command: () => this.onMenuItemClick('answered') },
+      { label: 'In progress', icon: 'pi pi-star', command: () => this.onMenuItemClick('open') },
+      { label: 'Reminder', icon: 'pi pi-refresh', command: () => this.onMenuItemClick('reminder') },
+      { label: 'Escalate', icon: 'pi pi-flag', command: () => this.onMenuItemClick('escalate') },
     ];
   }
 
@@ -66,27 +49,16 @@ export class DashboardComponent implements OnInit {
     );
   }
 
-  clear(table: Table) {
-    table.clear();
-    this.searchValue = '';
+  onRowSelect(event: any) {
+    this.selectedForm = event.data;
+    this.loadQuestions(this.selectedForm.access_token);
   }
 
-  toggleCreateForm() {
-    this.showCreateFormFlag = !this.showCreateFormFlag;
-  }
-  onRowSelect(form: any): void {
-    console.log(form)
-    this.selectedForm = form;
-    this.loadQuestions(form.data.access_token);
-
-  }
-
-  loadQuestions(access_token: string): void {
+  loadQuestions(access_token: string) {
     this.formService.getFormContainerByAccessToken(access_token).subscribe(
       (data) => {
         this.questions = formatQuestions(data.forms[0].questions);
-        console.log('Questions:', this.questions);
-         this.showQuestions = true;
+        this.switchTo('questions');
       },
       (error) => {
         console.error('Error loading questions:', error);
@@ -94,7 +66,12 @@ export class DashboardComponent implements OnInit {
     );
   }
 
-  backToTable() {
-    this.showQuestions = false;
+  switchTo(view: string) {
+    this.currentView = view;
+  }
+
+  clear(table: Table) {
+    table.clear();
+    this.searchValue = '';
   }
 }
