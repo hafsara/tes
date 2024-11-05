@@ -34,6 +34,12 @@ import { CreateFormContainerComponent } from './components/create-form-container
 import { FormBuilderComponent } from './components/form-builder/form-builder.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 
+import { Table } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { CommonModule } from '@angular/common';
+import { TableModule } from 'primeng/table';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -45,6 +51,10 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
   ],
   imports: [
     BrowserModule,
+    TableModule,
+    TagModule,
+    MultiSelectModule,
+    CommonModule,
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,

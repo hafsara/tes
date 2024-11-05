@@ -119,3 +119,14 @@ p-button {
 .custom-menu .p-menuitem-active {
   background-color: #dff7e6; /* Couleur de l'élément actif */
 }
+
+:host ::ng-deep {
+    .p-progressbar {
+        height: .5rem;
+        background-color: #D8DADC;
+
+        .p-progressbar-value {
+            background-color: #607D8B;
+        }
+    }
+}
