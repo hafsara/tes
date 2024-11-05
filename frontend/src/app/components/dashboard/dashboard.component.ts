@@ -11,29 +11,24 @@ export class DashboardComponent {
   constructor() {
     this.menuItems = [
       {
-        label: 'To validate',
-        icon: 'pi pi-envelope',
-        command: () => this.onMenuItemClick('To validate'),
+        label: 'To be checked',
+        icon: 'pi pi-verified',
+        command: () => this.onMenuItemClick('To be checked'),
       },
       {
-        label: 'En cours',
+        label: 'In progress',
         icon: 'pi pi-star',
-        command: () => this.onMenuItemClick('En cours'),
+        command: () => this.onMenuItemClick('In progress'),
       },
       {
-        label: 'Relancé',
+        label: 'Reminder',
         icon: 'pi pi-refresh',
-        command: () => this.onMenuItemClick('Relancé'),
+        command: () => this.onMenuItemClick('Reminder'),
       },
       {
-        label: 'Escaladé',
+        label: 'Escalate',
         icon: 'pi pi-flag',
-        command: () => this.onMenuItemClick('Escaladé'),
-      },
-      {
-        label: 'Expiré',
-        icon: 'pi pi-send',
-        command: () => this.onMenuItemClick('Expiré'),
+        command: () => this.onMenuItemClick('Escalate'),
       }
     ];
   }
