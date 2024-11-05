@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Table } from 'primeng/table';
 import { FormService } from '../../services/form.service';
+import { formatQuestions } from '../../utils/question-formatter';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,6 +15,8 @@ export class DashboardComponent implements OnInit {
   loading: boolean = false;
   searchValue: string | undefined;
   selectedForm!: any[];
+  questions: any[] = [];
+  showQuestions: boolean = false;
 
   constructor(private formService: FormService) {
     this.menuItems = [
@@ -71,7 +74,27 @@ export class DashboardComponent implements OnInit {
   toggleCreateForm() {
     this.showCreateFormFlag = !this.showCreateFormFlag;
   }
-  onRowSelect(event: any) {
-    console.log("test");
+  onRowSelect(form: any): void {
+    console.log(form)
+    this.selectedForm = form;
+    this.loadQuestions(form.data.access_token);
+
+  }
+
+  loadQuestions(access_token: string): void {
+    this.formService.getFormContainerByAccessToken(access_token).subscribe(
+      (data) => {
+        this.questions = formatQuestions(data.forms[0].questions);
+        console.log('Questions:', this.questions);
+         this.showQuestions = true;
+      },
+      (error) => {
+        console.error('Error loading questions:', error);
+      }
+    );
+  }
+
+  backToTable() {
+    this.showQuestions = false;
   }
 }

@@ -7,7 +7,7 @@
   </div>
 
   <div class="content">
-    <div *ngIf="!showCreateFormFlag">
+    <div *ngIf="!showQuestions; else questionsTemplate">
       <!-- Static List -->
       <div class="card">
         <p-table
@@ -75,5 +75,15 @@
       <p-button icon="pi pi-chevron-left" (click)="toggleCreateForm()"/>
       <app-create-form-container></app-create-form-container>
     </div>
+
+    <ng-template #questionsTemplate>
+  <button (click)="backToTable()">Back to Table</button>
+  <h3>Questions for"</h3>
+  <ul>
+    <li *ngFor="let question of questions">
+      {{ question.label }} (Type: {{ question.type }})
+    </li>
+  </ul>
+</ng-template>
   </div>
 </div>
