@@ -10,12 +10,10 @@ export class DashboardComponent implements OnInit {
   menuItems: any[];
   customers!: any[];
   showCreateFormFlag = false;
-  representatives!: any[];
   statuses!: any[];
-  customerService!: any[];
   loading: boolean = false;
   searchValue: string | undefined;
-  activityValues: number[] = [0, 100];
+  selectedCustomer!: any[];
 
   constructor() {
     this.menuItems = [
@@ -46,10 +44,6 @@ export class DashboardComponent implements OnInit {
     this.customers = [{
       id: 1000,
       name: 'James Butt',
-      country: {
-        name: 'mar',
-        code: 'ma'
-      },
       company: 'Benton, John B Jr',
       date: '2015-09-13',
       status: 'unqualified',
@@ -60,20 +54,6 @@ export class DashboardComponent implements OnInit {
       },
       balance: 70663
     }];
-
-        this.representatives = [
-            { name: 'Amy Elsner', image: 'amyelsner.png' },
-            { name: 'Anna Fali', image: 'annafali.png' },
-            { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-            { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
-            { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
-            { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-            { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
-            { name: 'Onyama Limba', image: 'onyamalimba.png' },
-            { name: 'Stephen Shaw', image: 'stephenshaw.png' },
-            { name: 'Xuxue Feng', image: 'xuxuefeng.png' }
-        ];
-
 
     this.statuses = [
       { label: 'Unqualified', value: 'unqualified' },
@@ -111,5 +91,8 @@ export class DashboardComponent implements OnInit {
 
   toggleCreateForm() {
     this.showCreateFormFlag = !this.showCreateFormFlag;
+  }
+  onRowSelect(event: any) {
+    console.log("test");
   }
 }

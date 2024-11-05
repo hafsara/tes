@@ -35,7 +35,6 @@ table {
 }
 
 th, td {
-  border: 1px solid #ddd;
   padding: 12px;
   text-align: left;
 }
@@ -45,7 +44,7 @@ th {
   font-weight: bold;
 }
 
-td {
+td  {
   background-color: #fff;
 }
 
@@ -117,7 +116,7 @@ p-button {
 }
 
 .custom-menu .p-menuitem-active {
-  background-color: #dff7e6; /* Couleur de l'élément actif */
+  background-color: #dff7e6;
 }
 
 :host ::ng-deep {

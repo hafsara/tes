@@ -6,7 +6,6 @@
     </div>
   </div>
 
-
   <div class="content">
     <div *ngIf="!showCreateFormFlag">
       <!-- Static List -->
@@ -14,12 +13,15 @@
         <p-table
           #dt1
           [value]="customers"
+          selectionMode="single"
+          [(selection)]="selectedCustomer"
           dataKey="id"
           [rows]="10"
           [rowsPerPageOptions]="[10, 25, 50]"
           [loading]="loading"
           [paginator]="true"
-          [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
+          (onRowSelect)="onRowSelect($event)"
+          [globalFilterFields]="['name', 'status']"
         >
           <ng-template pTemplate="caption">
             <div class="flex">
@@ -32,36 +34,10 @@
           </ng-template>
           <ng-template pTemplate="header">
             <tr>
-              <th style="min-width:15rem">
+              <th style="width:80%;min-width:15rem">
                 <div class="flex align-items-center">
                   Title
                   <p-columnFilter type="text" field="name" display="menu"/>
-                </div>
-              </th>
-              <th style="min-width:15rem">
-                <div class="flex align-items-center">
-                  Agent
-                  <p-columnFilter field="representative" matchMode="in" display="menu" [showMatchModes]="false"
-                                  [showOperator]="false" [showAddButton]="false">
-                    <ng-template pTemplate="header">
-                      <div class="px-3 pt-3 pb-0">
-                        <span class="font-bold">Agent Picker</span>
-                      </div>
-                    </ng-template>
-                    <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                      <p-multiSelect [ngModel]="value" [options]="representatives" placeholder="Any"
-                                     (onChange)="filter($event.value)" optionLabel="name">
-                        <ng-template let-option pTemplate="item">
-                          <div class="inline-block vertical-align-middle">
-                            <img [alt]="option.label"
-                                 src="https://primefaces.org/cdn/primeng/images/demo/avatar/{{ option.image }}"
-                                 width="24" class="vertical-align-middle"/>
-                            <span class="ml-1 mt-1">{{ option.name }}</span>
-                          </div>
-                        </ng-template>
-                      </p-multiSelect>
-                    </ng-template>
-                  </p-columnFilter>
                 </div>
               </th>
               <th pSortableColumn='date' style="min-width:10rem">
@@ -76,30 +52,17 @@
               <th style="min-width:10rem">
                 <div class="flex align-items-center">
                   Status
-                  <p-columnFilter field="status" matchMode="equals" display="menu">
-                    <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                      <p-dropdown [ngModel]="value" [options]="statuses" (onChange)="filter($event.value)"
-                                  placeholder="Any">
-                        <ng-template let-option pTemplate="item">
-                          <p-tag [value]="option.value" [severity]="getSeverity(option.label)"/>
-                        </ng-template>
-                      </p-dropdown>
-                    </ng-template>
-                  </p-columnFilter>
                 </div>
               </th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-customer>
-            <tr>
+            <tr  [pSelectableRow]="customer" class="test">
               <td>
                 {{ customer.name }}
               </td>
               <td>
-                {{ customer.representative.name }}
-              </td>
-              <td>
-                {{ customer.date | date: 'MM/dd/yyyy' }}
+                {{ customer.date | date: 'dd/MM/yyyy' }}
               </td>
               <td>
                 <p-tag [value]="customer.status" [severity]="getSeverity(customer.status)"/>
