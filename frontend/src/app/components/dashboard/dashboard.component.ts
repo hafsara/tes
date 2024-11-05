@@ -41,15 +41,15 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadCustomers('answered');
+    this.loadForms('answered');
   }
 
   onMenuItemClick(status: string) {
     console.log(`${status} selected`);
-    this.loadCustomers(status);
+    this.loadForms(status);
   }
 
-  loadCustomers(status: string) {
+  loadForms(status: string) {
     this.loading = true;
     this.formService.getFormContainersByStatus(status).subscribe(
       (data) => {
