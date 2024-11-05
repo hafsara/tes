@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Table } from 'primeng/table';
+import { FormService } from '../../services/form.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -8,14 +9,13 @@ import { Table } from 'primeng/table';
 })
 export class DashboardComponent implements OnInit {
   menuItems: any[];
-  customers!: any[];
+  forms!: any[];
   showCreateFormFlag = false;
-  statuses!: any[];
   loading: boolean = false;
   searchValue: string | undefined;
-  selectedCustomer!: any[];
+  selectedForm!: any[];
 
-  constructor() {
+  constructor(private formService: FormService) {
     this.menuItems = [
       {
         label: 'To be checked',
@@ -41,28 +41,19 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.customers = [{
-      id: 1000,
-      name: 'James Butt',
-      company: 'Benton, John B Jr',
-      date: '2015-09-13',
-      status: 'unqualified',
-      verified: true,
-      activity: 17,
-      representative: {
-        name: 'Ioni Bowcher'
+    const status = 'open';
+    this.formService.getFormContainerByStatus(status).subscribe(
+      data => {
+        this.forms = data;
+        this.loading = false;
+        console.log(data)
       },
-      balance: 70663
-    }];
+      error => {
+        console.error('Error fetching form data:', error);
+        this.loading = false;
+      }
+    );
 
-    this.statuses = [
-      { label: 'Unqualified', value: 'unqualified' },
-      { label: 'Qualified', value: 'qualified' },
-      { label: 'New', value: 'new' },
-      { label: 'Negotiation', value: 'negotiation' },
-      { label: 'Renewal', value: 'renewal' },
-      { label: 'Proposal', value: 'proposal' }
-    ];
   }
 
   clear(table: Table) {

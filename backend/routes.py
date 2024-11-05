@@ -4,7 +4,7 @@ from datetime import datetime
 from workflow import FormWorkflowManager
 
 api = Blueprint('api', __name__)
-ADMIN_ID = 'd76476' # todo enlever cette ligne et la remplcer par ADMIN_ID
+ADMIN_ID = 'd76476'  # todo enlever cette ligne et la remplcer par ADMIN_ID
 
 
 @api.route('/form-containers', methods=['POST'])
@@ -147,6 +147,32 @@ def get_form_containers_by_super_admin():
             "escalate": fc.escalate,
             "validated": fc.validated,
             "forms_count": len(fc.forms)
+        }
+        for fc in form_containers
+    ]
+    return jsonify(result), 200
+
+
+@api.route('/form-containers', methods=['GET'])
+def get_form_containers_by_status():
+    status = request.args.get('status')
+    admin_id = ADMIN_ID
+
+    if not admin_id:
+        return jsonify({"error": "SuperAdmin non authentifié"}), 401
+
+    if not status:
+        return jsonify({"error": "Le paramètre 'status' est requis"}), 400
+
+    form_containers = FormContainer.query.join(Form).filter(Form.status == status).all()
+    result = [
+        {
+            "access_token": fc.id,
+            "title": fc.title,
+            "created_at": fc.created_at,
+            "user_email": fc.user_email,
+            "manager_email": fc.manager_email,
+            "reference": fc.reference,
         }
         for fc in form_containers
     ]
