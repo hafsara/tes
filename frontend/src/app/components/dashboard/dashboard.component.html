@@ -13,14 +13,11 @@
         <p-table
           #dt1
           [value]="forms"
-          selectionMode="single"
-          [(selection)]="selectedForm"
           dataKey="id"
           [rows]="10"
           [rowsPerPageOptions]="[10, 25, 50]"
           [loading]="loading"
           [paginator]="true"
-          (onRowSelect)="onRowSelect($event)"
           [globalFilterFields]="['name', 'status']"
         >
           <ng-template pTemplate="caption">
@@ -52,7 +49,9 @@
           <ng-template pTemplate="body" let-form>
             <tr [pSelectableRow]="form">
               <td>
-                {{ form.title }}
+                <a [routerLink]="['/dashboard/load-form', form.access_token]" (click)="loadFormDetails(form.access_token)">
+                  {{ form.title }}
+                </a>
                 <div *ngIf="form.reference" class="ref">
                   <p-tag [value]="form.reference" severity="info"/>
                 </div>

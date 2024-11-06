@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Table } from 'primeng/table';
 import { FormService } from '../../services/form.service';
 import { formatQuestions } from '../../utils/question-formatter';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,7 +18,7 @@ export class DashboardComponent implements OnInit {
   loading: boolean = false;
   searchValue: string | undefined;
 
-  constructor(private formService: FormService) {
+  constructor(private formService: FormService, private location: Location) {
     this.menuItems = [
       { label: 'To be checked', icon: 'pi pi-verified', command: () => this.onMenuItemClick('answered') },
       { label: 'In progress', icon: 'pi pi-star', command: () => this.onMenuItemClick('open') },
@@ -33,6 +34,7 @@ export class DashboardComponent implements OnInit {
   onMenuItemClick(status: string) {
     console.log(`${status} selected`);
     this.loadForms(status);
+    this.currentView = 'table';
   }
 
   loadForms(status: string) {
@@ -49,25 +51,22 @@ export class DashboardComponent implements OnInit {
     );
   }
 
-  onRowSelect(event: any) {
-    this.selectedForm = event.data;
-    this.loadQuestions(this.selectedForm.access_token);
-  }
-
-  loadQuestions(access_token: string) {
+  loadFormDetails(access_token: string) {
     this.formService.getFormContainerByAccessToken(access_token).subscribe(
       (data) => {
-        this.questions = formatQuestions(data.forms[0].questions);
-        this.switchTo('questions');
+        this.questions = data.forms[0].questions;
+        this.selectedForm = data;
+        this.currentView = 'questions';
       },
       (error) => {
-        console.error('Error loading questions:', error);
+        console.error('Error loading form details:', error);
       }
     );
   }
 
   switchTo(view: string) {
     this.currentView = view;
+    this.location.go('/dashboard');
   }
 
   clear(table: Table) {
