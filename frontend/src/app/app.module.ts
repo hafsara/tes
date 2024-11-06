@@ -29,18 +29,18 @@ import { ConfirmationService } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
 import { TabViewModule } from 'primeng/tabview';
 import { TimelineModule } from 'primeng/timeline';
+import { Table } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { CommonModule } from '@angular/common';
+import { TableModule } from 'primeng/table';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 import { UserViewComponent } from './components/user-view/user-view.component';
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
 import { CreateFormContainerComponent } from './components/create-form-container/create-form-container.component';
 import { FormBuilderComponent } from './components/form-builder/form-builder.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-
-import { Table } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { CommonModule } from '@angular/common';
-import { TableModule } from 'primeng/table';
 import { FormContainerPreviewComponent } from './components/form-container-preview/form-container-preview.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 
@@ -74,6 +74,7 @@ import { TimelineComponent } from './components/timeline/timeline.component';
     ButtonModule,
     InputTextModule,
     RadioButtonModule,
+    ProgressSpinnerModule,
     CheckboxModule,
     FloatLabelModule,
     InputTextareaModule,

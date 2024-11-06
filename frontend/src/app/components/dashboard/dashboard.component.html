@@ -84,6 +84,12 @@
     </div>
 
     <!-- Default View -->
+    <div *ngSwitchCase="'loading'">
+      <div class="card flex justify-content-center">
+        <p-progressSpinner ariaLabel="loading"/>
+      </div>
+    </div>
+
     <div *ngSwitchDefault>
       <p>Invalid view selected</p>
     </div>
