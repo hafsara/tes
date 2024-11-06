@@ -12,7 +12,7 @@
             <!-- Text Input -->
             <div *ngSwitchCase="'text'">
         <textarea
-        variant="filled"
+        [disabled]="true"
         rows="5"
         cols="30"
         pInputTextarea
@@ -29,7 +29,7 @@
             <div *ngSwitchCase="'multipleChoice'">
               <div *ngFor="let option of question.formattedOptions" class="opts">
                 <p-radioButton
-                  variant="filled"
+                  [disabled]="true"
                   name="group{{i}}"
                   [(ngModel)]="question.response"
                   [value]="option.value"
@@ -48,7 +48,7 @@
             <div *ngSwitchCase="'checkbox'">
               <div *ngFor="let option of question.formattedOptions" class="opts">
                 <p-checkbox
-                  variant="filled"
+                  [disabled]="true"
                   [binary]="true"
                   [label]="option.label"
                   [ngModel]="isChecked(question.selectedOptions || [], option.value)"
@@ -66,7 +66,7 @@
             <!-- Dropdown for Select List Questions -->
             <div *ngSwitchCase="'dropdown'">
               <p-dropdown
-                variant="filled"
+                [disabled]="true"
                 [(ngModel)]="question.response"
                 [options]="question.formattedOptions"
                 placeholder="Select an option"
