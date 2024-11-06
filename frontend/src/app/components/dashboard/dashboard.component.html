@@ -49,7 +49,7 @@
           <ng-template pTemplate="body" let-form>
             <tr [pSelectableRow]="form">
               <td>
-                <a [routerLink]="['/dashboard/load-form', form.access_token]" (click)="loadFormDetails(form.access_token)">
+                <a [routerLink]="['/dashboard/load-form', form.access_token]" (click)="loadFormDetails(form.access_token)" class="title-link">
                   {{ form.title }}
                 </a>
                 <div *ngIf="form.reference" class="ref">

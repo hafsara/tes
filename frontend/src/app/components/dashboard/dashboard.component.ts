@@ -54,6 +54,7 @@ export class DashboardComponent implements OnInit {
   loadFormDetails(access_token: string) {
     this.formService.getFormContainerByAccessToken(access_token).subscribe(
       (data) => {
+        this.currentView = 'questions';
         this.questions = data.forms[0].questions;
         this.selectedForm = data;
         this.currentView = 'questions';
