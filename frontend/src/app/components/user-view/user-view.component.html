@@ -28,7 +28,6 @@
         </small>
       </div>
 
-      <!-- Radio Buttons for Multiple Choice Questions -->
       <div *ngSwitchCase="'multipleChoice'">
         <div *ngFor="let option of question.formattedOptions" class="opts">
           <p-radioButton
@@ -47,7 +46,6 @@
         </small>
       </div>
 
-      <!-- Checkboxes for Multiple Selections -->
       <div *ngSwitchCase="'checkbox'">
         <div *ngFor="let option of question.formattedOptions" class="opts">
           <p-checkbox
@@ -86,6 +84,7 @@
       <div>{{ getDisplayResponse(question) }}</div>
     </ng-template>
   </div>
+
   <div class="centered-container" *ngIf="!isSubmitted && formData.forms?.[0]?.status !== 'answered'">
     <div class="flex justify-content-end">
       <p-toast/>

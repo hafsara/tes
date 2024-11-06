@@ -1,6 +1,105 @@
 <div class="card">
   <p-tabView>
-    <p-tabPanel header="Overview"> {{fromContainer.title}} </p-tabPanel>
+    <p-tabPanel header="Overview">
+      <div class="card">
+        <p-card header="{{ fromContainer.title }}" class="card-background">
+          <p class="m-0">{{ fromContainer.description }}</p>
+        </p-card>
+        <div *ngFor="let question of fromContainer.forms?.[0]?.questions || []; let i = index">
+          <h5>{{ question.label }}</h5>
+          <ng-container *ngIf="fromContainer.forms?.[0]?.status !== 'answered'; else viewResponse"
+                        [ngSwitch]="question.type">
+            <!-- Text Input -->
+            <div *ngSwitchCase="'text'">
+        <textarea
+        variant="filled"
+        rows="5"
+        cols="30"
+        pInputTextarea
+          [(ngModel)]="question.response"
+        ></textarea>
+              <small
+                *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.label)"
+                class="p-error"
+              >
+                This field is required.
+              </small>
+            </div>
+
+            <div *ngSwitchCase="'multipleChoice'">
+              <div *ngFor="let option of question.formattedOptions" class="opts">
+                <p-radioButton
+                  variant="filled"
+                  name="group{{i}}"
+                  [(ngModel)]="question.response"
+                  [value]="option.value"
+                  class="mr-2"
+                ></p-radioButton>
+                <label>{{ option.label }}</label>
+              </div>
+              <small
+                *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.label)"
+                class="p-error"
+              >
+                Please select an option.
+              </small>
+            </div>
+
+            <div *ngSwitchCase="'checkbox'">
+              <div *ngFor="let option of question.formattedOptions" class="opts">
+                <p-checkbox
+                  variant="filled"
+                  [binary]="true"
+                  [label]="option.label"
+                  [ngModel]="isChecked(question.selectedOptions || [], option.value)"
+                  (ngModelChange)="toggleOption(question, option.value)"
+                ></p-checkbox>
+              </div>
+              <small
+                *ngIf="validationErrors.includes('Please select at least one option for question ' + (i + 1) + ': ' + question.label)"
+                class="p-error"
+              >
+                Please select at least one option.
+              </small>
+            </div>
+
+            <!-- Dropdown for Select List Questions -->
+            <div *ngSwitchCase="'dropdown'">
+              <p-dropdown
+                variant="filled"
+                [(ngModel)]="question.response"
+                [options]="question.formattedOptions"
+                placeholder="Select an option"
+                class="w-full"
+              ></p-dropdown>
+              <small
+                *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.label)"
+                class="p-error"
+              >
+                Please select an option.
+              </small>
+            </div>
+          </ng-container>
+
+          <ng-template #viewResponse>
+            <div>{{ getDisplayResponse(question) }}</div>
+          </ng-template>
+        </div>
+
+        <div class="centered-container" *ngIf="fromContainer.forms?.[0]?.status == 'answered'">
+          <div class="flex justify-content-end">
+            <p-button label="validate" [outlined]="true"/>
+            <p-button label="Create other form" [outlined]="true"/>
+          </div>
+        </div>
+        <div class="centered-container" *ngIf="fromContainer.forms?.[0]?.status !== 'answered'">
+          <div class="flex justify-content-end">
+            <p-button label="Pause" (onClick)="blockedPanel = true"/>
+          </div>
+        </div>
+      </div>
+    </p-tabPanel>
+
     <p-tabPanel header="Timeline">
       <ng-template pTemplate="content">
         <app-timeline [formContainerId]="fromContainer.id"></app-timeline>
