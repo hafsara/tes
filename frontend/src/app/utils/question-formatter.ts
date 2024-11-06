@@ -7,6 +7,25 @@ export interface Question {
   selectedOptions?: string[];
   formattedOptions?: { label: string; value: string }[];
 }
+export interface Form {
+  status?: string;
+  questions: Question[];
+}
+
+export interface FormContainer {
+  access_token?: string;
+  title: string;
+  description: string;
+  userEmail: string;
+  reference?: string;
+  managerEmail?: string;
+  escalate: boolean;
+  reminderDelayDay: number;
+  forms: Form[];
+  validated?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
 
 export function formatQuestions(questions: Question[]): Question[] {
   return questions.map((question) => ({
@@ -15,4 +34,5 @@ export function formatQuestions(questions: Question[]): Question[] {
     selectedOptions: question.selectedOptions || [],
     formattedOptions: question.options.map((opt) => ({ label: opt, value: opt }))
   }));
+
 }

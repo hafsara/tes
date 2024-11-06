@@ -7,58 +7,58 @@
           <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
             <div class="centered-container">
               <p-floatLabel>
-                <input pInputText id="title" [(ngModel)]="form.title"/>
+                <input pInputText id="title" [(ngModel)]="formContainer.title"/>
                 <label for="title">Form Title</label>
               </p-floatLabel>
-              <small *ngIf="showErrors && form.title.trim() === ''" class="p-error">Title is required</small>
+              <small *ngIf="showErrors && formContainer.title.trim() === ''" class="p-error">Title is required</small>
             </div>
 
             <div class="centered-container">
               <p-floatLabel>
                 <textarea rows="5" cols="30" pInputTextarea [autoResize]="true" id="desc"
-                          [(ngModel)]="form.description"></textarea>
+                          [(ngModel)]="formContainer.description"></textarea>
                 <label for="desc">Description</label>
               </p-floatLabel>
-              <small *ngIf="showErrors && form.description.trim() === ''" class="p-error">Description is
+              <small *ngIf="showErrors && formContainer.description.trim() === ''" class="p-error">Description is
                 required</small>
             </div>
 
             <div class="centered-container">
               <p-floatLabel>
-                <input pInputText id="userMail" [(ngModel)]="form.userEmail"/>
+                <input pInputText id="userMail" [(ngModel)]="formContainer.userEmail"/>
                 <label for="userMail">User Email</label>
               </p-floatLabel>
-              <small *ngIf="showErrors && !emailPattern.test(form.userEmail || '')" class="p-error">Invalid email
+              <small *ngIf="showErrors && !emailPattern.test(formContainer.userEmail || '')" class="p-error">Invalid email
                 format</small>
             </div>
 
             <div class="centered-container flex align-items-center">
               <div class="full-width-input mr-2">
                 <p-floatLabel>
-                  <input pInputText id="reference" [(ngModel)]="form.reference"/>
+                  <input pInputText id="reference" [(ngModel)]="formContainer.reference"/>
                   <label for="reference">Reference</label>
                 </p-floatLabel>
               </div>
 
               <div>
-                <p-toggleButton pTooltip="Disable escalate" tooltipPosition="top" [(ngModel)]="form.escalate"
+                <p-toggleButton pTooltip="Disable escalate" tooltipPosition="top" [(ngModel)]="formContainer.escalate"
                                 styleClass="w-9rem" onIcon="pi pi-users" offIcon="pi pi-user">
                 </p-toggleButton>
               </div>
             </div>
 
-            <div *ngIf="form.escalate" class="centered-container">
+            <div *ngIf="formContainer.escalate" class="centered-container">
               <p-floatLabel>
-                <input pInputText id="managerMail" [(ngModel)]="form.managerEmail"/>
+                <input pInputText id="managerMail" [(ngModel)]="formContainer.managerEmail"/>
                 <label for="managerMail">Manager Email</label>
               </p-floatLabel>
-              <small *ngIf="showErrors && (!form.managerEmail || !emailPattern.test(form.managerEmail || ''))"
+              <small *ngIf="showErrors && (!formContainer.managerEmail || !emailPattern.test(formContainer.managerEmail || ''))"
                      class="p-error">Invalid manager email</small>
             </div>
 
             <div class="centered-container flex align-items-center">
               <label for="reminder" class="full-width-input mr-2">Configure reminder delay day</label>
-              <p-inputNumber [(ngModel)]="form.reminderDelayDay" [step]="1" [showButtons]="true" inputId="reminder"
+              <p-inputNumber [(ngModel)]="formContainer.reminderDelayDay" [step]="1" [showButtons]="true" inputId="reminder"
                              [min]="2" [max]="10" class="small-input-number"></p-inputNumber>
             </div>
           </div>
@@ -75,7 +75,7 @@
                    let-index="index">
         <div class="flex flex-column">
           <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
-            <app-form-builder [form]="form" [showErrors]="showErrors"></app-form-builder>
+            <app-form-builder [form]="formContainer.forms[0]" [showErrors]="showErrors"></app-form-builder>
           </div>
           <!-- Boutons de navigation -->
           <div class="flex pt-4 justify-content-between">
@@ -92,51 +92,44 @@
       <ng-template pTemplate="content" let-prevCallback="prevCallback">
         <div class="flex flex-column">
           <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
-            <!-- Title Recap -->
             <div class="mb-3">
               <label class="font-bold">Titre:</label>
-              <div>{{ form.title }}</div>
+              <div>{{ formContainer.title }}</div>
             </div>
 
-            <!-- Description Recap -->
             <div class="mb-3">
               <label class="font-bold">Description:</label>
-              <div>{{ form.description }}</div>
+              <div>{{ formContainer.description }}</div>
             </div>
 
-            <!-- User Email Recap -->
             <div class="mb-3">
               <label class="font-bold">Email de l'utilisateur:</label>
-              <div>{{ form.userEmail }}</div>
+              <div>{{ formContainer.userEmail }}</div>
             </div>
 
-            <!-- Reference Recap -->
             <div class="mb-3">
               <label class="font-bold">Référence:</label>
-              <div>{{ form.reference || 'Not specified' }}</div>
+              <div>{{ formContainer.reference || 'Not specified' }}</div>
             </div>
 
-            <!-- Escalation Recap -->
             <div class="mb-3">
               <label class="font-bold">Escalade:</label>
-              <div>{{ form.escalate ? 'Oui' : 'Non' }}</div>
+              <div>{{ formContainer.escalate ? 'Oui' : 'Non' }}</div>
             </div>
 
-            <!-- Manager Email Recap (conditional) -->
-            <div *ngIf="form.escalate" class="mb-3">
+            <div *ngIf="formContainer.escalate" class="mb-3">
               <label class="font-bold">Email du Manager:</label>
-              <div>{{ form.managerEmail }}</div>
+              <div>{{ formContainer.managerEmail }}</div>
             </div>
 
-            <!-- Reminder Delay Day Recap -->
             <div class="mb-3">
-              <label class="font-bold">Jour de Rappel:</label>
-              <div>{{ form.reminderDelayDay }}</div>
+              <label class="font-bold">Reminder days delay:</label>
+              <div>{{ formContainer.reminderDelayDay }}</div>
             </div>
 
             <h5>Form preview :</h5>
             <div class="from-preview">
-              <app-form-preview [formQuestions]="form"></app-form-preview>
+              <app-form-preview [formQuestions]="formContainer.forms[0]"></app-form-preview>
             </div>
           </div>
         </div>

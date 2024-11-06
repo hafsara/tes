@@ -1,11 +1,5 @@
 import { Component, Input } from '@angular/core';
-
-interface Question {
-  label: string;
-  type: string;
-  options: string[];
-  isRequired: boolean;
-}
+import { Question } from '../../utils/question-formatter';
 
 @Component({
   selector: 'app-form-builder',
