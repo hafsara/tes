@@ -3,6 +3,7 @@ import { Table } from 'primeng/table';
 import { FormService } from '../../services/form.service';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { FormContainer } from '../../utils/question-formatter';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,7 +13,7 @@ import { ActivatedRoute } from '@angular/router';
 export class DashboardComponent implements OnInit {
   menuItems: any[];
   forms: any[] = [];
-  fromContainer: any[] = [];
+  fromContainer: any = {};
   searchValue: string | undefined;
   currentView: string = 'loading';
   loading: boolean = true;

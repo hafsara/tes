@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-form-container-preview',
@@ -6,5 +6,5 @@ import { Component } from '@angular/core';
   styleUrl: './form-container-preview.component.scss'
 })
 export class FormContainerPreviewComponent {
-
+  @Input() fromContainer!: any;
 }

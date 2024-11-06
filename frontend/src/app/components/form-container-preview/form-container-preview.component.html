@@ -1,9 +1,9 @@
 <div class="card">
   <p-tabView>
-    <p-tabPanel header="Overview"> Content 1</p-tabPanel>
+    <p-tabPanel header="Overview"> {{fromContainer.title}} </p-tabPanel>
     <p-tabPanel header="Timeline">
       <ng-template pTemplate="content">
-        <app-timeline [formContainerId]="'1'"></app-timeline>
+        <app-timeline [formContainerId]="fromContainer.id"></app-timeline>
       </ng-template>
     </p-tabPanel>
   </p-tabView>
