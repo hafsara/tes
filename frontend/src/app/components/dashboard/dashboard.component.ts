@@ -3,6 +3,7 @@ import { Table } from 'primeng/table';
 import { FormService } from '../../services/form.service';
 import { formatQuestions } from '../../utils/question-formatter';
 import { Location } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,7 +19,7 @@ export class DashboardComponent implements OnInit {
   loading: boolean = false;
   searchValue: string | undefined;
 
-  constructor(private formService: FormService, private location: Location) {
+  constructor(private route: ActivatedRoute, private formService: FormService, private location: Location) {
     this.menuItems = [
       { label: 'To be checked', icon: 'pi pi-verified', command: () => this.onMenuItemClick('answered') },
       { label: 'In progress', icon: 'pi pi-star', command: () => this.onMenuItemClick('open') },
@@ -28,8 +29,16 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadForms('answered');
+    this.route.paramMap.subscribe(params => {
+      const accessToken = params.get('access_token');
+      if (accessToken) {
+        this.loadFormDetails(accessToken);
+      } else {
+        this.loadForms('answered');
+      }
+    });
   }
+
 
   onMenuItemClick(status: string) {
     console.log(`${status} selected`);
