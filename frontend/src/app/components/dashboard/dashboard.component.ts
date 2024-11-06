@@ -34,21 +34,22 @@ export class DashboardComponent implements OnInit {
       if (accessToken) {
         this.loadFormDetails(accessToken);
       } else {
-        this.loadForms(this.status);
+        this.loadForms();
       }
     });
   }
 
 
   onMenuItemClick(status: string) {
+    this.status = status;
     this.location.go('/dashboard');
-    this.loadForms(status);
+    this.loadForms();
     this.currentView = 'table';
   }
 
-  loadForms(status: string) {
+  loadForms() {
     this.loading = true;
-    this.formService.getFormContainersByStatus(status).subscribe(
+    this.formService.getFormContainersByStatus(this.status).subscribe(
       (data) => {
         this.forms = data;
         this.currentView = 'table';
@@ -81,7 +82,7 @@ export class DashboardComponent implements OnInit {
     this.currentView = view;
     this.location.go('/dashboard');
     if (this.currentView == 'table'){
-      this.loadForms(this.status)
+      this.loadForms()
     }
   }
 
