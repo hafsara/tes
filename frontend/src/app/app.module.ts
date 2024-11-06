@@ -27,6 +27,8 @@ import { MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
+import { TabViewModule } from 'primeng/tabview';
+import { TimelineModule } from 'primeng/timeline';
 
 import { UserViewComponent } from './components/user-view/user-view.component';
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
@@ -39,6 +41,8 @@ import { TagModule } from 'primeng/tag';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
+import { FormContainerPreviewComponent } from './components/form-container-preview/form-container-preview.component';
+import { TimelineComponent } from './components/timeline/timeline.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +51,9 @@ import { TableModule } from 'primeng/table';
     FormPreviewComponent,
     CreateFormContainerComponent,
     FormBuilderComponent,
-    DashboardComponent
+    DashboardComponent,
+    FormContainerPreviewComponent,
+    TimelineComponent
   ],
   imports: [
     BrowserModule,
@@ -78,7 +84,9 @@ import { TableModule } from 'primeng/table';
     IconFieldModule,
     InputIconModule,
     CardModule,
-    MenuModule
+    MenuModule,
+    TabViewModule,
+    TimelineModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [MessageService, ConfirmationService],

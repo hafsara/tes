@@ -120,7 +120,7 @@ def submit_form_response(access_token, form_id):
     timeline_entry = TimelineEntry(
         form_container_id=form_container.id,
         event='response_submitted',
-        details=f'Response submitted for form ID {form_id}',
+        details=f'Response submitted for form ID {form_id} by {responder_uid}',
         timestamp=datetime.utcnow()
     )
     db.session.add(timeline_entry)
@@ -213,42 +213,25 @@ def validate_form_container(container_id):
 
     form_container.validated = True
     db.session.commit()
-    form_workflow = FormWorkflowManager(container_id=form_container.id)
-    form_workflow.stop_workflow()
+    #form_workflow = FormWorkflowManager(container_id=form_container.id)
+    #form_workflow.stop_workflow()
 
     return jsonify({"message": "Form Container validé avec succès."}), 200
 
 
-@api.route('/form-containers/<string:access_token>/timeline', methods=['GET'])
-def get_form_container_timeline(access_token):
-    form_container = FormContainer.query.filter_by(access_token=access_token, validated=False).first()
-    if not form_container:
-        return jsonify({"error": "Form Container introuvable ou déjà validé"}), 404
+@api.route('/form-containers/<string:form_container_id>/timeline', methods=['GET'])
+def get_form_container_timeline(form_container_id):
+    timeline_entry = TimelineEntry.query.filter_by(form_container_id=form_container_id).all()
+    if not timeline_entry:
+        return jsonify({"error": "Timeline not found"}), 404
 
-    user_email = session.get('user_email')
-    admin_id = ADMIN_ID
-
-    if (form_container.user_email != user_email) and (form_container.initiated_by != admin_id):
-        return jsonify({"error": "Accès refusé"}), 403
-
-    interaction_timeline = {
-        "container_id": form_container.id,
-        "title": form_container.title,
-        "description": form_container.description,
-        "user_email": form_container.user_email,
-        "manager_email": form_container.manager_email,
-        "reference": form_container.reference,
-        "escalate": form_container.escalate,
-        "forms": [
-            {
-                "form_id": form.id,
-                "questions": form.questions,
-                "response": form.response,
-                "status": form.status,
-                "created_at": form.created_at,
-                "updated_at": form.updated_at
-            }
-            for form in form_container.forms
-        ]
-    }
+    interaction_timeline = [
+        {
+            "form_container_id": te.form_container_id,
+            "event": te.event,
+            "details": te.details,
+            "timestamp": te.timestamp
+        }
+        for te in timeline_entry
+    ]
     return jsonify(interaction_timeline), 200

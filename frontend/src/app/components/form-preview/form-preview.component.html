@@ -12,18 +12,18 @@
       ></textarea>
     </div>
 
-<div *ngSwitchCase="'multipleChoice'">
-  <div *ngFor="let option of question.formattedOptions" class="opts">
-    <p-radioButton
-      name="group{{i}}"
-      [value]="option.value"
-      [(ngModel)]="question.response"
-      class="mr-2"
-      [disabled]="true"
-    ></p-radioButton>
-    <label>{{ option.label }}</label>
-  </div>
-</div>
+    <div *ngSwitchCase="'multipleChoice'">
+      <div *ngFor="let option of question.formattedOptions" class="opts">
+        <p-radioButton
+          name="group{{i}}"
+          [value]="option.value"
+          [(ngModel)]="question.response"
+          class="mr-2"
+          [disabled]="true"
+        ></p-radioButton>
+        <label>{{ option.label }}</label>
+      </div>
+    </div>
 
     <div *ngSwitchCase="'checkbox'">
       <div *ngFor="let option of question.formattedOptions" class="opts">

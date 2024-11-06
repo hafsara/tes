@@ -22,7 +22,7 @@ export class DashboardComponent implements OnInit {
   constructor(private route: ActivatedRoute, private formService: FormService, private location: Location) {
     this.menuItems = [
       { label: 'To be checked', icon: 'pi pi-verified', command: () => this.onMenuItemClick('answered') },
-      { label: 'In progress', icon: 'pi pi-star', command: () => this.onMenuItemClick('open') },
+      { label: 'Open', icon: 'pi pi-star', command: () => this.onMenuItemClick('open') },
       { label: 'Reminder', icon: 'pi pi-refresh', command: () => this.onMenuItemClick('reminder') },
       { label: 'Escalate', icon: 'pi pi-flag', command: () => this.onMenuItemClick('escalate') },
     ];
@@ -63,7 +63,6 @@ export class DashboardComponent implements OnInit {
   loadFormDetails(access_token: string) {
     this.formService.getFormContainerByAccessToken(access_token).subscribe(
       (data) => {
-        this.currentView = 'questions';
         this.questions = data.forms[0].questions;
         this.selectedForm = data;
         this.currentView = 'questions';

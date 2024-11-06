@@ -49,7 +49,8 @@
           <ng-template pTemplate="body" let-form>
             <tr [pSelectableRow]="form">
               <td>
-                <a [routerLink]="['/dashboard/load-form', form.access_token]" (click)="loadFormDetails(form.access_token)" class="title-link">
+                <a [routerLink]="['/dashboard/load-form', form.access_token]"
+                   (click)="loadFormDetails(form.access_token)" class="title-link">
                   {{ form.title }}
                 </a>
                 <div *ngIf="form.reference" class="ref">
@@ -73,15 +74,12 @@
     <!-- Questions View -->
     <div *ngSwitchCase="'questions'">
       <p-button icon="pi pi-chevron-left" (click)="switchTo('table')"/>
-      <h3>Questions for "{{ selectedForm?.title }}"</h3>
-      <ul>
-        <li *ngFor="let question of questions">{{ question.label }} (Type: {{ question.type }})</li>
-      </ul>
+      <app-form-container-preview></app-form-container-preview>
     </div>
 
     <!-- Create Form View -->
     <div *ngSwitchCase="'createForm'">
-                  <p-button icon="pi pi-chevron-left" (click)="switchTo('table')"/>
+      <p-button icon="pi pi-chevron-left" (click)="switchTo('table')"/>
       <app-create-form-container></app-create-form-container>
     </div>
 

@@ -1,0 +1,15 @@
+<div class="card">
+    <p-timeline [value]="events" align="alternate" styleClass="customized-timeline">
+        <ng-template let-event>
+            <span class="flex w-2rem h-2rem align-items-center justify-content-center text-white border-circle z-1 shadow-1">
+            </span>
+        </ng-template>
+        <ng-template pTemplate="content" let-event>
+            <p-card [header]="event.event" [subheader]="event.timestamp">
+                <p>
+                  {{ event.details }}
+                </p>
+            </p-card>
+        </ng-template>
+    </p-timeline>
+</div>
