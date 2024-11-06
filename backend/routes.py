@@ -147,6 +147,7 @@ def get_form_containers():
             {
                 "access_token": fc.access_token,
                 "title": fc.title,
+                "description": fc.description,
                 "created_at": fc.created_at,
                 "user_email": fc.user_email,
                 "manager_email": fc.manager_email,

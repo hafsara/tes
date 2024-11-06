@@ -12,9 +12,8 @@ import { ActivatedRoute } from '@angular/router';
 export class DashboardComponent implements OnInit {
   menuItems: any[];
   forms: any[] = [];
-  questions: any[] = [];
+  fromContainer: any[] = [];
   searchValue: string | undefined;
-  selectedForm: any;
   currentView: string = 'loading';
   loading: boolean = true;
   status: string = 'answered';
@@ -66,8 +65,7 @@ export class DashboardComponent implements OnInit {
     this.loading = true;
     this.formService.getFormContainerByAccessToken(access_token).subscribe(
       (data) => {
-        this.questions = data.forms[0].questions;
-        this.selectedForm = data;
+        this.fromContainer = data;
         this.currentView = 'questions';
         this.loading = false;
       },
