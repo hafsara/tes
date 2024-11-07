@@ -23,23 +23,30 @@ export class FormContainerPreviewComponent {
     private messageService: MessageService
   ) {}
 
-  validateResponses(): void {
-    this.fromContainer.forms[0].questions.forEach((question: any, index: number) => {
-      const questionError = `Please respond to question ${index + 1}: ${question.label}`;
-
-      if (question.isRequired) {
-        if (question.type === 'text' && (!question.response || question.response.trim() === '')) {
-          this.validationErrors.push(questionError);
-        } else if (question.type === 'multipleChoice' && !question.response) {
-          this.validationErrors.push(questionError);
-        } else if (question.type === 'checkbox' && (!question.selectedOptions || question.selectedOptions.length === 0)) {
-          this.validationErrors.push(`Please select at least one option for question ${index + 1}: ${question.label}`);
-        } else if (question.type === 'dropdown' && !question.response) {
-          this.validationErrors.push(questionError);
-        }
-      }
-    });
+  validateFormContainer(event: Event): void{
+        this.confirmationService.confirm({
+        target: event.target as EventTarget,
+        message: 'Are you sure that you want to validate?',
+        header: 'Confirmation',
+        icon: 'pi pi-exclamation-triangle',
+        acceptIcon:"none",
+        rejectIcon:"none",
+        rejectButtonStyleClass:"p-button-text",
+        accept: () => {
+          this.confirmValidate();
+          setTimeout(() => window.location.reload(), 1000);
+        }});
   }
+
+  confirmValidate(): void {
+    this.formService.validateFormContainer(this.fromContainer.id, this.fromContainer.forms[0].form_id).subscribe(
+      (response) => {
+        this.messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'FormContainer validated' });
+      },
+      (error) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error validating form' });
+      }
+    );}
 
   isChecked(selectedOptions: string[], option: string): boolean {
     return selectedOptions.includes(option);
@@ -55,18 +62,6 @@ export class FormContainerPreviewComponent {
     }
   }
 
-  onSubmit(): void {
-      this.formService.submitUserForm(this.fromContainer).subscribe(
-        () => {
-          this.isSubmitted = true;
-          console.log("Response saved successfully.");
-        },
-        error => {
-          console.error("Error submitting form:", error);
-        }
-      );
-    }
-
   getDisplayResponse(question: Question): string {
     if (question.type === 'checkbox') {
       return (question.selectedOptions || []).join(', ');
@@ -74,26 +69,4 @@ export class FormContainerPreviewComponent {
       return question.response || 'No response';
     }
   }
-
-  confirm(event: Event) {
-    this.validationErrors = [];
-    this.validateResponses();
-    if (this.validationErrors.length > 0) {
-        console.log("Validation failed:", this.validationErrors);
-    } else {
-        this.confirmationService.confirm({
-        target: event.target as EventTarget,
-        message: 'Are you sure that you want to proceed?',
-        header: 'Confirmation',
-        icon: 'pi pi-exclamation-triangle',
-        acceptIcon:"none",
-        rejectIcon:"none",
-        rejectButtonStyleClass:"p-button-text",
-        accept: () => {
-          this.messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'Your responses has been submitted' });
-          setTimeout(() => this.onSubmit(), 1000);
-        }});
-    }
- }
-
 }

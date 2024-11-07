@@ -12,6 +12,7 @@ export class FormService {
   constructor(private http: HttpClient) {}
 
   createFormContainer(formContainer: any): Observable<any> {
+    console.log(formContainer)
     return this.http.post(this.apiUrl, formContainer);
   }
 
@@ -31,12 +32,17 @@ export class FormService {
       );
   }
 
-  getFormContainerTimeline(formContainerId: string): Observable<any> {
+  getFormContainerTimeline(formContainerId: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/${formContainerId}/timeline`);
   }
 
   getFormContainersByStatus(status: string): Observable<any> {
   const url = `${this.apiUrl}?filter=status&status=${status}`;
   return this.http.get<any[]>(url);
+  }
+
+  validateFormContainer(formContainerId: number, formId: number): Observable<any> {
+    const url = `${this.apiUrl}/${formContainerId}/forms/${formId}/validate`;
+    return this.http.post(url, {});
   }
 }

@@ -84,13 +84,13 @@ export class CreateFormContainerComponent {
       reference: this.formContainer.reference,
       escalate: this.formContainer.escalate,
       reminder_delay_day: this.formContainer.reminderDelayDay,
-      form: { questions: this.formContainer.forms }
+      forms: { questions: this.formContainer.forms[0].questions }
     };
 
     this.formService.createFormContainer(payload).subscribe(
       response => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Form created successfully' });
-        setTimeout(() => window.location.reload(), 2000);
+        setTimeout(() => window.location.reload(), 1000);
       },
       error => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error creating form' });

@@ -8,6 +8,7 @@ export interface Question {
   formattedOptions?: { label: string; value: string }[];
 }
 export interface Form {
+  id?: string;
   status?: string;
   questions: Question[];
 }

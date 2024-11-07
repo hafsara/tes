@@ -29,7 +29,7 @@ def create_form_container():
     db.session.add(form_container)
     db.session.commit()
 
-    form_data = data.get('form')
+    form_data = data.get('forms')
     if not form_data:
         return jsonify({"error": "Un formulaire est requis pour créer un conteneur"}), 400
 
@@ -46,11 +46,10 @@ def create_form_container():
 
     db.session.add(form)
 
-    # Ajout d'une entrée dans timeline_entry
     timeline_entry = TimelineEntry(
         form_container_id=form_container.id,
-        event='container_created',
-        details=f'Form container created with title {form_container.title}',
+        event='FormContainer created',
+        details=f'Form container created with title {form_container.title} by {admin_id}',
         timestamp=datetime.utcnow()
     )
     db.session.add(timeline_entry)
@@ -68,10 +67,7 @@ def add_form_to_container(container_id):
         return jsonify({"error": "SuperAdmin non authentifié"}), 401
 
     form_container = FormContainer.query.get_or_404(container_id)
-    # todo enlever cette condition
-    if form_container.initiated_by != admin_id:
-        return jsonify({"error": "Vous n'êtes pas autorisé à modifier ce conteneur"}), 403
-
+    # todo le faire en front
     if len(form_container.forms) >= 5:
         return jsonify({"error": "Vous ne pouvez pas ajouter plus de 5 formulaires à ce conteneur"}), 400
 
@@ -91,11 +87,9 @@ def submit_form_response(access_token, form_id):
     data = request.json
     responder_uid = ADMIN_ID
 
-    # Fetch the FormContainer using the access_token
     form_container = FormContainer.query.filter_by(access_token=access_token).first_or_404()
     form = Form.query.filter_by(id=form_id, form_container_id=form_container.id).first_or_404()
-
-    # Initialize a new response record
+    # todo check avant le status de formulaire
     response_record = Response(
         form_id=form.id,
         responder_uid=responder_uid,
@@ -112,14 +106,12 @@ def submit_form_response(access_token, form_id):
             "response": response_content
         })
 
-    # Add the response record to the database
     form.responses.append(response_record)
     form.status = 'answered'
 
-    # Save timeline entry
     timeline_entry = TimelineEntry(
         form_container_id=form_container.id,
-        event='response_submitted',
+        event='Response submitted',
         details=f'Response submitted for form ID {form_id} by {responder_uid}',
         timestamp=datetime.utcnow()
     )
@@ -204,20 +196,37 @@ def get_form_container_by_access_token(access_token):
     return jsonify(result), 200
 
 
-@api.route('/form-containers/<int:container_id>/validate', methods=['POST'])
-def validate_form_container(container_id):
+@api.route('/form-containers/<int:container_id>/forms/<int:form_id>/validate', methods=['POST'])
+def validate_form_container(container_id, form_id):
     admin_id = ADMIN_ID
     if not admin_id:
         return jsonify({"error": "SuperAdmin non authentifié"}), 401
 
     form_container = FormContainer.query.get_or_404(container_id)
+    if not form_container:
+        return jsonify({"error": "Form Container introuvable"}), 404
+
+    if form_container.initiated_by != admin_id:
+        return jsonify({"error": "Vous n'êtes pas autorisé à modifier ce conteneur"}), 403
+
+    form = Form.query.filter_by(id=form_id, form_container_id=form_container.id).first()
+    if not form:
+        return jsonify({"error": "Formulaire introuvable"}), 404
 
     form_container.validated = True
-    db.session.commit()
-    #form_workflow = FormWorkflowManager(container_id=form_container.id)
-    #form_workflow.stop_workflow()
+    form.status = 'validated'
 
-    return jsonify({"message": "Form Container validé avec succès."}), 200
+    timeline_entry = TimelineEntry(
+        form_container_id=form_container.id,
+        event='FormContainer validated',
+        details=f'Form container validated by {admin_id}',
+        timestamp=datetime.utcnow()
+    )
+    db.session.add(timeline_entry)
+
+    db.session.commit()
+
+    return jsonify({"message": "Formulaire validé avec succès."}), 200
 
 
 @api.route('/form-containers/<string:form_container_id>/timeline', methods=['GET'])

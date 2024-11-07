@@ -13,7 +13,7 @@ interface EventItem {
   styleUrl: './timeline.component.scss'
 })
 export class TimelineComponent implements OnInit {
-  @Input() formContainerId!: string;
+  @Input() formContainerId!: number;
   events: EventItem[] = [];
   constructor(private formService: FormService) {}
   ngOnInit() {

@@ -7,8 +7,7 @@
         </p-card>
         <div *ngFor="let question of fromContainer.forms?.[0]?.questions || []; let i = index">
           <h5>{{ question.label }}</h5>
-          <ng-container *ngIf="fromContainer.forms?.[0]?.status !== 'answered'; else viewResponse"
-                        [ngSwitch]="question.type">
+          <ng-container [ngSwitch]="question.type">
             <!-- Text Input -->
             <div *ngSwitchCase="'text'">
         <textarea
@@ -88,21 +87,18 @@
               </small>
             </div>
           </ng-container>
-
-          <ng-template #viewResponse>
-            <div>{{ getDisplayResponse(question) }}</div>
-          </ng-template>
         </div>
-
         <div class="centered-container" *ngIf="fromContainer.forms?.[0]?.status == 'answered'">
-          <div class="flex justify-content-end">
-            <p-button label="validate" [outlined]="true"/>
-            <p-button label="Create other form" [outlined]="true"/>
+          <div class="flex justify-content-end" >
+            <p-toast/>
+            <p-confirmDialog/>
+            <p-button label="Ask again" [outlined]="true"/>
+            <p-button label="validate" [outlined]="true" (onClick)="validateFormContainer($event)"/>
           </div>
         </div>
         <div class="centered-container" *ngIf="fromContainer.forms?.[0]?.status !== 'answered'">
           <div class="flex justify-content-end">
-            <p-button label="Pause" (onClick)="blockedPanel = true"/>
+            <p-button label="Pause"/>
           </div>
         </div>
       </div>
