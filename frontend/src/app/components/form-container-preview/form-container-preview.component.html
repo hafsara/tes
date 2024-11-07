@@ -22,12 +22,6 @@
           name="response{{i}}"
           class="p-inputtextarea"
         ></textarea>
-              <small
-                *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.label)"
-                class="p-error"
-              >
-                This field is required.
-              </small>
             </div>
 
             <div *ngSwitchCase="'multipleChoice'">
@@ -42,12 +36,6 @@
                 ></p-radioButton>
                 <label>{{ option.label }}</label>
               </div>
-              <small
-                *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.label)"
-                class="p-error"
-              >
-                Please select an option.
-              </small>
             </div>
 
             <div *ngSwitchCase="'checkbox'">
@@ -61,12 +49,6 @@
                   (ngModelChange)="toggleOption(question, option.value)"
                 ></p-checkbox>
               </div>
-              <small
-                *ngIf="validationErrors.includes('Please select at least one option for question ' + (i + 1) + ': ' + question.label)"
-                class="p-error"
-              >
-                Please select at least one option.
-              </small>
             </div>
 
             <!-- Dropdown for Select List Questions -->
@@ -79,17 +61,11 @@
                 placeholder="Select an option"
                 class="w-full"
               ></p-dropdown>
-              <small
-                *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.label)"
-                class="p-error"
-              >
-                Please select an option.
-              </small>
             </div>
           </ng-container>
         </div>
         <div class="centered-container" *ngIf="fromContainer.forms?.[0]?.status == 'answered'">
-          <div class="flex justify-content-end" >
+          <div class="flex justify-content-end">
             <p-toast/>
             <p-confirmDialog/>
             <p-button label="Ask again" [outlined]="true"/>

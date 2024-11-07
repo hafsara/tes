@@ -12,9 +12,6 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 })
 export class FormContainerPreviewComponent {
   @Input() fromContainer!: any;
-  blockedPanel: boolean = false;
-  validationErrors: string[] = [];
-  isSubmitted: boolean = false;
 
   constructor(
     private formService: FormService,
