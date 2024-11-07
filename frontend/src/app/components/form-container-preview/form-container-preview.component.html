@@ -12,11 +12,16 @@
             <!-- Text Input -->
             <div *ngSwitchCase="'text'">
         <textarea
-        [disabled]="true"
-        rows="5"
-        cols="30"
-        pInputTextarea
+          variant="filled"
+          rows="5"
+          cols="30"
+          pInputTextarea
+          [disabled]="true"
+          [autoResize]="true"
+          placeholder="Enter your response"
           [(ngModel)]="question.response"
+          name="response{{i}}"
+          class="p-inputtextarea"
         ></textarea>
               <small
                 *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.label)"
@@ -29,6 +34,7 @@
             <div *ngSwitchCase="'multipleChoice'">
               <div *ngFor="let option of question.formattedOptions" class="opts">
                 <p-radioButton
+                  variant="filled"
                   [disabled]="true"
                   name="group{{i}}"
                   [(ngModel)]="question.response"
@@ -48,6 +54,7 @@
             <div *ngSwitchCase="'checkbox'">
               <div *ngFor="let option of question.formattedOptions" class="opts">
                 <p-checkbox
+                  variant="filled"
                   [disabled]="true"
                   [binary]="true"
                   [label]="option.label"
@@ -67,6 +74,7 @@
             <div *ngSwitchCase="'dropdown'">
               <p-dropdown
                 [disabled]="true"
+                variant="filled"
                 [(ngModel)]="question.response"
                 [options]="question.formattedOptions"
                 placeholder="Select an option"
