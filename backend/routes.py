@@ -88,8 +88,12 @@ def submit_form_response(access_token, form_id):
     responder_uid = ADMIN_ID
 
     form_container = FormContainer.query.filter_by(access_token=access_token).first_or_404()
+    if form_container.validated:
+        return jsonify({"error": "Form container already validated"}), 401
+
     form = Form.query.filter_by(id=form_id, form_container_id=form_container.id).first_or_404()
-    # todo check avant le status de formulaire
+    if form.status =='answered':
+        return jsonify({"error": "Form already answered"}), 401
     response_record = Response(
         form_id=form.id,
         responder_uid=responder_uid,
@@ -206,8 +210,8 @@ def validate_form_container(container_id, form_id):
     if not form_container:
         return jsonify({"error": "Form Container introuvable"}), 404
 
-    if form_container.initiated_by != admin_id:
-        return jsonify({"error": "Vous n'êtes pas autorisé à modifier ce conteneur"}), 403
+    if form_container.validated:
+        return jsonify({"error": "Form container already validatef"}), 401
 
     form = Form.query.filter_by(id=form_id, form_container_id=form_container.id).first()
     if not form:

@@ -30,19 +30,4 @@ export class TimelineComponent implements OnInit {
         }
       );
     }
-
-  getIconConfFromEvent(event:string):string{
-      if (event == 'container_created') {
-         return 'pi pi-star';
-      }
-      if (event == 'response_submitted'){
-         return 'pi pi-verified';
-      }
-      if (event == 'reminder'){
-         return 'pi pi-refresh';
-      } if (event == 'escalate'){
-         return 'pi p-flag';
-      }
-    return 'pi pi-star';
-  }
 }
