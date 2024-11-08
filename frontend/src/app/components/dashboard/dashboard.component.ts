@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Table } from 'primeng/table';
 import { FormService } from '../../services/form.service';
 import { Location } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { FormContainer } from '../../utils/question-formatter';
+import { ActivatedRoute, Router } from '@angular/router';
+import { formatQuestions } from '../../utils/question-formatter';
 
 @Component({
   selector: 'app-dashboard',
@@ -11,7 +11,7 @@ import { FormContainer } from '../../utils/question-formatter';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
-  menuItems: any[];
+  menuItems: any[] = [];
   forms: any[] = [];
   formContainer: any = {};
   searchValue: string | undefined;
@@ -19,7 +19,12 @@ export class DashboardComponent implements OnInit {
   loading: boolean = false;
   status: string = 'answered';
 
-  constructor(private route: ActivatedRoute, private formService: FormService, private location: Location) {
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private formService: FormService,
+    private location: Location
+  ) {
     this.menuItems = [
       { label: 'To be checked', icon: 'pi pi-verified', command: () => this.onMenuItemClick('answered') },
       { label: 'Open', icon: 'pi pi-star', command: () => this.onMenuItemClick('open') },
@@ -33,19 +38,19 @@ export class DashboardComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       const accessToken = params.get('access_token');
       if (accessToken) {
+        this.currentView = 'loading';
         this.loadFormDetails(accessToken);
       } else {
+        this.currentView = 'loading';
         this.loadForms(this.status);
       }
     });
   }
 
-
   onMenuItemClick(status: string) {
     this.status = status;
-    this.location.go('/dashboard');
+    this.currentView = 'loading';
     this.loadForms(this.status);
-    this.currentView = 'table';
   }
 
   loadForms(status: string) {
@@ -67,6 +72,9 @@ export class DashboardComponent implements OnInit {
     this.loading = true;
     this.formService.getFormContainerByAccessToken(access_token).subscribe(
       (data) => {
+        if (data.forms && data.forms[0].questions) {
+          data.forms[0].questions = formatQuestions(data.forms[0].questions);
+        }
         this.formContainer = data;
         this.formContainer.access_token = access_token;
         this.currentView = 'questions';
@@ -82,8 +90,8 @@ export class DashboardComponent implements OnInit {
   switchTo(view: string) {
     this.currentView = view;
     this.location.go('/dashboard');
-    if (this.currentView == 'table'){
-      this.loadForms(this.status)
+    if (view === 'table') {
+      this.loadForms(this.status);
     }
   }
 

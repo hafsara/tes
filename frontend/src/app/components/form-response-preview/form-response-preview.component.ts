@@ -11,7 +11,5 @@ export class PreviewFormResponseComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit(): void {
-    this.questions = formatQuestions(this.questions);
-  }
+  ngOnInit(): void {}
 }

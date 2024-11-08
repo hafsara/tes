@@ -11,7 +11,5 @@ export class FormPreviewComponent implements OnInit {
     questions: Question[];
     };
 
-  ngOnInit() {
-    this.formQuestions.questions = formatQuestions(this.formQuestions.questions);
-  }
+  ngOnInit() {}
 }
