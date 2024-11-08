@@ -43,6 +43,7 @@ import { FormBuilderComponent } from './components/form-builder/form-builder.com
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { FormContainerPreviewComponent } from './components/form-container-preview/form-container-preview.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +54,8 @@ import { TimelineComponent } from './components/timeline/timeline.component';
     FormBuilderComponent,
     DashboardComponent,
     FormContainerPreviewComponent,
-    TimelineComponent
+    TimelineComponent,
+    PageNotFoundComponent
   ],
   imports: [
     BrowserModule,

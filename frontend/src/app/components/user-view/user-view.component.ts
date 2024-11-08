@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Question, formatQuestions } from '../../utils/question-formatter';
 import { FormService } from '../../services/form.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
 @Component({
@@ -15,6 +15,7 @@ export class UserViewComponent implements OnInit {
   isSubmitted: boolean = false;
 
   constructor(
+    private router: Router,
     private formService: FormService,
     private route: ActivatedRoute,
     private confirmationService: ConfirmationService,
@@ -22,16 +23,34 @@ export class UserViewComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.loadForm();
+  }
+
+  loadForm(): void {
     const accessToken = this.route.snapshot.paramMap.get('access_token');
     if (accessToken) {
-      this.formService.getFormContainerByAccessToken(accessToken).subscribe(data => {
-        this.formData = data;
-        this.formData.access_token = accessToken;
-        if (this.formData.forms && this.formData.forms.length > 0) {
-          this.formData.forms[0].questions = formatQuestions(this.formData.forms[0].questions);
-        }
-      });
-    }
+        this.formService.getFormContainerByAccessToken(accessToken).subscribe(
+          (data) => {
+            this.formData = data;
+            this.formData.access_token = accessToken;
+            if (this.formData.forms && this.formData.forms.length > 0) {
+              this.formData.forms[0].questions = formatQuestions(this.formData.forms[0].questions);
+            }
+            const formStatus = this.formData.forms?.[0]?.status;
+
+            if (formStatus === 'validated') {
+              this.router.navigate(['/404']);
+            } else if (formStatus === 'answered' || formStatus === 'unsubstantial') {
+              this.isSubmitted = true;
+            } else {
+              this.isSubmitted = false;
+            }
+          },
+          (error) => {
+            this.router.navigate(['/404']);
+          }
+        );
+      }
   }
 
   validateResponses(): void {
