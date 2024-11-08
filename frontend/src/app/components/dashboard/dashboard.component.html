@@ -7,7 +7,6 @@
   </div>
 
   <div class="content" [ngSwitch]="currentView">
-    <!-- Table View -->
     <div *ngSwitchCase="'table'">
       <div class="card">
         <p-table
@@ -71,19 +70,16 @@
       </div>
     </div>
 
-    <!-- Questions View -->
     <div *ngSwitchCase="'questions'">
       <p-button icon="pi pi-chevron-left" (click)="switchTo('table')"/>
       <app-form-container-preview [formContainer]="formContainer"></app-form-container-preview>
     </div>
 
-    <!-- Create Form View -->
     <div *ngSwitchCase="'createForm'">
       <p-button icon="pi pi-chevron-left" (click)="switchTo('table')"/>
       <app-create-form-container></app-create-form-container>
     </div>
 
-    <!-- Default View -->
     <div *ngSwitchCase="'loading'">
       <div class="card flex justify-content-center">
         <p-progressSpinner ariaLabel="loading"/>

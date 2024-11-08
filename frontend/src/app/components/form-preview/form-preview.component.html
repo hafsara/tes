@@ -36,11 +36,16 @@
     </div>
 
     <div *ngSwitchCase="'dropdown'">
-      <ul>
-        <li *ngFor="let option of question.formattedOptions">
-          {{ option.label }}
-        </li>
-      </ul>
+      <div *ngFor="let option of question.formattedOptions" class="opts">
+        <p-radioButton
+          name="group{{i}}"
+          [value]="option.value"
+          [(ngModel)]="question.response"
+          class="mr-2"
+          [disabled]="true"
+        ></p-radioButton>
+        <label>{{ option.label }}</label>
+      </div>
     </div>
   </ng-container>
 </div>

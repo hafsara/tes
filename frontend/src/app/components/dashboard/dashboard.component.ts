@@ -16,7 +16,7 @@ export class DashboardComponent implements OnInit {
   formContainer: any = {};
   searchValue: string | undefined;
   currentView: string = 'loading';
-  loading: boolean = true;
+  loading: boolean = false;
   status: string = 'answered';
 
   constructor(private route: ActivatedRoute, private formService: FormService, private location: Location) {
@@ -25,6 +25,7 @@ export class DashboardComponent implements OnInit {
       { label: 'Open', icon: 'pi pi-star', command: () => this.onMenuItemClick('open') },
       { label: 'Reminder', icon: 'pi pi-refresh', command: () => this.onMenuItemClick('reminder') },
       { label: 'Escalate', icon: 'pi pi-flag', command: () => this.onMenuItemClick('escalate') },
+      { label: 'Archived', icon: 'pi pi-flag', command: () => this.onMenuItemClick('escalate') },
     ];
   }
 
@@ -34,7 +35,7 @@ export class DashboardComponent implements OnInit {
       if (accessToken) {
         this.loadFormDetails(accessToken);
       } else {
-        this.loadForms();
+        this.loadForms(this.status);
       }
     });
   }
@@ -43,13 +44,13 @@ export class DashboardComponent implements OnInit {
   onMenuItemClick(status: string) {
     this.status = status;
     this.location.go('/dashboard');
-    this.loadForms();
+    this.loadForms(this.status);
     this.currentView = 'table';
   }
 
-  loadForms() {
+  loadForms(status: string) {
     this.loading = true;
-    this.formService.getFormContainersByStatus(this.status).subscribe(
+    this.formService.getFormContainersByStatus(status).subscribe(
       (data) => {
         this.forms = data;
         this.currentView = 'table';
@@ -82,7 +83,7 @@ export class DashboardComponent implements OnInit {
     this.currentView = view;
     this.location.go('/dashboard');
     if (this.currentView == 'table'){
-      this.loadForms()
+      this.loadForms(this.status)
     }
   }
 
