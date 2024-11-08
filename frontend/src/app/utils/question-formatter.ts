@@ -7,6 +7,7 @@ export interface Question {
   selectedOptions?: string[];
   formattedOptions?: { label: string; value: string }[];
 }
+
 export interface Form {
   id?: string;
   status?: string;
@@ -35,5 +36,24 @@ export function formatQuestions(questions: Question[]): Question[] {
     selectedOptions: question.selectedOptions || [],
     formattedOptions: question.options.map((opt) => ({ label: opt, value: opt }))
   }));
+}
 
+function selectFormByStatus(status: string, formContainer: FormContainer): Form | Form[] | null {
+  if (status === 'unsubstantial') {
+    return formContainer.forms.filter((form) => form.status === status);
+  } else {
+    return formContainer.forms.find((form) => form.status === status) || null;
+  }
+}
+
+export function createForm(status: string): Form {
+  return {
+    status: status,
+    questions: []
+  };
+}
+
+export function addForm(form: Form, formContainer: FormContainer): FormContainer {
+  formContainer.forms.push(form);
+  return formContainer;
 }

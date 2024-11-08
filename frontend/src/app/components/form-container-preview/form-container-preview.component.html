@@ -11,17 +11,19 @@
         <div *ngIf="formContainer.forms?.[0]?.status !== 'open'">
           <app-form-response-preview [questions]="formContainer.forms[0].questions"></app-form-response-preview>
         </div>
-        <div class="centered-container-button flex justify-content-end" *ngIf="formContainer.forms?.[0]?.status === 'answered'">
+
+        <div class="centered-container-button flex justify-content-end"
+             *ngIf="formContainer.forms?.[0]?.status === 'answered'">
+          <p-toast></p-toast>
+          <p-confirmDialog></p-confirmDialog>
           <div class="button-group">
-            <p-toast></p-toast>
-            <p-confirmDialog></p-confirmDialog>
-            <p-button label="Ask again" class="custom-button" [outlined]="true"></p-button>
+            <p-button label="Ask again" class="custom-button" [outlined]="true" (onClick)="showDialog()"></p-button>
             <p-button label="Validate" class="custom-button" [outlined]="true"
                       (onClick)="validateFormContainer($event)"></p-button>
           </div>
         </div>
-
-        <div class="centered-container-button flex justify-content-end" *ngIf="formContainer.forms?.[0]?.status === 'open'">
+        <div class="centered-container-button flex justify-content-end"
+             *ngIf="formContainer.forms?.[0]?.status === 'open'">
           <div class="button-group">
             <p-button label="Pause" class="custom-button"></p-button>
           </div>
@@ -35,4 +37,11 @@
       </ng-template>
     </p-tabPanel>
   </p-tabView>
+  <p-dialog header="Edit Profile" [modal]="true" [(visible)]="visible" [style]="{ width: '50rem' }" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
+      <app-form-builder [form]="formContainer.forms[0]" [showErrors]="showErrors"></app-form-builder>
+    <div class="flex justify-content-end gap-2">
+      <p-button label="Cancel" severity="secondary" (onClick)="visible = false"/>
+      <p-button label="Save" (onClick)="visible = false"/>
+    </div>
+  </p-dialog>
 </div>

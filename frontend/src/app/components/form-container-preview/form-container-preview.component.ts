@@ -12,6 +12,8 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 })
 export class FormContainerPreviewComponent {
   @Input() formContainer!: any;
+  visible: boolean = false;
+  showErrors = false;
 
   constructor(
     private formService: FormService,
@@ -19,6 +21,10 @@ export class FormContainerPreviewComponent {
     private confirmationService: ConfirmationService,
     private messageService: MessageService
   ) {}
+
+  showDialog() {
+    this.visible = true;
+  }
 
   validateFormContainer(event: Event): void{
         this.confirmationService.confirm({

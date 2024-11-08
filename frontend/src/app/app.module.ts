@@ -7,6 +7,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
 // PrimeNG Modules
+import { DialogModule } from 'primeng/dialog';
 import { StepsModule } from 'primeng/steps';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -74,6 +75,7 @@ import { PreviewFormResponseComponent } from './components/form-response-preview
     // PrimeNG Modules
     StepsModule,
     ToastModule,
+    DialogModule,
     InputNumberModule,
     ButtonModule,
     InputTextModule,
