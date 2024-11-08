@@ -1,5 +1,5 @@
 import { Component, Input, OnInit} from '@angular/core';
-import { Question, formatQuestions } from '../../utils/question-formatter';
+import { Question, Form, formatQuestions, createForm } from '../../utils/question-formatter';
 import { FormService } from '../../services/form.service';
 import { ActivatedRoute } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -14,6 +14,7 @@ export class FormContainerPreviewComponent {
   @Input() formContainer!: any;
   visible: boolean = false;
   showErrors = false;
+  newForm: Form = createForm();
 
   constructor(
     private formService: FormService,
@@ -65,11 +66,56 @@ export class FormContainerPreviewComponent {
     }
   }
 
-  getDisplayResponse(question: Question): string {
-    if (question.type === 'checkbox') {
-      return (question.selectedOptions || []).join(', ');
-    } else {
-      return question.response || 'No response';
+  resetForm(){
+    this.newForm = createForm()
+    this.visible = false
+  }
+
+  addForm(event: Event): void{
+    if (this.validateNewForm()){
+        this.confirmationService.confirm({
+        target: event.target as EventTarget,
+        message: 'Are you sure that you want to create new form?',
+        header: 'Confirmation',
+        icon: 'pi pi-exclamation-triangle',
+        acceptIcon:"none",
+        rejectIcon:"none",
+        rejectButtonStyleClass:"p-button-text",
+        accept: () => {
+          this.confirmAddForm()
+          this.visible = false;
+          setTimeout(() => window.location.reload(), 1000);
+        }});
+      } else{
+          this.showErrors = true;
+     }
+  }
+
+  confirmAddForm(): void {
+    this.formService.addFormToContainer(this.formContainer.id, this.newForm).subscribe(
+      (response) => {
+        this.messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'Form added with success, ID: ' + response.form_id });
+      },
+      (error) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error while adding form: ' + error });
+      }
+    );
+  }
+
+  verifAddNewForm() {
+    if (this.formContainer.forms.length >= 5) {
+      this.messageService.add({ severity: 'warn', summary: 'Limit reached', detail: 'You cannot add more than 5 forms to this container.' });
+      return;
+    }else{
+      this.showDialog();
     }
+  }
+
+  validateNewForm(): boolean {
+      return this.newForm.questions.every(question => {
+        const isQuestionTextValid = question.label.trim() !== '';
+        const areOptionsValid = question.type === 'text' || (question.options.length > 0 && question.options.every(option => option.trim() !== ''));
+        return isQuestionTextValid && areOptionsValid;
+      });
   }
 }

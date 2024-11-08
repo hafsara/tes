@@ -46,10 +46,13 @@ function selectFormByStatus(status: string, formContainer: FormContainer): Form 
   }
 }
 
-export function createForm(status: string): Form {
+export function createForm(): Form {
   return {
-    status: status,
-    questions: []
+    questions: [{
+        label: '',
+        type: 'text',
+        options: [],
+        isRequired: true}]
   };
 }
 

@@ -59,27 +59,46 @@ def create_form_container():
     return jsonify(
         {"container_id": form_container.id, "form_id": form.id, "access_token": form_container.access_token}), 201
 
-
 @api.route('/form-containers/<int:container_id>/forms', methods=['POST'])
 def add_form_to_container(container_id):
     admin_id = ADMIN_ID
     if not admin_id:
         return jsonify({"error": "SuperAdmin non authentifié"}), 401
-
     form_container = FormContainer.query.get_or_404(container_id)
-    # todo le faire en front
+
     if len(form_container.forms) >= 5:
         return jsonify({"error": "Vous ne pouvez pas ajouter plus de 5 formulaires à ce conteneur"}), 400
 
-    data = request.json
-    form = Form(
-        form_container_id=container_id,
-        questions=data['questions']
-    )
-    db.session.add(form)
-    db.session.commit()
+    current_form = next((form for form in form_container.forms if form.status == 'answered'), None)
 
-    return jsonify({"form_id": form.id}), 201
+    if current_form:
+        current_form.status = 'unsubstantial'
+
+    data = request.json
+    questions_data = data.get('questions', [])
+    questions = [Question(label=question['label'], type=question['type'], options=question.get('options', []),
+                          is_required=question.get('isRequired', True)) for question in questions_data]
+    new_form = Form(
+        form_container_id=container_id,
+        questions=questions
+    )
+
+    timeline_entry = TimelineEntry(
+        form_container_id=form_container.id,
+        event='Unsubstantial response',
+        details=f'Response marked as unsubstantial by {admin_id}',
+        timestamp=datetime.utcnow()
+    )
+    db.session.add(new_form)
+    db.session.add(timeline_entry)
+
+    try:
+        db.session.commit()
+        return jsonify({"form_id": new_form.id}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Une erreur s'est produite lors de l'ajout du formulaire"}), 500
+
 
 
 @api.route('/form-containers/<string:access_token>/forms/<int:form_id>/submit-response', methods=['POST'])

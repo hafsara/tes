@@ -12,7 +12,6 @@ export class FormService {
   constructor(private http: HttpClient) {}
 
   createFormContainer(formContainer: any): Observable<any> {
-    console.log(formContainer)
     return this.http.post(this.apiUrl, formContainer);
   }
 
@@ -45,4 +44,11 @@ export class FormService {
     const url = `${this.apiUrl}/${formContainerId}/forms/${formId}/validate`;
     return this.http.post(url, {});
   }
+  addFormToContainer(containerId: number, formData: any): Observable<any> {
+    console.log(containerId, formData)
+    const url = `${this.apiUrl}/${containerId}/forms`;
+    return this.http.post(url, formData);
+
+  }
+
 }
