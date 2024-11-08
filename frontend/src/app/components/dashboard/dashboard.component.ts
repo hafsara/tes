@@ -26,11 +26,11 @@ export class DashboardComponent implements OnInit {
     private location: Location
   ) {
     this.menuItems = [
-      { label: 'To be checked', icon: 'pi pi-verified', command: () => this.onMenuItemClick('answered') },
-      { label: 'Open', icon: 'pi pi-star', command: () => this.onMenuItemClick('open') },
-      { label: 'Reminder', icon: 'pi pi-refresh', command: () => this.onMenuItemClick('reminder') },
-      { label: 'Escalate', icon: 'pi pi-flag', command: () => this.onMenuItemClick('escalate') },
-      { label: 'Archived', icon: 'pi pi-flag', command: () => this.onMenuItemClick('escalate') },
+      { label: 'To be checked', icon: 'pi pi-check-square', command: () => this.onMenuItemClick('answered') },
+      { label: 'Open', icon: 'pi pi-folder-open', command: () => this.onMenuItemClick('open') },
+      { label: 'Reminder', icon: 'pi pi-bell', command: () => this.onMenuItemClick('reminder') },
+      { label: 'Escalate', icon: 'pi pi-exclamation-triangle', command: () => this.onMenuItemClick('escalate') },
+      { label: 'Archived', icon: 'pi pi-inbox', command: () => this.onMenuItemClick('validated') },
     ];
   }
 

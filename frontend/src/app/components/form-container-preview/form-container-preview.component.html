@@ -11,17 +11,19 @@
         <div *ngIf="formContainer.forms?.[0]?.status !== 'open'">
           <app-form-response-preview [questions]="formContainer.forms[0].questions"></app-form-response-preview>
         </div>
-        <div class="centered-container" *ngIf="formContainer.forms?.[0]?.status === 'answered'">
-          <div class="flex justify-content-end">
-            <p-toast/>
-            <p-confirmDialog/>
-            <p-button label="Ask again" [outlined]="true"/>
-            <p-button label="validate" [outlined]="true" (onClick)="validateFormContainer($event)"/>
+        <div class="centered-container-button flex justify-content-end" *ngIf="formContainer.forms?.[0]?.status === 'answered'">
+          <div class="button-group">
+            <p-toast></p-toast>
+            <p-confirmDialog></p-confirmDialog>
+            <p-button label="Ask again" class="custom-button" [outlined]="true"></p-button>
+            <p-button label="Validate" class="custom-button" [outlined]="true"
+                      (onClick)="validateFormContainer($event)"></p-button>
           </div>
         </div>
-        <div class="centered-container" *ngIf="formContainer.forms?.[0]?.status === 'open'">
-          <div class="flex justify-content-end">
-            <p-button label="Pause"/>
+
+        <div class="centered-container-button flex justify-content-end" *ngIf="formContainer.forms?.[0]?.status === 'open'">
+          <div class="button-group">
+            <p-button label="Pause" class="custom-button"></p-button>
           </div>
         </div>
       </div>

@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import { FormService } from '../../services/form.service';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { FormContainer, Form, Question } from '../../utils/question-formatter';
-
 
 @Component({
   selector: 'app-create-form-container',
@@ -33,7 +32,8 @@ export class CreateFormContainerComponent {
 
   constructor(
     private formService: FormService,
-    private messageService: MessageService
+    private confirmationService: ConfirmationService,
+    private messageService: MessageService,
   ) {}
 
   validateCurrentStep(): boolean {
@@ -75,6 +75,21 @@ export class CreateFormContainerComponent {
     }
   }
 
+  confirmSubmit(event: Event): void{
+        this.confirmationService.confirm({
+        target: event.target as EventTarget,
+        message: 'Are you sure that you want to submit?',
+        header: 'Confirmation',
+        icon: 'pi pi-exclamation-triangle',
+        acceptIcon:"none",
+        rejectIcon:"none",
+        rejectButtonStyleClass:"p-button-text",
+        accept: () => {
+          this.submitForm();
+          setTimeout(() => window.location.reload(), 1000);
+        }});
+  }
+
   submitForm() {
     const payload = {
       title: this.formContainer.title,
@@ -90,7 +105,6 @@ export class CreateFormContainerComponent {
     this.formService.createFormContainer(payload).subscribe(
       response => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Form created successfully' });
-        setTimeout(() => window.location.reload(), 1000);
       },
       error => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error creating form' });
