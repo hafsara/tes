@@ -13,7 +13,7 @@ import { FormContainer } from '../../utils/question-formatter';
 export class DashboardComponent implements OnInit {
   menuItems: any[];
   forms: any[] = [];
-  fromContainer: any = {};
+  formContainer: any = {};
   searchValue: string | undefined;
   currentView: string = 'loading';
   loading: boolean = true;
@@ -66,8 +66,8 @@ export class DashboardComponent implements OnInit {
     this.loading = true;
     this.formService.getFormContainerByAccessToken(access_token).subscribe(
       (data) => {
-        this.fromContainer = data;
-        this.fromContainer.access_token = access_token;
+        this.formContainer = data;
+        this.formContainer.access_token = access_token;
         this.currentView = 'questions';
         this.loading = false;
       },

@@ -44,6 +44,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { FormContainerPreviewComponent } from './components/form-container-preview/form-container-preview.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+import { PreviewFormResponseComponent } from './components/preview-form-response/preview-form-response.component';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,8 @@ import { PageNotFoundComponent } from './components/page-not-found/page-not-foun
     DashboardComponent,
     FormContainerPreviewComponent,
     TimelineComponent,
-    PageNotFoundComponent
+    PageNotFoundComponent,
+    PreviewFormResponseComponent
   ],
   imports: [
     BrowserModule,

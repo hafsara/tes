@@ -11,7 +11,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
   styleUrl: './form-container-preview.component.scss'
 })
 export class FormContainerPreviewComponent {
-  @Input() fromContainer!: any;
+  @Input() formContainer!: any;
 
   constructor(
     private formService: FormService,
@@ -36,7 +36,7 @@ export class FormContainerPreviewComponent {
   }
 
   confirmValidate(): void {
-    this.formService.validateFormContainer(this.fromContainer.id, this.fromContainer.forms[0].form_id).subscribe(
+    this.formService.validateFormContainer(this.formContainer.id, this.formContainer.forms[0].form_id).subscribe(
       (response) => {
         this.messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'FormContainer validated' });
       },

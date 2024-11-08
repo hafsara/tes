@@ -2,69 +2,13 @@
   <p-tabView>
     <p-tabPanel header="Overview">
       <div class="card">
-        <p-card header="{{ fromContainer.title }}" class="card-background">
-          <p class="m-0">{{ fromContainer.description }}</p>
+        <p-card header="{{ formContainer.title }}" class="card-background">
+          <p class="m-0">{{ formContainer.description }}</p>
         </p-card>
-        <div *ngFor="let question of fromContainer.forms?.[0]?.questions || []; let i = index">
-          <h5>{{ question.label }}</h5>
-          <ng-container [ngSwitch]="question.type">
-            <!-- Text Input -->
-            <div *ngSwitchCase="'text'">
-        <textarea
-          variant="filled"
-          rows="5"
-          cols="30"
-          pInputTextarea
-          [disabled]="true"
-          [autoResize]="true"
-          placeholder="Enter your response"
-          [(ngModel)]="question.response"
-          name="response{{i}}"
-          class="p-inputtextarea"
-        ></textarea>
-            </div>
-
-            <div *ngSwitchCase="'multipleChoice'">
-              <div *ngFor="let option of question.formattedOptions" class="opts">
-                <p-radioButton
-                  variant="filled"
-                  [disabled]="true"
-                  name="group{{i}}"
-                  [(ngModel)]="question.response"
-                  [value]="option.value"
-                  class="mr-2"
-                ></p-radioButton>
-                <label>{{ option.label }}</label>
-              </div>
-            </div>
-
-            <div *ngSwitchCase="'checkbox'">
-              <div *ngFor="let option of question.formattedOptions" class="opts">
-                <p-checkbox
-                  variant="filled"
-                  [disabled]="true"
-                  [binary]="true"
-                  [label]="option.label"
-                  [ngModel]="isChecked(question.selectedOptions || [], option.value)"
-                  (ngModelChange)="toggleOption(question, option.value)"
-                ></p-checkbox>
-              </div>
-            </div>
-
-            <!-- Dropdown for Select List Questions -->
-            <div *ngSwitchCase="'dropdown'">
-              <p-dropdown
-                [disabled]="true"
-                variant="filled"
-                [(ngModel)]="question.response"
-                [options]="question.formattedOptions"
-                placeholder="Select an option"
-                class="w-full"
-              ></p-dropdown>
-            </div>
-          </ng-container>
+        <div *ngIf="formContainer.forms?.[0]?.status === 'open'">
+          <app-form-preview [formQuestions]="formContainer.forms[0]"></app-form-preview>
         </div>
-        <div class="centered-container" *ngIf="fromContainer.forms?.[0]?.status === 'answered'">
+        <div class="centered-container" *ngIf="formContainer.forms?.[0]?.status === 'answered'">
           <div class="flex justify-content-end">
             <p-toast/>
             <p-confirmDialog/>
@@ -72,7 +16,7 @@
             <p-button label="validate" [outlined]="true" (onClick)="validateFormContainer($event)"/>
           </div>
         </div>
-        <div class="centered-container" *ngIf="fromContainer.forms?.[0]?.status === 'open'">
+        <div class="centered-container" *ngIf="formContainer.forms?.[0]?.status === 'open'">
           <div class="flex justify-content-end">
             <p-button label="Pause"/>
           </div>
@@ -82,7 +26,7 @@
 
     <p-tabPanel header="Timeline">
       <ng-template pTemplate="content">
-        <app-timeline [formContainerId]="fromContainer.id"></app-timeline>
+        <app-timeline [formContainerId]="formContainer.id"></app-timeline>
       </ng-template>
     </p-tabPanel>
   </p-tabView>
