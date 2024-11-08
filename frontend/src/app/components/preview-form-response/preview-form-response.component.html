@@ -1,6 +1,7 @@
-<div *ngFor="let question of formQuestions.questions; let i = index">
+<div *ngFor="let question of questions || []; let i = index">
   <h5>{{ question.label }}</h5>
   <ng-container [ngSwitch]="question.type">
+
     <div *ngSwitchCase="'text'">
       <textarea
         rows="5"
@@ -9,38 +10,40 @@
         [autoResize]="true"
         class="disable-text"
         [disabled]="true"
+        [(ngModel)]="question.response"
       ></textarea>
     </div>
 
     <div *ngSwitchCase="'multipleChoice'">
-      <div *ngFor="let option of question.formattedOptions" class="opts">
         <p-radioButton
           name="group{{i}}"
-          [value]="option.value"
+          [value]="question.response"
           [(ngModel)]="question.response"
           class="mr-2"
           [disabled]="true"
         ></p-radioButton>
-        <label>{{ option.label }}</label>
-      </div>
+        <label>{{ question.response }}</label>
     </div>
 
     <div *ngSwitchCase="'checkbox'">
-      <div *ngFor="let option of question.formattedOptions" class="opts">
+      <div *ngFor="let option of question.response" class="opts">
         <p-checkbox
           [binary]="true"
-          [label]="option.label"
+          [label]="option"
+          [ngModel]="question.response?.includes(option)"
           [disabled]="true"
         ></p-checkbox>
       </div>
     </div>
 
     <div *ngSwitchCase="'dropdown'">
-      <ul>
-        <li *ngFor="let option of question.formattedOptions">
-          {{ option.label }}
-        </li>
-      </ul>
+      <p-dropdown
+        [(ngModel)]="question.response"
+        [options]="question.formattedOptions"
+        placeholder="Select an option"
+        class="w-full"
+        [disabled]="true"
+      ></p-dropdown>
     </div>
   </ng-container>
 </div>
