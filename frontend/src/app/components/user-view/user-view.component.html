@@ -83,7 +83,7 @@
   </ng-container>
 
   <ng-container *ngIf="isSubmitted;">
-    <app-preview-form-response [questions]="formData.forms[0].questions"></app-preview-form-response>
+    <app-form-response-preview [questions]="formData.forms[0].questions"></app-form-response-preview>
   </ng-container>
 
   <div class="centered-container" *ngIf="!isSubmitted && formData.forms?.[0]?.status === 'open'">

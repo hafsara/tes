@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PreviewFormResponseComponent } from './preview-form-response.component';
+import { PreviewFormResponseComponent } from './form-response-preview.component';
 
 describe('PreviewFormResponseComponent', () => {
   let component: PreviewFormResponseComponent;

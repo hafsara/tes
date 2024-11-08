@@ -9,7 +9,7 @@
           <app-form-preview [formQuestions]="formContainer.forms[0]"></app-form-preview>
         </div>
         <div *ngIf="formContainer.forms?.[0]?.status !== 'open'">
-          <app-preview-form-response [questions]="formContainer.forms[0].questions"></app-preview-form-response>
+          <app-form-response-preview [questions]="formContainer.forms[0].questions"></app-form-response-preview>
         </div>
         <div class="centered-container" *ngIf="formContainer.forms?.[0]?.status === 'answered'">
           <div class="flex justify-content-end">
