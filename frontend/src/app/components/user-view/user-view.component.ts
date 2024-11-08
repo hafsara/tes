@@ -38,7 +38,7 @@ export class UserViewComponent implements OnInit {
             }
             const formStatus = this.formData.forms?.[0]?.status;
 
-            if (formStatus === 'validated') {
+            if (this.formData.validated) {
               this.router.navigate(['/404']);
             } else if (formStatus === 'answered' || formStatus === 'unsubstantial') {
               this.isSubmitted = true;

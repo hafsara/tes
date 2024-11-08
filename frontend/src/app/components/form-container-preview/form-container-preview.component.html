@@ -64,7 +64,7 @@
             </div>
           </ng-container>
         </div>
-        <div class="centered-container" *ngIf="fromContainer.forms?.[0]?.status == 'answered'">
+        <div class="centered-container" *ngIf="fromContainer.forms?.[0]?.status === 'answered'">
           <div class="flex justify-content-end">
             <p-toast/>
             <p-confirmDialog/>
@@ -72,7 +72,7 @@
             <p-button label="validate" [outlined]="true" (onClick)="validateFormContainer($event)"/>
           </div>
         </div>
-        <div class="centered-container" *ngIf="fromContainer.forms?.[0]?.status !== 'answered'">
+        <div class="centered-container" *ngIf="fromContainer.forms?.[0]?.status === 'open'">
           <div class="flex justify-content-end">
             <p-button label="Pause"/>
           </div>

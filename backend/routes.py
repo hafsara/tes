@@ -203,15 +203,12 @@ def get_form_container_by_access_token(access_token):
 @api.route('/form-containers/<int:container_id>/forms/<int:form_id>/validate', methods=['POST'])
 def validate_form_container(container_id, form_id):
     admin_id = ADMIN_ID
-    if not admin_id:
-        return jsonify({"error": "SuperAdmin non authentifié"}), 401
-
     form_container = FormContainer.query.get_or_404(container_id)
     if not form_container:
         return jsonify({"error": "Form Container introuvable"}), 404
 
     if form_container.validated:
-        return jsonify({"error": "Form container already validatef"}), 401
+        return jsonify({"error": "Form container already validated"}), 401
 
     form = Form.query.filter_by(id=form_id, form_container_id=form_container.id).first()
     if not form:
