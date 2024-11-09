@@ -9,6 +9,7 @@ import { HttpClientModule } from '@angular/common/http';
 // PrimeNG Modules
 import { DialogModule } from 'primeng/dialog';
 import { StepsModule } from 'primeng/steps';
+import { CalendarModule } from 'primeng/calendar';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
@@ -77,6 +78,7 @@ import { PreviewFormResponseComponent } from './components/form-response-preview
     ToastModule,
     DialogModule,
     InputNumberModule,
+    CalendarModule,
     ButtonModule,
     InputTextModule,
     RadioButtonModule,

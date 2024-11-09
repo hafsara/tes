@@ -18,6 +18,10 @@ export class DashboardComponent implements OnInit {
   currentView: string = 'loading';
   loading: boolean = false;
   status: string = 'answered';
+  filterDates: Date[] = [];
+  minDate: Date = new Date(new Date().setFullYear(new Date().getFullYear() - 1));
+  maxDate: Date = new Date();
+
 
   constructor(
     private route: ActivatedRoute,
