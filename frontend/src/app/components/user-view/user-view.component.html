@@ -1,15 +1,31 @@
-<div class="user-view">
-  <div class="card">
-    <p-card header="{{ formData.title }}" class="card-background">
-      <p class="m-0">{{ formData.description }}</p>
-    </p-card>
+<div class="container">
+  <div class="sidebar-toggle-button" (click)="toggleSidebar()" *ngIf="historyForms.length > 0">
+    <i class="pi pi-bars"></i>
   </div>
-  <ng-container *ngIf="!isSubmitted;">
-    <div *ngFor="let question of formData.forms?.[0]?.questions || []; let i = index">
-      <h5>{{ question.label }}</h5>
-      <ng-container [ngSwitch]="question.type">
-        <!-- Text Input -->
-        <div *ngSwitchCase="'text'">
+
+  <div class="sidebar" *ngIf="sidebarVisible && historyForms.length > 0">
+    <h4>Previous Forms</h4>
+    <ul>
+      <li *ngFor="let form of formData.forms; let i = index" (click)="selectForm(form)"
+          [class.active]="form === currentForm">
+        <button (click)="selectForm(form)">
+          <i class="pi pi-star"></i> Form {{ i + 1 }}
+        </button>
+      </li>
+    </ul>
+  </div>
+  <div class="main-content centered-container">
+    <div class="card">
+      <p-card header="{{ formData.title }}" class="card-background">
+        <p class="m-0">{{ formData.description }}</p>
+      </p-card>
+    </div>
+    <ng-container *ngIf="!isSubmitted;">
+      <div *ngFor="let question of formData.forms?.[0]?.questions || []; let i = index">
+        <h5>{{ question.label }}</h5>
+        <ng-container [ngSwitch]="question.type">
+          <!-- Text Input -->
+          <div *ngSwitchCase="'text'">
           <textarea
             rows="5"
             cols="30"
@@ -20,77 +36,78 @@
             name="response{{i}}"
             class="p-inputtextarea"
           ></textarea>
-          <small
-            *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.label)"
-            class="p-error"
-          >
-            This field is required.
-          </small>
-        </div>
+            <small
+              *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.label)"
+              class="p-error"
+            >
+              This field is required.
+            </small>
+          </div>
 
-        <div *ngSwitchCase="'multipleChoice'">
-          <div *ngFor="let option of question.formattedOptions" class="opts">
-            <p-radioButton
-              name="group{{i}}"
+          <div *ngSwitchCase="'multipleChoice'">
+            <div *ngFor="let option of question.formattedOptions" class="opts">
+              <p-radioButton
+                name="group{{i}}"
+                [(ngModel)]="question.response"
+                [value]="option.value"
+                class="mr-2"
+              ></p-radioButton>
+              <label>{{ option.label }}</label>
+            </div>
+            <small
+              *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.label)"
+              class="p-error"
+            >
+              Please select an option.
+            </small>
+          </div>
+
+          <div *ngSwitchCase="'checkbox'">
+            <div *ngFor="let option of question.formattedOptions" class="opts">
+              <p-checkbox
+                [binary]="true"
+                [label]="option.label"
+                [ngModel]="isChecked(question.selectedOptions || [], option.value)"
+                (ngModelChange)="toggleOption(question, option.value)"
+              ></p-checkbox>
+            </div>
+            <small
+              *ngIf="validationErrors.includes('Please select at least one option for question ' + (i + 1) + ': ' + question.label)"
+              class="p-error"
+            >
+              Please select at least one option.
+            </small>
+          </div>
+
+          <!-- Dropdown for Select List Questions -->
+          <div *ngSwitchCase="'dropdown'">
+            <p-dropdown
               [(ngModel)]="question.response"
-              [value]="option.value"
-              class="mr-2"
-            ></p-radioButton>
-            <label>{{ option.label }}</label>
+              [options]="question.formattedOptions"
+              placeholder="Select an option"
+              class="w-full"
+            ></p-dropdown>
+            <small
+              *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.label)"
+              class="p-error"
+            >
+              Please select an option.
+            </small>
           </div>
-          <small
-            *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.label)"
-            class="p-error"
-          >
-            Please select an option.
-          </small>
-        </div>
+        </ng-container>
+      </div>
+    </ng-container>
 
-        <div *ngSwitchCase="'checkbox'">
-          <div *ngFor="let option of question.formattedOptions" class="opts">
-            <p-checkbox
-              [binary]="true"
-              [label]="option.label"
-              [ngModel]="isChecked(question.selectedOptions || [], option.value)"
-              (ngModelChange)="toggleOption(question, option.value)"
-            ></p-checkbox>
-          </div>
-          <small
-            *ngIf="validationErrors.includes('Please select at least one option for question ' + (i + 1) + ': ' + question.label)"
-            class="p-error"
-          >
-            Please select at least one option.
-          </small>
-        </div>
+    <ng-container *ngIf="isSubmitted;">
+      <app-form-response-preview [questions]="formData.forms[0].questions"></app-form-response-preview>
+    </ng-container>
 
-        <!-- Dropdown for Select List Questions -->
-        <div *ngSwitchCase="'dropdown'">
-          <p-dropdown
-            [(ngModel)]="question.response"
-            [options]="question.formattedOptions"
-            placeholder="Select an option"
-            class="w-full"
-          ></p-dropdown>
-          <small
-            *ngIf="validationErrors.includes('Please respond to question ' + (i + 1) + ': ' + question.label)"
-            class="p-error"
-          >
-            Please select an option.
-          </small>
-        </div>
-      </ng-container>
-    </div>
-  </ng-container>
-
-  <ng-container *ngIf="isSubmitted;">
-    <app-form-response-preview [questions]="formData.forms[0].questions"></app-form-response-preview>
-  </ng-container>
-
-  <div class="centered-container" *ngIf="!isSubmitted && formData.forms?.[0]?.status === 'open'">
-    <div class="flex justify-content-end">
-      <p-toast/>
-      <p-confirmDialog/>
-      <p-button (onClick)="confirm($event)" label="Submit" [outlined]="true"/>
+    <div class="centered-container" *ngIf="!isSubmitted && formData.forms?.[0]?.status === 'open'">
+      <div class="flex justify-content-end">
+        <p-toast/>
+        <p-confirmDialog/>
+        <p-button (onClick)="confirm($event)" label="Submit" [outlined]="true"/>
+      </div>
     </div>
   </div>
 </div>

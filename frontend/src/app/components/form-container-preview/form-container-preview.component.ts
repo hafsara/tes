@@ -35,7 +35,7 @@ export class FormContainerPreviewComponent implements OnInit {
     this.currentForm = this.formContainer.forms.find((form: any) => form.status !== 'unsubstantial');
   }
 
-  selectForm(form: any) {
+  selectForm(form: Form) {
     this.currentForm = form;
   }
 

@@ -9,15 +9,15 @@
             <p-card header="{{ formContainer.title }}" class="card-background">
               <p class="m-0">{{ formContainer.description }}</p>
             </p-card>
-            <div *ngIf="formContainer.forms?.[0]?.status === 'open'">
-              <app-form-preview [formQuestions]="formContainer.forms[0]"></app-form-preview>
+            <div *ngIf="currentForm.status === 'open'">
+              <app-form-preview [formQuestions]="currentForm"></app-form-preview>
             </div>
-            <div *ngIf="formContainer.forms?.[0]?.status !== 'open'">
-              <app-form-response-preview [questions]="formContainer.forms[0].questions"></app-form-response-preview>
+            <div *ngIf="currentForm.status !== 'open'">
+              <app-form-response-preview [questions]="currentForm.questions"></app-form-response-preview>
             </div>
 
             <div class="centered-container-button flex justify-content-end"
-                 *ngIf="formContainer.forms?.[0]?.status === 'answered'">
+                 *ngIf="currentForm.status === 'answered'">
               <div class="button-group">
                 <p-button label="Ask again" class="custom-button" [outlined]="true"
                           (onClick)="verifAddNewForm()"></p-button>
@@ -26,7 +26,7 @@
               </div>
             </div>
             <div class="centered-container-button flex justify-content-end"
-                 *ngIf="formContainer.forms?.[0]?.status === 'open'">
+                 *ngIf="currentForm.status === 'open'">
               <div class="button-group">
                 <p-button label="Pause" class="custom-button"></p-button>
               </div>

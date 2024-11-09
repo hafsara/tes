@@ -1,9 +1,12 @@
-.user-view {
+.main-content {
   max-width: 600px;
-  margin: 0 auto;
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 20px;
 
   h2 {
     font-size: 1.5em;
@@ -48,7 +51,58 @@ textarea[pInputTextarea] {
    }
 .centered-container {
     max-width: 600px;
-    margin: 0 auto;
     border-radius: 8px;
-    padding-top: 20px
+    padding-top: 20px;
+    margin-left: 60px;
+}
+
+.container {
+  display: flex;
+  align-items: flex-start;
+}
+
+.sidebar {
+  width: 200px;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  position: sticky;
+  top: 0;
+  margin-left: 60px;
+}
+.sidebar h4 {
+  margin-bottom: 1rem;
+  font-weight: bold;
+  color: #4b5563;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  margin-bottom: 0.5rem;
+}
+
+.sidebar ul li button {
+  border-radius: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+.sidebar ul li.active button {
+  background-color: var(--highlight-text-color);
+  font-weight: bold;
+}
+
+.button-group .custom-button {
+  margin-right: 0.5rem;
+}
+
+.card-background {
+  background-color: #e6f7ff;
 }

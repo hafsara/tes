@@ -38,14 +38,6 @@ export function formatQuestions(questions: Question[]): Question[] {
   }));
 }
 
-function selectFormByStatus(status: string, formContainer: FormContainer): Form | Form[] | null {
-  if (status === 'unsubstantial') {
-    return formContainer.forms.filter((form) => form.status === status);
-  } else {
-    return formContainer.forms.find((form) => form.status === status) || null;
-  }
-}
-
 export function createForm(): Form {
   return {
     questions: [{

@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Question, formatQuestions } from '../../utils/question-formatter';
+import { Question, formatQuestions, Form } from '../../utils/question-formatter';
 import { FormService } from '../../services/form.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -13,6 +13,9 @@ export class UserViewComponent implements OnInit {
   @Input() formData: any = { forms: [] };
   validationErrors: string[] = [];
   isSubmitted: boolean = false;
+  sidebarVisible = true;
+  currentForm: any;
+  historyForms: any[] = [];
 
   constructor(
     private router: Router,
@@ -25,33 +28,44 @@ export class UserViewComponent implements OnInit {
   ngOnInit() {
     this.loadForm();
   }
-
-  loadForm(): void {
-    const accessToken = this.route.snapshot.paramMap.get('access_token');
-    if (accessToken) {
-        this.formService.getFormContainerByAccessToken(accessToken).subscribe(
-          (data) => {
-            this.formData = data;
-            this.formData.access_token = accessToken;
-            if (this.formData.forms && this.formData.forms.length > 0) {
-              this.formData.forms[0].questions = formatQuestions(this.formData.forms[0].questions);
-            }
-            const formStatus = this.formData.forms?.[0]?.status;
-
-            if (this.formData.validated) {
-              this.router.navigate(['/404']);
-            } else if (formStatus === 'answered' || formStatus === 'unsubstantial') {
-              this.isSubmitted = true;
-            } else {
-              this.isSubmitted = false;
-            }
-          },
-          (error) => {
-            this.router.navigate(['/404']);
-          }
-        );
-      }
+  toggleSidebar() {
+    this.sidebarVisible = !this.sidebarVisible;
   }
+
+  selectForm(form: Form) {
+    this.currentForm = form;
+  }
+
+loadForm(): void {
+  const accessToken = this.route.snapshot.paramMap.get('access_token');
+  if (accessToken) {
+    this.formService.getFormContainerByAccessToken(accessToken).subscribe(
+      (data) => {
+        this.formData = data;
+        this.formData.access_token = accessToken;
+
+        if (this.formData.forms && this.formData.forms.length > 0) {
+          this.formData.forms.forEach((form: Form) => {
+            form.questions = formatQuestions(form.questions);
+          });
+        }
+        this.historyForms = this.formData.forms.filter((form: any) => form.status === 'unsubstantial');
+        this.currentForm = this.formData.forms.find((form: any) => form.status !== 'unsubstantial');
+        const formStatus = this.currentForm?.status;
+        if (this.formData.validated) {
+          this.router.navigate(['/404']);
+        } else if (formStatus === 'answered' || formStatus === 'unsubstantial') {
+          this.isSubmitted = true;
+        } else {
+          this.isSubmitted = false;
+        }
+      },
+      (error) => {
+        this.router.navigate(['/404']);
+      }
+    );
+  }
+}
 
   validateResponses(): void {
     this.formData.forms[0].questions.forEach((question: any, index: number) => {
@@ -89,10 +103,10 @@ export class UserViewComponent implements OnInit {
       this.formService.submitUserForm(this.formData).subscribe(
         () => {
           this.isSubmitted = true;
-          console.log("Response saved successfully.");
+          this.messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'Response saved successfully.' });
         },
         error => {
-          console.error("Error submitting form:", error);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error while submitting form. Try again!' });
         }
       );
     }
