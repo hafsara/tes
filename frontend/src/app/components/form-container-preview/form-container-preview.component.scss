@@ -15,3 +15,53 @@
   font-weight: bold;
 }
 
+.dashboard-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.main-content {
+  flex: 1;
+  padding: 1rem;
+}
+
+.sidebar {
+  width: 250px;
+  padding: 1rem;
+  border-left: 1px solid #ddd;
+  margin-left: 20px;
+}
+
+.sidebar h4 {
+  margin-bottom: 1rem;
+  font-weight: bold;
+  color: #4b5563;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  margin-bottom: 0.5rem;
+}
+
+.sidebar ul li button {
+  border-radius: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+.sidebar ul li.active button {
+  background-color: var(--highlight-text-color);
+  font-weight: bold;
+}
+
+.button-group .custom-button {
+  margin-right: 0.5rem;
+}
+

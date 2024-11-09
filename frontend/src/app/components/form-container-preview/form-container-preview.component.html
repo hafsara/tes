@@ -1,43 +1,64 @@
 <p-toast></p-toast>
 <p-confirmDialog></p-confirmDialog>
+<div class="dashboard-container">
+  <div class="main-content">
+    <div class="card">
+      <p-tabView>
+        <p-tabPanel header="Overview">
+          <div class="form-main">
+            <p-card header="{{ formContainer.title }}" class="card-background">
+              <p class="m-0">{{ formContainer.description }}</p>
+            </p-card>
+            <div *ngIf="formContainer.forms?.[0]?.status === 'open'">
+              <app-form-preview [formQuestions]="formContainer.forms[0]"></app-form-preview>
+            </div>
+            <div *ngIf="formContainer.forms?.[0]?.status !== 'open'">
+              <app-form-response-preview [questions]="formContainer.forms[0].questions"></app-form-response-preview>
+            </div>
 
-<div class="card">
-  <p-tabView>
-    <p-tabPanel header="Overview">
-      <div class="card">
-        <p-card header="{{ formContainer.title }}" class="card-background">
-          <p class="m-0">{{ formContainer.description }}</p>
-        </p-card>
-        <div *ngIf="formContainer.forms?.[0]?.status === 'open'">
-          <app-form-preview [formQuestions]="formContainer.forms[0]"></app-form-preview>
-        </div>
-        <div *ngIf="formContainer.forms?.[0]?.status !== 'open'">
-          <app-form-response-preview [questions]="formContainer.forms[0].questions"></app-form-response-preview>
-        </div>
-
-        <div class="centered-container-button flex justify-content-end"
-             *ngIf="formContainer.forms?.[0]?.status === 'answered'">
-          <div class="button-group">
-            <p-button label="Ask again" class="custom-button" [outlined]="true" (onClick)="verifAddNewForm()"></p-button>
-            <p-button label="Validate" class="custom-button" [outlined]="true"
-                      (onClick)="validateFormContainer($event)"></p-button>
+            <div class="centered-container-button flex justify-content-end"
+                 *ngIf="formContainer.forms?.[0]?.status === 'answered'">
+              <div class="button-group">
+                <p-button label="Ask again" class="custom-button" [outlined]="true"
+                          (onClick)="verifAddNewForm()"></p-button>
+                <p-button label="Validate" class="custom-button" [outlined]="true"
+                          (onClick)="validateFormContainer($event)"></p-button>
+              </div>
+            </div>
+            <div class="centered-container-button flex justify-content-end"
+                 *ngIf="formContainer.forms?.[0]?.status === 'open'">
+              <div class="button-group">
+                <p-button label="Pause" class="custom-button"></p-button>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="centered-container-button flex justify-content-end"
-             *ngIf="formContainer.forms?.[0]?.status === 'open'">
-          <div class="button-group">
-            <p-button label="Pause" class="custom-button"></p-button>
-          </div>
-        </div>
-      </div>
-    </p-tabPanel>
+        </p-tabPanel>
 
-    <p-tabPanel header="Timeline">
-      <ng-template pTemplate="content">
-        <app-timeline [formContainerId]="formContainer.id"></app-timeline>
-      </ng-template>
-    </p-tabPanel>
-  </p-tabView>
+        <p-tabPanel header="Timeline" (click)="sidebarVisible=false">
+          <ng-template pTemplate="content">
+            <app-timeline [formContainerId]="formContainer.id"></app-timeline>
+          </ng-template>
+        </p-tabPanel>
+      </p-tabView>
+    </div>
+  </div>
+
+  <div class="sidebar-toggle-button" (click)="toggleSidebar()" *ngIf="historyForms.length > 0">
+    <i class="pi pi-bars"></i>
+  </div>
+
+  <div class="sidebar" *ngIf="sidebarVisible && historyForms.length > 0">
+    <h4>Previous Forms</h4>
+    <ul>
+      <li *ngFor="let form of formContainer.forms; let i = index" (click)="selectForm(form)"
+          [class.active]="form === currentForm">
+        <button (click)="selectForm(form)">
+          <i class="pi pi-star"></i> Form {{ i + 1 }}
+        </button>
+      </li>
+    </ul>
+  </div>
+
   <p-dialog header="Add new form" [modal]="true" [(visible)]="visible" [style]="{ width: '50rem' }"
             [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" (onHide)="resetForm()">
     <app-form-builder [form]="newForm" [showErrors]="showErrors"></app-form-builder>

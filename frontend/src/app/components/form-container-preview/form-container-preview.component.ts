@@ -10,11 +10,14 @@ import { ConfirmationService, MessageService } from 'primeng/api';
   templateUrl: './form-container-preview.component.html',
   styleUrl: './form-container-preview.component.scss'
 })
-export class FormContainerPreviewComponent {
+export class FormContainerPreviewComponent implements OnInit {
   @Input() formContainer!: any;
   visible: boolean = false;
   showErrors = false;
   newForm: Form = createForm();
+  currentForm: any;
+  historyForms: any[] = [];
+  sidebarVisible: boolean = true;
 
   constructor(
     private formService: FormService,
@@ -22,6 +25,23 @@ export class FormContainerPreviewComponent {
     private confirmationService: ConfirmationService,
     private messageService: MessageService
   ) {}
+
+  ngOnInit(): void {
+    this.loadForms();
+  }
+
+  loadForms() {
+    this.historyForms = this.formContainer.forms.filter((form: any) => form.status === 'unsubstantial');
+    this.currentForm = this.formContainer.forms.find((form: any) => form.status !== 'unsubstantial');
+  }
+
+  selectForm(form: any) {
+    this.currentForm = form;
+  }
+
+  toggleSidebar() {
+    this.sidebarVisible = !this.sidebarVisible;
+  }
 
   showDialog() {
     this.visible = true;
