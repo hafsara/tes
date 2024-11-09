@@ -68,7 +68,7 @@ loadForm(): void {
 }
 
   validateResponses(): void {
-    this.formData.forms[0].questions.forEach((question: any, index: number) => {
+    this.currentForm.questions.forEach((question: any, index: number) => {
       const questionError = `Please respond to question ${index + 1}: ${question.label}`;
 
       if (question.isRequired) {

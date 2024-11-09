@@ -20,8 +20,8 @@
         <p class="m-0">{{ formData.description }}</p>
       </p-card>
     </div>
-    <ng-container *ngIf="!isSubmitted;">
-      <div *ngFor="let question of formData.forms?.[0]?.questions || []; let i = index">
+    <ng-container *ngIf="!isSubmitted && currentForm?.status === 'open'">
+      <div *ngFor="let question of currentForm?.questions || []; let i = index">
         <h5>{{ question.label }}</h5>
         <ng-container [ngSwitch]="question.type">
           <!-- Text Input -->
@@ -98,11 +98,11 @@
       </div>
     </ng-container>
 
-    <ng-container *ngIf="isSubmitted;">
-      <app-form-response-preview [questions]="formData.forms[0].questions"></app-form-response-preview>
+    <ng-container *ngIf="isSubmitted || currentForm?.status === 'unsubstantial'">
+      <app-form-response-preview [questions]="currentForm.questions"></app-form-response-preview>
     </ng-container>
 
-    <div class="centered-container" *ngIf="!isSubmitted && formData.forms?.[0]?.status === 'open'">
+    <div class="centered-container-p-button" *ngIf="!isSubmitted && currentForm?.status === 'open'">
       <div class="flex justify-content-end">
         <p-toast/>
         <p-confirmDialog/>
