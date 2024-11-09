@@ -19,11 +19,11 @@ export class FormService {
     return this.http.get(`${this.apiUrl}/${accessToken}`);
   }
 
-  submitUserForm(formData: any): Observable<any> {
+  submitUserForm(access_token:string, formData: any): Observable<any> {
       return this.http.post(
-          `${this.apiUrl}/${formData.access_token}/forms/${formData.forms[0].form_id}/submit-response`,
+          `${this.apiUrl}/${access_token}/forms/${formData.form_id}/submit-response`,
           {
-              questions: formData.forms[0].questions.map((q: any) => ({
+              questions: formData.questions.map((q: any) => ({
                   id: q.id,
                   response: q.response || q.selectedOptions
               }))

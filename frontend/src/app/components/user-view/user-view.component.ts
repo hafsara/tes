@@ -100,7 +100,7 @@ loadForm(): void {
   }
 
   onSubmit(): void {
-      this.formService.submitUserForm(this.formData).subscribe(
+      this.formService.submitUserForm(this.formData.access_token, this.currentForm).subscribe(
         () => {
           this.isSubmitted = true;
           this.messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'Response saved successfully.' });

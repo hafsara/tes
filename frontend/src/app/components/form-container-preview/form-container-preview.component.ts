@@ -63,7 +63,7 @@ export class FormContainerPreviewComponent implements OnInit {
   }
 
   confirmValidate(): void {
-    this.formService.validateFormContainer(this.formContainer.id, this.formContainer.forms[0].form_id).subscribe(
+    this.formService.validateFormContainer(this.formContainer.id, this.currentForm.form_id).subscribe(
       (response) => {
         this.messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'FormContainer validated' });
       },
