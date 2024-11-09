@@ -67,6 +67,12 @@ export class DashboardComponent implements OnInit {
       }
     );
   }
+filterGlobal(table: Table, event: Event) {
+  const input = event.target as HTMLInputElement;
+  console.log('Filter value:', input.value);
+  table.filterGlobal(input.value, 'contains');
+}
+
 
   loadFormDetails(access_token: string) {
     this.loading = true;
