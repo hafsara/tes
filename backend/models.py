@@ -2,9 +2,37 @@ import uuid
 from datetime import datetime
 from extensions import db
 
+form_container_permissions = db.Table('form_container_permissions',
+                                      db.Column('form_container_id', db.Integer, db.ForeignKey('form_containers.id')),
+                                      db.Column('galaxy_id', db.Integer, db.ForeignKey('galaxies.id')),
+                                      db.Column('permission_type', db.String)  # 'read' ou 'write'
+                                      )
+admin_galaxy_association = db.Table('admin_galaxy',
+    db.Column('admin_id', db.String(255), db.ForeignKey('admins.id'), primary_key=True),
+    db.Column('galaxy_id', db.Integer, db.ForeignKey('galaxies.id'), primary_key=True)
+)
+
+
+class Galaxy(db.Model):
+    __tablename__ = 'galaxies'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), unique=True, nullable=False)
+    admins = db.relationship('Admin', secondary=admin_galaxy_association, back_populates='galaxies')
+    shared_containers = db.relationship(
+        'FormContainer', secondary=form_container_permissions, back_populates='shared_galaxies'
+    )
+
+
+class Admin(db.Model):
+    __tablename__ = 'admins'
+    id = db.Column(db.Integer, primary_key=True)
+    #username = db.Column(db.String(255), unique=True, nullable=False)
+    galaxies = db.relationship('Galaxy', secondary=admin_galaxy_association, back_populates='admins')
+
+
 class FormContainer(db.Model):
     __tablename__ = 'form_containers'
-    __table_args__ = (db.Index('idx_form_container_access_token', 'access_token'), )
+    __table_args__ = (db.Index('idx_form_container_access_token', 'access_token'),)
 
     id = db.Column(db.Integer, primary_key=True)
     access_token = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
@@ -19,9 +47,13 @@ class FormContainer(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     reminder_delay = db.Column(db.Integer, nullable=True)
+    galaxy_id = db.Column(db.Integer, db.ForeignKey('galaxies.id'))
 
     forms = db.relationship('Form', backref='form_container', lazy=True)
     timeline = db.relationship('TimelineEntry', backref='form_container', lazy=True)
+    shared_galaxies = db.relationship(
+        'Galaxy', secondary=form_container_permissions, back_populates='shared_containers'
+    )
 
 
 class Form(db.Model):
@@ -35,6 +67,7 @@ class Form(db.Model):
     def __repr__(self):
         return f"<Form {self.id} for Container {self.form_container_id}>"
 
+
 class Question(db.Model):
     __tablename__ = 'questions'
     id = db.Column(db.Integer, primary_key=True)
@@ -47,6 +80,7 @@ class Question(db.Model):
 
     def __repr__(self):
         return f"<Question {self.id} for Form {self.form_id}>"
+
 
 class Response(db.Model):
     __tablename__ = 'responses'

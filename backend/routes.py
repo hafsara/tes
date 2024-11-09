@@ -1,18 +1,85 @@
 from flask import Blueprint, jsonify, request, session
-from models import db, FormContainer, Form, Question, TimelineEntry, Response
+from models import db, FormContainer, Form, Question, TimelineEntry, Response, Galaxy, Admin
 from datetime import datetime
 from workflow import FormWorkflowManager
+from functools import wraps
 
 api = Blueprint('api', __name__)
-ADMIN_ID = 'd76476'  # todo enlever cette ligne et la remplcer par ADMIN_ID
+ADMIN_ID = 'd76476'  # todo À remplacer par un vrai système d'identification
+
+
+def galaxy_access_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        admin_id = 'd76476'
+        if not admin_id:
+            return jsonify({"error": "Non authentifié"}), 401
+
+        admin = Admin.query.filter_by(id=admin_id).first()
+        if not admin:
+            return jsonify({"error": "Admin non trouvé"}), 404
+
+        accessible_galaxies = [galaxy.id for galaxy in admin.galaxies]
+
+        kwargs['accessible_galaxies'] = accessible_galaxies
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+@api.route('/galaxies/<int:galaxy_id>/admins', methods=['POST'])
+def add_admin_to_galaxy(galaxy_id):
+    data = request.json
+    admin_id = data.get('admin_id')
+    admin_name = data.get('name')
+    admin_email = data.get('email')
+
+    if not admin_id or not admin_name or not admin_email:
+        return jsonify({"error": "Admin ID, name, and email are required"}), 400
+
+    galaxy = Galaxy.query.get(galaxy_id)
+    if not galaxy:
+        return jsonify({"error": "Galaxy not found"}), 404
+
+    admin = Admin.query.filter_by(id=admin_id).first()
+    if not admin:
+        admin = Admin(id=admin_id, name=admin_name, email=admin_email)
+        db.session.add(admin)
+
+    galaxy.admins.append(admin)
+    db.session.commit()
+
+    return jsonify({"message": f"Admin '{admin_name}' added to galaxy '{galaxy.name}'"}), 200
+
+@api.route('/galaxies', methods=['POST'])
+def create_galaxy():
+    data = request.json
+    galaxy_name = data.get('name')
+
+    if not galaxy_name:
+        return jsonify({"error": "Galaxy name is required"}), 400
+
+    galaxy = Galaxy.query.filter_by(name=galaxy_name).first()
+    if galaxy:
+        return jsonify({"error": "Galaxy already exists"}), 400
+
+    galaxy = Galaxy(name=galaxy_name)
+    db.session.add(galaxy)
+    db.session.commit()
+
+    return jsonify({"message": f"Galaxy '{galaxy_name}' created successfully", "galaxy_id": galaxy.id}), 201
+
+def get_admin_galaxy():
+    admin = Admin.query.filter_by(id=ADMIN_ID).first()
+    return admin.galaxy if admin else None
 
 
 @api.route('/form-containers', methods=['POST'])
 def create_form_container():
     data = request.json
     admin_id = ADMIN_ID
+    admin = Admin.query.filter_by(id=admin_id).first()
 
-    if not admin_id:
+    if not admin:
         return jsonify({"error": "SuperAdmin non authentifié"}), 401
 
     form_container = FormContainer(
@@ -23,7 +90,8 @@ def create_form_container():
         reference=data.get('reference'),
         escalate=data.get('escalate', False),
         initiated_by=admin_id,
-        reminder_delay=data.get('reminder_delay_day')
+        reminder_delay=data.get('reminder_delay_day'),
+        galaxy_id=admin.galaxy_id
     )
 
     db.session.add(form_container)
@@ -59,10 +127,13 @@ def create_form_container():
     return jsonify(
         {"container_id": form_container.id, "form_id": form.id, "access_token": form_container.access_token}), 201
 
+
 @api.route('/form-containers/<int:container_id>/forms', methods=['POST'])
 def add_form_to_container(container_id):
     admin_id = ADMIN_ID
-    if not admin_id:
+    admin = Admin.query.filter_by(id=admin_id).first()
+
+    if not admin:
         return jsonify({"error": "SuperAdmin non authentifié"}), 401
     form_container = FormContainer.query.get_or_404(container_id)
 
@@ -100,7 +171,6 @@ def add_form_to_container(container_id):
         return jsonify({"error": "Une erreur s'est produite lors de l'ajout du formulaire"}), 500
 
 
-
 @api.route('/form-containers/<string:access_token>/forms/<int:form_id>/submit-response', methods=['POST'])
 def submit_form_response(access_token, form_id):
     data = request.json
@@ -111,7 +181,7 @@ def submit_form_response(access_token, form_id):
         return jsonify({"error": "Form container already validated"}), 401
 
     form = Form.query.filter_by(id=form_id, form_container_id=form_container.id).first_or_404()
-    if form.status =='answered':
+    if form.status == 'answered':
         return jsonify({"error": "Form already answered"}), 401
     response_record = Response(
         form_id=form.id,
@@ -144,12 +214,18 @@ def submit_form_response(access_token, form_id):
 
 
 @api.route('/form-containers', methods=['GET'])
-def get_form_containers():
+@galaxy_access_required
+def get_form_containers(accessible_galaxies):
     admin_id = ADMIN_ID
+    admin = Admin.query.filter_by(id=admin_id).first()
 
-    if not admin_id:
-        return jsonify({"error": "SuperAdmin non authentifié"}), 401
+    if not admin:
+        return jsonify({"error": "SuperAdmin not authenticated"}), 401
 
+    form_containers = FormContainer.query.filter(
+        (FormContainer.galaxy_id.in_(accessible_galaxies)) |
+        (FormContainer.shared_galaxies.any(id.in_(accessible_galaxies)))
+    ).all()
     filter_type = request.args.get('filter')
 
     if filter_type == 'status':
@@ -157,7 +233,6 @@ def get_form_containers():
         if not status:
             return jsonify({"error": "Le paramètre 'status' est requis"}), 400
 
-        form_containers = FormContainer.query.join(Form).filter(Form.status == status).all()
         result = [
             {
                 "access_token": fc.access_token,
@@ -168,17 +243,22 @@ def get_form_containers():
                 "manager_email": fc.manager_email,
                 "reference": fc.reference,
             }
-            for fc in form_containers
+            for fc in form_containers if fc.status == status
         ]
     else:
-        return jsonify({"error": "Type de requête non valide"}), 400
+        return jsonify({"error": "Invalid filter"}), 400
 
     return jsonify(result), 200
 
 
 @api.route('/form-containers/<string:access_token>', methods=['GET'])
 def get_form_container_by_access_token(access_token):
+    admin = Admin.query.filter_by(id=ADMIN_ID).first()
     form_container = FormContainer.query.filter_by(access_token=access_token).first_or_404()
+
+    if form_container.galaxy_id != admin.galaxy_id and admin.galaxy not in form_container.shared_galaxies:
+        return jsonify({"error": "Access refused"}), 403
+
     result = {
         "id": form_container.id,
         "title": form_container.title,
@@ -222,16 +302,18 @@ def get_form_container_by_access_token(access_token):
 @api.route('/form-containers/<int:container_id>/forms/<int:form_id>/validate', methods=['POST'])
 def validate_form_container(container_id, form_id):
     admin_id = ADMIN_ID
+    admin = Admin.query.filter_by(id=admin_id).first()
     form_container = FormContainer.query.get_or_404(container_id)
-    if not form_container:
-        return jsonify({"error": "Form Container introuvable"}), 404
+
+    if form_container.galaxy_id != admin.galaxy_id:
+        return jsonify({"error": "Permissions refused"}), 403
 
     if form_container.validated:
         return jsonify({"error": "Form container already validated"}), 401
 
     form = Form.query.filter_by(id=form_id, form_container_id=form_container.id).first()
     if not form:
-        return jsonify({"error": "Formulaire introuvable"}), 404
+        return jsonify({"error": "Form not found"}), 404
 
     form_container.validated = True
     form.status = 'validated'
@@ -243,7 +325,6 @@ def validate_form_container(container_id, form_id):
         timestamp=datetime.utcnow()
     )
     db.session.add(timeline_entry)
-
     db.session.commit()
 
     return jsonify({"message": "Formulaire validé avec succès."}), 200
