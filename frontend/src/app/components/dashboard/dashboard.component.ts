@@ -66,7 +66,6 @@ export class DashboardComponent implements OnInit {
         this.loading = false;
       },
       (error) => {
-        console.error('Erreur lors de la récupération des formulaires:', error);
         this.loading = false;
       }
     );

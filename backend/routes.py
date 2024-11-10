@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, session
 from models import db, FormContainer, Form, Question, TimelineEntry, Response
 from datetime import datetime
 from workflow import FormWorkflowManager
+from tasks import run_delayed_workflow
 
 api = Blueprint('api', __name__)
 ADMIN_ID = 'd76476'  # todo enlever cette ligne et la remplcer par ADMIN_ID
@@ -55,9 +56,10 @@ def create_form_container():
     db.session.add(timeline_entry)
 
     db.session.commit()
-    workflow_manager = FormWorkflowManager(container_id=form_container.id)
-    workflow_manager.process_workflow()
 
+    workflow_manager = FormWorkflowManager(container_id=form_container.id)
+    workflow_manager.immediate_notification_flow()
+    run_delayed_workflow.delay(form_container.id)
     return jsonify(
         {"container_id": form_container.id, "form_id": form.id, "access_token": form_container.access_token}), 201
 

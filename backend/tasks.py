@@ -1,11 +1,9 @@
+from celery import shared_task
+
 from celery_app import celery
-from models import FormContainer
 from workflow import FormWorkflowManager
 
-
-@celery.task
-def check_reminders_and_escalations():
-    open_containers = FormContainer.query.filter_by(validated=False).all()
-    for container in open_containers:
-        workflow_manager = FormWorkflowManager(container_id=container.id)
-        workflow_manager.process_workflow()
+@shared_task
+def run_delayed_workflow(container_id):
+    workflow_manager = FormWorkflowManager(container_id=container_id)
+    workflow_manager.start_delayed_workflow()

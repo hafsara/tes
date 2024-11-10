@@ -9,8 +9,8 @@ def make_celery():
 
     celery.conf.beat_schedule = {
         'check-reminders-and-escalations': {
-            'task': 'tasks.check_reminders_and_escalations',
-            'schedule': 3600.0,  # toutes les heures
+            'task': 'tasks.run_delayed_workflow',
+            'schedule': 3600.0
         },
     }
 
