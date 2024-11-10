@@ -55,7 +55,9 @@ def create_form_container():
     db.session.add(timeline_entry)
 
     db.session.commit()
-    print(form_container.access_token)
+    workflow_manager = FormWorkflowManager(container_id=form_container.id)
+    workflow_manager.process_workflow()
+
     return jsonify(
         {"container_id": form_container.id, "form_id": form.id, "access_token": form_container.access_token}), 201
 
@@ -140,6 +142,8 @@ def submit_form_response(access_token, form_id):
     )
     db.session.add(timeline_entry)
     db.session.commit()
+    form_workflow = FormWorkflowManager(container_id=form_container.id)
+    # form_workflow.stop_workflow()
     return jsonify({"message": "Réponse soumise avec succès"}), 200
 
 

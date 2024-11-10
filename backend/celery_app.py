@@ -7,7 +7,6 @@ def make_celery():
     celery.conf.broker_url = Config.CELERY_BROKER_URL
     celery.conf.result_backend = Config.CELERY_RESULT_BACKEND
 
-    # Configuration du planificateur pour la tâche périodique
     celery.conf.beat_schedule = {
         'check-reminders-and-escalations': {
             'task': 'tasks.check_reminders_and_escalations',
