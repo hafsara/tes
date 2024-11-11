@@ -31,6 +31,10 @@ class Form(db.Model):
     status = db.Column(db.String(50), nullable=False, default='open')
     questions = db.relationship('Question', backref='form', lazy=True, cascade="all, delete-orphan")
     responses = db.relationship('Response', backref='form', lazy=True)
+    # TODO
+    # last_reminder_sent = db.Column(db.DateTime, nullable=True)
+    # reminder_count = db.Column(db.Integer, default=0)
+    # escalated = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return f"<Form {self.id} for Container {self.form_container_id}>"
