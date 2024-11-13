@@ -37,7 +37,7 @@ export class AccessControlComponent implements OnInit{
     const token = event.value;
     this.invalidTokens.delete(token);
     this.tokens = this.tokens.filter(t => t !== token);
-    this.tokenService.storeTokens(this.tokens);
+    this.tokenService.storeTokens(this.tokens, 60);
   }
 
   validateToken(token: string): void {
@@ -45,7 +45,7 @@ export class AccessControlComponent implements OnInit{
       next: (isValid) => {
         if (isValid) {
           this.invalidTokens.delete(token);
-          this.tokenService.storeTokens(this.tokens);
+          this.tokenService.storeTokens(this.tokens, 60);
         } else {
           this.isTokenInvalid = true;
           this.invalidTokens.add(token);
@@ -66,7 +66,6 @@ export class AccessControlComponent implements OnInit{
     } else if (this.tokens.length === 0) {
       this.messageService.add({ severity: 'warn', summary: 'No Tokens', detail: 'Please add at least one valid token.' });
     } else {
-      this.tokenService.startSessionTimer(60);
       this.router.navigate(['/dashboard']);
     }
   }

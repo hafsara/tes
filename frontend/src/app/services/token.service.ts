@@ -6,6 +6,7 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class TokenService {
   private readonly tokenKey = 'appTokens';
+  private readonly expirationKey = 'tokenExpiration';
   private tokensSubject = new BehaviorSubject<string[]>(this.retrieveTokens());
   tokens$ = this.tokensSubject.asObservable();
 
@@ -13,37 +14,41 @@ export class TokenService {
     return typeof window !== 'undefined' && !!window.sessionStorage;
   }
 
-  storeTokens(tokens: string[]): void {
+  storeTokens(tokens: string[], durationInMinutes: number): void {
     if (this.isBrowser()) {
       sessionStorage.setItem(this.tokenKey, JSON.stringify(tokens));
-      this.tokensSubject.next(tokens);
+      const expirationTime = new Date().getTime() + durationInMinutes * 60 * 1000;
+      localStorage.setItem(this.expirationKey, expirationTime.toString());
     }
   }
 
   retrieveTokens(): string[] {
-    if (this.isBrowser()) {
-      const tokens = sessionStorage.getItem(this.tokenKey);
-      return tokens ? JSON.parse(tokens) : [];
+    if (this.isBrowser() && this.isSessionValid()) {
+      return JSON.parse(sessionStorage.getItem(this.tokenKey) || '[]');
     }
+    this.clearTokens();
     return [];
   }
 
   hasValidTokens(): boolean {
-    const tokens = this.retrieveTokens();
-    return tokens.length > 0;
+    return this.retrieveTokens().length > 0;
   }
 
   clearTokens(): void {
     if (this.isBrowser()) {
       sessionStorage.removeItem(this.tokenKey);
-      this.tokensSubject.next([]);
+      localStorage.removeItem(this.expirationKey);
     }
   }
 
-  startSessionTimer(durationInMinutes: number) {
-    setTimeout(() => {
-      this.clearTokens();
-      window.location.href = '/access-control';
-    }, durationInMinutes * 60 * 1000);
+  private isSessionValid(): boolean {
+    const expirationTime = localStorage.getItem(this.expirationKey);
+    if (expirationTime) {
+      const now = new Date().getTime();
+      if (now < parseInt(expirationTime, 10)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
