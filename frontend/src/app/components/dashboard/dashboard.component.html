@@ -1,9 +1,11 @@
 <div class="dashboard">
   <div class="sidebar">
-    <button (click)="switchTo('createForm')" class="button-17">Create New Form</button>
-    <div class="card flex justify-content-center">
-      <p-menu [model]="menuItems" class="custom-menu"></p-menu>
-    </div>
+    <aside>
+      <button (click)="switchTo('createForm')" class="button-17">Create New Form</button>
+      <div class="card flex justify-content-center">
+        <p-menu [model]="menuItems" class="custom-menu"></p-menu>
+      </div>
+    </aside>
   </div>
 
   <div class="content" [ngSwitch]="currentView">

@@ -14,7 +14,7 @@ def create_application():
     app_id = data.get('id')
 
     if not app_name or not app_id:
-        return jsonify({"error": "Le nom et l'ID de l'application sont requis"}), 400
+        return jsonify({"error": "Application name and ID are required"}), 400
 
     application = Application(id=app_id, name=app_name)
     db.session.add(application)

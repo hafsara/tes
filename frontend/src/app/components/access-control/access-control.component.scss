@@ -11,15 +11,6 @@ h2 {
   margin-bottom: 2rem;
 }
 
-.access-card {
-  border-radius: 10px;
-  width: 100%;
-  max-width: 600px;
-  margin: auto;
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
 .input-container {
   margin-bottom: 1rem;
 }
@@ -28,4 +19,33 @@ h2 {
   width: 100%;
   max-width: 150px;
   margin-top: 1rem;
+}
+
+.card-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+@keyframes dropIn {
+  0% {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.access-card {
+  border-radius: 10px;
+  width: 100%;
+  max-width: 600px;
+  margin: auto;
+  text-align: center;
+  border-radius: 8px;
+  animation: dropIn 1s ease forwards;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
