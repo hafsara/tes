@@ -1,30 +1,27 @@
-import { Component, OnInit } from '@angular/core';
-import { MenuItem } from 'primeng/api';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { TokenService } from '../../services/token.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.scss'
+  styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent implements OnInit{
+export class NavbarComponent implements OnInit, OnDestroy {
+  tokens: string[] = [];
+  private tokensSubscription: Subscription = new Subscription();
 
-    items: MenuItem[] | undefined;
+  constructor(private tokenService: TokenService) {}
 
-    ngOnInit() {
-        this.items = [
-            {
-                label: 'Home',
-                icon: 'pi pi-home'
-            },
-            {
-                label: 'Features',
-                icon: 'pi pi-star'
-            },
-            {
-                label: 'Contact',
-                icon: 'pi pi-envelope'
-            }
-        ]
-    }
+  ngOnInit(): void {
+    this.tokensSubscription = this.tokenService.tokens$.subscribe(
+      (tokens) => {
+        this.tokens = tokens;
+      }
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.tokensSubscription.unsubscribe();
+  }
 }
-

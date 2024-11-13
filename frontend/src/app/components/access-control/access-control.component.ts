@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormService } from '../../services/form.service';
 import { TokenService } from '../../services/token.service';
 import { MessageService } from 'primeng/api';
@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./access-control.component.scss'],
   providers: [MessageService]
 })
-export class AccessControlComponent {
+export class AccessControlComponent implements OnInit{
   tokens: string[] = [];
   isTokenInvalid: boolean = false;
   invalidTokens: Set<string> = new Set();
@@ -21,6 +21,12 @@ export class AccessControlComponent {
     private messageService: MessageService,
     private router: Router
   ) {}
+
+  ngOnInit(): void {
+    if (this.tokenService.hasValidTokens()) {
+      this.router.navigate(['/dashboard']);
+    }
+  }
 
   onTokenAdd(event: any): void {
     const newToken = event.value;
@@ -60,6 +66,7 @@ export class AccessControlComponent {
     } else if (this.tokens.length === 0) {
       this.messageService.add({ severity: 'warn', summary: 'No Tokens', detail: 'Please add at least one valid token.' });
     } else {
+      this.tokenService.startSessionTimer(60);
       this.router.navigate(['/dashboard']);
     }
   }

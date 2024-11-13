@@ -1,3 +1,4 @@
-<div class="navbar-card">
-  <p-menubar [model]="items"/>
+<div class="navbar">
+  <span *ngIf="tokens.length > 0">App Tokens:</span>
+  <div *ngFor="let token of tokens" class="token-badge">{{ token }}</div>
 </div>
