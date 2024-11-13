@@ -34,7 +34,7 @@ class Campaign(db.Model):
     name = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     created_by = db.Column(db.String(255), nullable=False)
-    app_id = db.relationship('Application', backref='form_container', lazy=True)
+    app_id = db.Column(db.String(36), db.ForeignKey('application.id'), nullable=False)
 
 
 class Application(db.Model):

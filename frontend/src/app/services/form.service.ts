@@ -50,6 +50,7 @@ export class FormService {
     return this.http.post(url, formData);
   }
   validateToken(token: string): Observable<boolean> {
-    return this.http.get<boolean>(`/api/validate-token/${token}`);
+    const url = `${environment.apiUrl}/validate-token/${token}`;
+    return this.http.get<boolean>(url);
   }
 }
