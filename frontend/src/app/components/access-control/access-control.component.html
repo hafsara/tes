@@ -1,3 +1,4 @@
+<p-toast></p-toast>
 <div class="card flex justify-content-center">
   <p-card class="access-card">
     <h2>Enter Applications ID</h2>
@@ -9,8 +10,9 @@
       <div *ngIf="invalidTokens.size > 0" class="error-message">
         <p *ngFor="let token of invalidTokens">{{ token }} is invalid.</p>
       </div>
-
-      <button pButton label="Enter" icon="pi pi-check" (click)="submitTokens()"></button>
+      <div class="flex pt-4 justify-content-end">
+        <p-button label="Enter" icon="pi pi-arrow-right" iconPos="right" (onClick)="submitTokens()"/>
+      </div>
     </div>
   </p-card>
 </div>
