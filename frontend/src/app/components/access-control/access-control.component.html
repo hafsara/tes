@@ -1,0 +1,16 @@
+<div class="card flex justify-content-center">
+  <p-card class="access-card">
+    <h2>Enter Applications ID</h2>
+    <div class="m-0">
+      <p-chips [(ngModel)]="tokens" (onAdd)="onTokenAdd($event)" (onRemove)="onTokenRemove($event)"
+               placeholder="Enter tokens" separator="," class="chips-component">
+      </p-chips>
+
+      <div *ngIf="invalidTokens.size > 0" class="error-message">
+        <p *ngFor="let token of invalidTokens">{{ token }} is invalid.</p>
+      </div>
+
+      <button pButton label="Enter" icon="pi pi-check" (click)="submitTokens()"></button>
+    </div>
+  </p-card>
+</div>

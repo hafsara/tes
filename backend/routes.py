@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, session
-from models import db, FormContainer, Form, Question, TimelineEntry, Response
+from models import db, FormContainer, Form, Question, TimelineEntry, Response, Application
 from datetime import datetime
 from tasks import run_delayed_workflow, send_initial_notification_task
 
@@ -270,3 +270,8 @@ def get_form_container_timeline(form_container_id):
         for te in timeline_entry
     ]
     return jsonify(interaction_timeline), 200
+
+@api.route('/validate-token/<token>', methods=['GET'])
+def validate_token(token):
+    is_valid = Application.query.filter_by(id=token).first() is not None
+    return jsonify(is_valid)

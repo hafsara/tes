@@ -38,6 +38,7 @@ import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MenubarModule } from 'primeng/menubar';
+import { ChipsModule } from 'primeng/chips';
 
 import { UserViewComponent } from './components/user-view/user-view.component';
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
@@ -80,6 +81,7 @@ import { AccessControlComponent } from './components/access-control/access-contr
     HttpClientModule,
     // PrimeNG Modules
     StepsModule,
+    ChipsModule,
     ToastModule,
     MenubarModule,
     DialogModule,
