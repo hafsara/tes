@@ -21,9 +21,9 @@ class FormContainer(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     reminder_delay = db.Column(db.Integer, nullable=True)
+    app_id = db.Column(db.String(36), db.ForeignKey('application.id'), nullable=True)
+    campaign_id = db.Column(db.Integer, db.ForeignKey('campaign.id'), nullable=True)
 
-    app_id = db.relationship('Application', backref='app', lazy=True)
-    campaign_id = db.relationship('Campaign', backref='campaign', lazy=True)
     forms = db.relationship('Form', backref='form', lazy=True)
     timeline = db.relationship('TimelineEntry', backref='timeline', lazy=True)
 

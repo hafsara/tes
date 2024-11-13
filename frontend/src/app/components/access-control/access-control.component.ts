@@ -11,6 +11,7 @@ import { MessageService } from 'primeng/api';
 })
 export class AccessControlComponent {
   tokens: string[] = [];
+  isTokenInvalid: boolean = false;
   invalidTokens: Set<string> = new Set();
 
   constructor(private formService: FormService, private messageService: MessageService) {}
@@ -30,11 +31,13 @@ export class AccessControlComponent {
     this.formService.validateToken(token).subscribe({
       next: (isValid) => {
         if (!isValid) {
+          this.isTokenInvalid = true;
           this.invalidTokens.add(token);
           this.messageService.add({ severity: 'error', summary: 'Invalid Token', detail: `Token ${token} is invalid.` });
         }
       },
       error: () => {
+        this.isTokenInvalid = true;
         this.invalidTokens.add(token);
         this.messageService.add({ severity: 'error', summary: 'Error', detail: `Failed to validate token ${token}.` });
       }

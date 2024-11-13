@@ -1,10 +1,43 @@
 from flask import Blueprint, jsonify, request, session
-from models import db, FormContainer, Form, Question, TimelineEntry, Response, Application
+from models import db, FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign
 from datetime import datetime
 from tasks import run_delayed_workflow, send_initial_notification_task
 
 api = Blueprint('api', __name__)
-ADMIN_ID = 'd76476'  # todo enlever cette ligne et la remplcer par ADMIN_ID
+ADMIN_ID = 'd76476'  # todo enlever cette ligne et la remplacer par ADMIN_ID
+
+
+@api.route('/applications', methods=['POST'])
+def create_application():
+    data = request.json
+    app_name = data.get('name')
+    app_id = data.get('id')
+
+    if not app_name or not app_id:
+        return jsonify({"error": "Le nom et l'ID de l'application sont requis"}), 400
+
+    application = Application(id=app_id, name=app_name)
+    db.session.add(application)
+    db.session.commit()
+
+    return jsonify({"message": "Application created with success", "app_id": app_id}), 201
+
+
+@api.route('/campaigns', methods=['POST'])
+def create_campaign():
+    data = request.json
+    campaign_name = data.get('name')
+    app_id = data.get('app_id')
+    created_by = ADMIN_ID
+
+    if not campaign_name or not app_id:
+        return jsonify({"error": "Campaign name and app ID are required"}), 400
+
+    campaign = Campaign(name=campaign_name, app_id=app_id, created_by=created_by)
+    db.session.add(campaign)
+    db.session.commit()
+
+    return jsonify({"message": "Campaign successfully created", "campaign_id": campaign.id}), 201
 
 
 @api.route('/form-containers', methods=['POST'])
@@ -13,7 +46,7 @@ def create_form_container():
     admin_id = ADMIN_ID
 
     if not admin_id:
-        return jsonify({"error": "SuperAdmin non authentifié"}), 401
+        return jsonify({"error": "Admin not authenticated"}), 401
 
     form_container = FormContainer(
         title=data['title'],
@@ -23,7 +56,9 @@ def create_form_container():
         reference=data.get('reference'),
         escalate=data.get('escalate', False),
         initiated_by=admin_id,
-        reminder_delay=data.get('reminder_delay_day')
+        reminder_delay=data.get('reminder_delay_day'),
+        app_id=data.get('app_id'),
+        campaign_id=data.get('campaign_id')
     )
 
     db.session.add(form_container)
@@ -31,7 +66,7 @@ def create_form_container():
 
     form_data = data.get('forms')
     if not form_data:
-        return jsonify({"error": "Un formulaire est requis pour créer un conteneur"}), 400
+        return jsonify({"error": "A form is required to create a container"}), 400
 
     form = Form(form_container_id=form_container.id)
 
@@ -57,20 +92,21 @@ def create_form_container():
     db.session.commit()
     send_initial_notification_task(form_container.id)
     # TODO
-    #run_delayed_workflow(container_id=form_container.id)
+    # run_delayed_workflow(container_id=form_container.id)
 
     return jsonify(
         {"container_id": form_container.id, "form_id": form.id, "access_token": form_container.access_token}), 201
+
 
 @api.route('/form-containers/<int:container_id>/forms', methods=['POST'])
 def add_form_to_container(container_id):
     admin_id = ADMIN_ID
     if not admin_id:
-        return jsonify({"error": "SuperAdmin non authentifié"}), 401
+        return jsonify({"error": "Admin not authenticated"}), 401
     form_container = FormContainer.query.get_or_404(container_id)
 
     if len(form_container.forms) >= 5:
-        return jsonify({"error": "Vous ne pouvez pas ajouter plus de 5 formulaires à ce conteneur"}), 400
+        return jsonify({"error": "You can't add more than 5 forms to this container"}), 400
 
     current_form = next((form for form in form_container.forms if form.status == 'answered'), None)
 
@@ -100,8 +136,7 @@ def add_form_to_container(container_id):
         return jsonify({"form_id": new_form.id}), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": "Une erreur s'est produite lors de l'ajout du formulaire"}), 500
-
+        return jsonify({"error": "An error occurred while adding the form"}), 500
 
 
 @api.route('/form-containers/<string:access_token>/forms/<int:form_id>/submit-response', methods=['POST'])
@@ -114,7 +149,7 @@ def submit_form_response(access_token, form_id):
         return jsonify({"error": "Form container already validated"}), 401
 
     form = Form.query.filter_by(id=form_id, form_container_id=form_container.id).first_or_404()
-    if form.status =='answered':
+    if form.status == 'answered':
         return jsonify({"error": "Form already answered"}), 401
     response_record = Response(
         form_id=form.id,
@@ -143,9 +178,9 @@ def submit_form_response(access_token, form_id):
     )
     db.session.add(timeline_entry)
     db.session.commit()
-    form_workflow = FormWorkflowManager(container_id=form_container.id)
+    # form_workflow = FormWorkflowManager(container_id=form_container.id)
     # form_workflow.stop_workflow()
-    return jsonify({"message": "Réponse soumise avec succès"}), 200
+    return jsonify({"message": "Response submitted successfully"}), 200
 
 
 @api.route('/form-containers', methods=['GET'])
@@ -153,14 +188,14 @@ def get_form_containers():
     admin_id = ADMIN_ID
 
     if not admin_id:
-        return jsonify({"error": "SuperAdmin non authentifié"}), 401
+        return jsonify({"error": "Admin not authenticated"}), 401
 
     filter_type = request.args.get('filter')
 
     if filter_type == 'status':
         status = request.args.get('status')
         if not status:
-            return jsonify({"error": "Le paramètre 'status' est requis"}), 400
+            return jsonify({"error": "Status param is required"}), 400
 
         form_containers = FormContainer.query.join(Form).filter(Form.status == status).all()
         result = [
@@ -176,7 +211,7 @@ def get_form_containers():
             for fc in form_containers
         ]
     else:
-        return jsonify({"error": "Type de requête non valide"}), 400
+        return jsonify({"error": "Is not a valid status"}), 400
 
     return jsonify(result), 200
 
@@ -229,14 +264,14 @@ def validate_form_container(container_id, form_id):
     admin_id = ADMIN_ID
     form_container = FormContainer.query.get_or_404(container_id)
     if not form_container:
-        return jsonify({"error": "Form Container introuvable"}), 404
+        return jsonify({"error": "Form Container not found"}), 404
 
     if form_container.validated:
         return jsonify({"error": "Form container already validated"}), 401
 
     form = Form.query.filter_by(id=form_id, form_container_id=form_container.id).first()
     if not form:
-        return jsonify({"error": "Formulaire introuvable"}), 404
+        return jsonify({"error": "Form not found"}), 404
 
     form_container.validated = True
     form.status = 'validated'
@@ -251,7 +286,7 @@ def validate_form_container(container_id, form_id):
 
     db.session.commit()
 
-    return jsonify({"message": "Formulaire validé avec succès."}), 200
+    return jsonify({"message": "Form successfully validated."}), 200
 
 
 @api.route('/form-containers/<string:form_container_id>/timeline', methods=['GET'])
@@ -270,6 +305,7 @@ def get_form_container_timeline(form_container_id):
         for te in timeline_entry
     ]
     return jsonify(interaction_timeline), 200
+
 
 @api.route('/validate-token/<token>', methods=['GET'])
 def validate_token(token):

@@ -139,3 +139,23 @@ input:focus, textarea:focus, .p-dropdown:focus, .p-inputnumber:focus {
 .p-chips {
     display: block;
 }
+
+.error-chips .p-chips-token {
+  color: red;
+}
+
+.error-chips .p-inputtext {
+  border-color: red !important;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.enter-button {
+  width: 100%;
+  max-width: 150px;
+  margin-top: 1rem;
+}
