@@ -140,19 +140,13 @@ input:focus, textarea:focus, .p-dropdown:focus, .p-inputnumber:focus {
     display: block;
 }
 
-.error-chips .p-chips-token {
-  color: red;
-  background-color: #f8d7da;
-}
-
 .error-chips .p-inputtext {
   border-color: red !important;
 }
 
-.error-message {
-  color: red;
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
+.error-chips .p-chips-token {
+  background-color: #f8d7da !important;
+  color: #721c24 !important;
 }
 
 .enter-button {

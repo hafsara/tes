@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 })
 export class AccessControlComponent {
   tokens: string[] = [];
+  isTokenInvalid: boolean = false;
   invalidTokens: Set<string> = new Set();
 
   constructor(
@@ -38,14 +39,15 @@ export class AccessControlComponent {
       next: (isValid) => {
         if (isValid) {
           this.invalidTokens.delete(token);
-          this.tokens.push(token);
           this.tokenService.storeTokens(this.tokens);
         } else {
+          this.isTokenInvalid = true;
           this.invalidTokens.add(token);
           this.messageService.add({ severity: 'error', summary: 'Invalid Token', detail: `Token ${token} is invalid.` });
         }
       },
       error: () => {
+        this.isTokenInvalid = true;
         this.invalidTokens.add(token);
         this.messageService.add({ severity: 'error', summary: 'Error', detail: `Failed to validate token ${token}.` });
       }

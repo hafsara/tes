@@ -3,7 +3,7 @@
   <p-card class="access-card">
     <h2>Enter Applications ID</h2>
     <div class="m-0">
-      <div [ngClass]="{'error-chips': invalidTokens.size > 0}">
+      <div [ngClass]="{'error-chips': isTokenInvalid }">
         <p-chips [(ngModel)]="tokens" placeholder="Enter tokens" (onAdd)="onTokenAdd($event)"
                  (onRemove)="onTokenRemove($event)"></p-chips>
       </div>
