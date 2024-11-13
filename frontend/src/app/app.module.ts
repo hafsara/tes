@@ -37,6 +37,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { MenubarModule } from 'primeng/menubar';
 
 import { UserViewComponent } from './components/user-view/user-view.component';
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
@@ -47,6 +48,8 @@ import { FormContainerPreviewComponent } from './components/form-container-previ
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { PreviewFormResponseComponent } from './components/form-response-preview/form-response-preview.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { AccessControlComponent } from './components/access-control/access-control.component';
 
 @NgModule({
   declarations: [
@@ -59,7 +62,9 @@ import { PreviewFormResponseComponent } from './components/form-response-preview
     FormContainerPreviewComponent,
     TimelineComponent,
     PageNotFoundComponent,
-    PreviewFormResponseComponent
+    PreviewFormResponseComponent,
+    NavbarComponent,
+    AccessControlComponent
   ],
   imports: [
     BrowserModule,
@@ -76,6 +81,7 @@ import { PreviewFormResponseComponent } from './components/form-response-preview
     // PrimeNG Modules
     StepsModule,
     ToastModule,
+    MenubarModule,
     DialogModule,
     InputNumberModule,
     CalendarModule,

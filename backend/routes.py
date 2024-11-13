@@ -19,7 +19,7 @@ def create_form_container():
         title=data['title'],
         description=data['description'],
         user_email=data['user_email'],
-        manager_email=data['manager_email'],
+        escalade_email=data['escalade_email'],
         reference=data.get('reference'),
         escalate=data.get('escalate', False),
         initiated_by=admin_id,
@@ -170,7 +170,7 @@ def get_form_containers():
                 "description": fc.description,
                 "created_at": fc.created_at,
                 "user_email": fc.user_email,
-                "manager_email": fc.manager_email,
+                "escalade_email": fc.escalade_email,
                 "reference": fc.reference,
             }
             for fc in form_containers
@@ -189,7 +189,7 @@ def get_form_container_by_access_token(access_token):
         "title": form_container.title,
         "description": form_container.description,
         "user_email": form_container.user_email,
-        "manager_email": form_container.manager_email,
+        "escalade_email": form_container.escalade_email,
         "reference": form_container.reference,
         "escalate": form_container.escalate,
         "validated": form_container.validated,

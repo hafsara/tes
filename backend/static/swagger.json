@@ -222,7 +222,7 @@
           "type": "string",
           "example": "user@example.com"
         },
-        "manager_email": {
+        "escalade_email": {
           "type": "string",
           "example": "manager@example.com"
         },
@@ -321,7 +321,7 @@
         "user_email": {
           "type": "string"
         },
-        "manager_email": {
+        "escalade_email": {
           "type": "string"
         },
         "reference": {

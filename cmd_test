@@ -1,6 +1,6 @@
 >>> from app import db
 >>> db.create_all()
-curl -X POST http://127.0.0.1:5000/form-containers -H "Content-Type: application/json" -d '{"title": "Sample Form", "user_id": 1, "manager_email": "manager@example.com"}'
+curl -X POST http://127.0.0.1:5000/form-containers -H "Content-Type: application/json" -d '{"title": "Sample Form", "user_id": 1, "escalade_email": "manager@example.com"}'
 curl -X GET http://127.0.0.1:5000/form-containers
 
 # update models

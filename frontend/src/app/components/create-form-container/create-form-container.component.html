@@ -5,6 +5,7 @@
     <p-stepperPanel header="Form Configuration">
       <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
         <div class="flex flex-column">
+
           <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
             <div class="centered-container">
               <p-floatLabel>
@@ -51,10 +52,10 @@
             <div *ngIf="formContainer.escalate" class="centered-container">
               <p-floatLabel>
                 <input pInputText id="managerMail" [(ngModel)]="formContainer.managerEmail"/>
-                <label for="managerMail">Manager Email</label>
+                <label for="managerMail">Escalade Email</label>
               </p-floatLabel>
               <small *ngIf="showErrors && (!formContainer.managerEmail || !emailPattern.test(formContainer.managerEmail || ''))"
-                     class="p-error">Invalid manager email</small>
+                     class="p-error">Invalid escalade email</small>
             </div>
 
             <div class="centered-container flex align-items-center">
@@ -94,7 +95,7 @@
         <div class="flex flex-column">
           <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
             <div class="mb-3">
-              <label class="font-bold">Titre:</label>
+              <label class="font-bold">Title:</label>
               <div>{{ formContainer.title }}</div>
             </div>
 
@@ -104,22 +105,22 @@
             </div>
 
             <div class="mb-3">
-              <label class="font-bold">Email de l'utilisateur:</label>
+              <label class="font-bold">User Email:</label>
               <div>{{ formContainer.userEmail }}</div>
             </div>
 
             <div class="mb-3">
-              <label class="font-bold">Référence:</label>
+              <label class="font-bold">Reference:</label>
               <div>{{ formContainer.reference || 'Not specified' }}</div>
             </div>
 
             <div class="mb-3">
               <label class="font-bold">Escalade:</label>
-              <div>{{ formContainer.escalate ? 'Oui' : 'Non' }}</div>
+              <div>{{ formContainer.escalate ? 'yes' : 'No' }}</div>
             </div>
 
             <div *ngIf="formContainer.escalate" class="mb-3">
-              <label class="font-bold">Email du Manager:</label>
+              <label class="font-bold">Escalade Email:</label>
               <div>{{ formContainer.managerEmail }}</div>
             </div>
 

@@ -34,7 +34,7 @@
      {
        "title": "Titre du Form Container",
        "user_id": 1,
-       "manager_email": "manager@example.com",
+       "escalade_email": "manager@example.com",
        "reference": "ticket123",
        "escalate": true
      }

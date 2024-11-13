@@ -3,7 +3,7 @@
     <div class="full-width-input mb-2">
       <p-floatLabel>
         <input pInputText [(ngModel)]="question.label" required/>
-        <label>Question sans titre</label>
+        <label>Untitled question</label>
       </p-floatLabel>
       <small *ngIf="showErrors && question.label.trim() === ''" class="p-error">Question text is required</small>
     </div>

@@ -57,7 +57,7 @@ def escalate_task(container_id):
     if latest_form and latest_form.status == 'open':
         # Send escalation email to the manager
         send_email(
-            to=form_container.manager_email,
+            to=form_container.escalade_email,
             subject="Escalation: User has not responded to the form",
             body=f"The user has not responded to the form {form_container.title}."
         )
@@ -65,7 +65,7 @@ def escalate_task(container_id):
             form_container_id=container_id,
             event="Escalation sent",
             timestamp=datetime.utcnow(),
-            details=f"Escalation sent to manager {form_container.manager_email}"
+            details=f"Escalation sent to manager {form_container.escalade_email}"
         )
         db.session.add(timeline_entry)
         form_container.escalated = True

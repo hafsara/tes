@@ -95,7 +95,7 @@ export class CreateFormContainerComponent {
       title: this.formContainer.title,
       description: this.formContainer.description,
       user_email: this.formContainer.userEmail,
-      manager_email: this.formContainer.managerEmail,
+      escalade_email: this.formContainer.managerEmail,
       reference: this.formContainer.reference,
       escalate: this.formContainer.escalate,
       reminder_delay_day: this.formContainer.reminderDelayDay,

@@ -17,7 +17,7 @@ export class FormContainerPreviewComponent implements OnInit {
   newForm: Form = createForm();
   currentForm: any;
   historyForms: any[] = [];
-  sidebarVisible: boolean = true;
+  sidebarVisible: boolean = false;
 
   constructor(
     private formService: FormService,
