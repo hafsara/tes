@@ -51,4 +51,9 @@ export class TokenService {
     }
     return false;
   }
+
+  logout(): void {
+    this.clearTokens();
+    window.location.href = '/access-control';
+  }
 }
