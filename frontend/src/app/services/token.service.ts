@@ -1,26 +1,37 @@
-// token.service.ts
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class TokenService {
-  private storageKey = 'appTokens';
+  private readonly tokenKey = 'appTokens';
+
+  private isBrowser(): boolean {
+    return typeof window !== 'undefined' && !!window.sessionStorage;
+  }
 
   storeTokens(tokens: string[]): void {
-    sessionStorage.setItem(this.storageKey, JSON.stringify(tokens));
+    if (this.isBrowser()) {
+      sessionStorage.setItem(this.tokenKey, JSON.stringify(tokens));
+    }
   }
 
   retrieveTokens(): string[] {
-    const tokens = sessionStorage.getItem(this.storageKey);
-    return tokens ? JSON.parse(tokens) : [];
-  }
-
-  clearTokens(): void {
-    sessionStorage.removeItem(this.storageKey);
+    if (this.isBrowser()) {
+      const tokens = sessionStorage.getItem(this.tokenKey);
+      return tokens ? JSON.parse(tokens) : [];
+    }
+    return [];
   }
 
   hasValidTokens(): boolean {
-    return this.retrieveTokens().length > 0;
+    const tokens = this.retrieveTokens();
+    return tokens.length > 0;
+  }
+
+  clearTokens(): void {
+    if (this.isBrowser()) {
+      sessionStorage.removeItem(this.tokenKey);
+    }
   }
 }
