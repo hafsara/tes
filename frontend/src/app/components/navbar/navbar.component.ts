@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { TokenService } from '../../services/token.service';
 import { Subscription } from 'rxjs';
 
@@ -8,10 +8,11 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent implements OnInit, OnDestroy {
+  @Output() appOptionsLoaded = new EventEmitter<{ name: string; token: string }[]>();
   appOptions: { name: string; token: string }[] = [];
   selectedApps: string[] = [];
-  private tokenSubscription!: Subscription;
 
+  private tokenSubscription!: Subscription;
   constructor(private tokenService: TokenService) {}
 
   ngOnInit(): void {
@@ -31,6 +32,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
       }));
       this.selectedApps = updatedAppData.map(app => app.token).filter(token => token !== null) as string[];
     });
+
+    this.appOptionsLoaded.emit(this.appOptions);
   }
 
   ngOnDestroy(): void {
@@ -41,5 +44,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   logout() {
     this.tokenService.logout();
+  }
+
+  onAppSelectionChange(event: any) {
+    this.selectedApps = event.value;
   }
 }

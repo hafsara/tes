@@ -8,6 +8,7 @@
       display="chip"
       [defaultLabel]="'Select Applications'"
       [filter]="false"
+      (onChange)="onAppSelectionChange($event)"
     ></p-multiSelect>
   </div>
   <button class="logout-button" (click)="logout()">Logout</button>

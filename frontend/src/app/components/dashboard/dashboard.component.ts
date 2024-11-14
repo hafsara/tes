@@ -21,7 +21,7 @@ export class DashboardComponent implements OnInit {
   filterDates: Date[] = [];
   minDate: Date = new Date(new Date().setFullYear(new Date().getFullYear() - 1));
   maxDate: Date = new Date();
-
+  appOptions: { name: string; token: string }[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -49,6 +49,10 @@ export class DashboardComponent implements OnInit {
         this.loadForms(this.status);
       }
     });
+  }
+
+  onAppOptionsLoaded(options: { name: string; token: string }[]) {
+    this.appOptions = options;
   }
 
   onMenuItemClick(status: string) {

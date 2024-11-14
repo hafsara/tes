@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormService } from '../../services/form.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { FormContainer, Form, Question } from '../../utils/question-formatter';
@@ -8,7 +8,8 @@ import { FormContainer, Form, Question } from '../../utils/question-formatter';
   templateUrl: './create-form-container.component.html',
   styleUrls: ['./create-form-container.component.scss']
 })
-export class CreateFormContainerComponent implements OnInit{
+export class CreateFormContainerComponent {
+  @Input() appOptions: { name: string; token: string }[] = [];
   currentStep: number = 0;
   showErrors = false;
   formContainer: FormContainer = {
@@ -30,9 +31,7 @@ export class CreateFormContainerComponent implements OnInit{
         isRequired: true}]
       }]
   };
-
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  appOptions: { name: string; token: string }[] = [];
   campaignOptions: { name: string, id: string }[] = [];
 
   constructor(
@@ -40,17 +39,6 @@ export class CreateFormContainerComponent implements OnInit{
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
   ) {}
-
-  ngOnInit(): void {
-    this.loadAppOptions();
-  }
-
-  loadAppOptions() {
-    this.appOptions = [
-      { name: 'App 1', token: 'app1' },
-      { name: 'App 2', token: 'app2' }
-    ];
-  }
 
   onAppChange(event: any) {
     this.loadCampaignOptions(event.value);

@@ -1,4 +1,3 @@
-// form-preview.component.ts
 import { Component, Input, OnInit } from '@angular/core';
 import { Question, formatQuestions } from '../../utils/question-formatter';
 

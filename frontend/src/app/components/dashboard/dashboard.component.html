@@ -1,4 +1,4 @@
-<app-navbar></app-navbar>
+<app-navbar (appOptionsLoaded)="onAppOptionsLoaded($event)"></app-navbar>
 <div class="dashboard">
   <div class="sidebar">
     <aside>
@@ -90,7 +90,7 @@
 
     <div *ngSwitchCase="'createForm'">
       <p-button icon="pi pi-chevron-left" (click)="switchTo('table')"/>
-      <app-create-form-container></app-create-form-container>
+      <app-create-form-container  [appOptions]="appOptions"></app-create-form-container>
     </div>
 
     <div *ngSwitchCase="'loading'">
