@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request, session
 from models import db, FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign
-from datetime import datetime
+from datetime import datetime, timedelta
 from tasks import run_delayed_workflow, send_initial_notification_task
-
+import jwt
 api = Blueprint('api', __name__)
 ADMIN_ID = 'd76476'  # todo enlever cette ligne et la remplacer par ADMIN_ID
 
@@ -309,5 +309,16 @@ def get_form_container_timeline(form_container_id):
 
 @api.route('/validate-token/<token>', methods=['GET'])
 def validate_token(token):
-    is_valid = Application.query.filter_by(id=token).first() is not None
-    return jsonify(is_valid)
+    application = Application.query.filter_by(id=token).first()
+    if application:
+        return jsonify({"is_valid": True, "token": generate_token(application)})
+    return jsonify({"is_valid": False, "token": None})
+
+
+def generate_token(application):
+    payload = {
+        'application_name': application.name,
+        'app_id': application.id,
+    }
+    token = jwt.encode(payload, 'your_secret_key', algorithm='HS256') # todo
+    return token

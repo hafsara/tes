@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TokenService {
-  private readonly tokenKey = 'appTokens';
+  private readonly tokenKey = 'appTokensNew';
   private tokenSubject = new BehaviorSubject<string[]>(this.retrieveTokens());
   tokenUpdates = this.tokenSubject.asObservable();
 
@@ -22,7 +23,6 @@ export class TokenService {
     }
   }
 
-
   retrieveTokens(): string[] {
     if (this.isBrowser()) {
       const storedData = localStorage.getItem(this.tokenKey);
@@ -38,17 +38,32 @@ export class TokenService {
     return [];
   }
 
+  getAppNames(): (string | null)[] {
+    const tokens = this.retrieveTokens();
+    const appNames: (string | null)[] = [];
+
+    tokens.forEach(token => {
+      try {
+        const decoded: { application_name: string } = jwtDecode(token);
+        appNames.push(decoded.application_name);
+      } catch (error) {
+        appNames.push(null);
+      }
+    });
+
+    return appNames;
+  }
+
+  hasValidTokens(): boolean {
+    const tokens = this.retrieveTokens();
+    return tokens.length > 0 ;
+  }
 
   clearTokens(): void {
     if (this.isBrowser()) {
       localStorage.removeItem(this.tokenKey);
       this.tokenSubject.next([]);
     }
-  }
-
-  hasValidTokens(): boolean {
-    const tokens = this.retrieveTokens();
-    return tokens.length > 0;
   }
 
   startSessionTimer(durationInMinutes: number) {

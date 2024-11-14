@@ -17,3 +17,6 @@ npm install primeflex --save
 npm install -g @angular/cli
 npm install -g npm
 @angular-devkit/build-angular
+
+npm install jwt-decode
+npm install --save-dev @types/jwt-decode
