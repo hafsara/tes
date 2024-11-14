@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormService } from '../../services/form.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { FormContainer, Form, Question } from '../../utils/question-formatter';
@@ -8,16 +8,19 @@ import { FormContainer, Form, Question } from '../../utils/question-formatter';
   templateUrl: './create-form-container.component.html',
   styleUrls: ['./create-form-container.component.scss']
 })
-export class CreateFormContainerComponent {
+export class CreateFormContainerComponent implements OnInit{
   currentStep: number = 0;
   showErrors = false;
   formContainer: FormContainer = {
+    app_id: '',
+    campaign_id: '',
     title: '',
     description: '',
     userEmail: '',
     reference: '',
     managerEmail: '',
     escalate: true,
+    ccEmail: [],
     reminderDelayDay: 1,
     forms: [{
       questions: [{
@@ -29,13 +32,36 @@ export class CreateFormContainerComponent {
   };
 
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  appOptions: { label: string; value: string }[] = [];
+  companyOptions: { name: string }[] = [];
+  selectedApp: string | null = null;
+  selectedCompany: string | null = null;
 
   constructor(
     private formService: FormService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
   ) {}
+  ngOnInit(): void {
+    this.loadAppOptions();
+  }
 
+  loadAppOptions() {
+    this.appOptions = [
+      { label: 'App 1', value: 'app1' },
+      { label: 'App 2', value: 'app2' }
+    ];
+  }
+
+  onAppChange(event: any) {
+    this.loadCompanyOptions(event.value);
+  }
+
+  loadCompanyOptions(appId: string) {
+      this.companyOptions = [{name: "com1"}, {name: "com2"}];
+      this.selectedCompany = this.companyOptions.length > 0 ? this.companyOptions[0].name : null;
+
+  }
   validateCurrentStep(): boolean {
     if (this.currentStep === 0) {
       const isEmailValid = this.emailPattern.test(this.formContainer.userEmail || '');

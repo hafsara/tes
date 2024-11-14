@@ -5,8 +5,30 @@
     <p-stepperPanel header="Form Configuration">
       <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
         <div class="flex flex-column">
-
           <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
+            <div class="centered-container flex align-items-center">
+              <div class="full-width-input mr-2">
+                <p-dropdown
+                  [options]="appOptions"
+                  [(ngModel)]="selectedApp"
+                  optionLabel="label"
+                  placeholder="Select Application"
+                  (onChange)="onAppChange($event)"
+                ></p-dropdown>
+              </div>
+
+              <!-- Company Name Dropdown (green box) -->
+              <div class="full-width-input">
+                <p-dropdown
+                  [options]="companyOptions"
+                  [(ngModel)]="selectedCompany"
+                  optionLabel="name"
+                  placeholder="Select Company"
+                  [disabled]="!selectedApp"
+                ></p-dropdown>
+              </div>
+            </div>
+
             <div class="centered-container">
               <p-floatLabel>
                 <input pInputText id="title" [(ngModel)]="formContainer.title"/>
@@ -30,7 +52,8 @@
                 <input pInputText id="userMail" [(ngModel)]="formContainer.userEmail"/>
                 <label for="userMail">User Email</label>
               </p-floatLabel>
-              <small *ngIf="showErrors && !emailPattern.test(formContainer.userEmail || '')" class="p-error">Invalid email
+              <small *ngIf="showErrors && !emailPattern.test(formContainer.userEmail || '')" class="p-error">Invalid
+                email
                 format</small>
             </div>
 
@@ -54,13 +77,32 @@
                 <input pInputText id="managerMail" [(ngModel)]="formContainer.managerEmail"/>
                 <label for="managerMail">Escalade Email</label>
               </p-floatLabel>
-              <small *ngIf="showErrors && (!formContainer.managerEmail || !emailPattern.test(formContainer.managerEmail || ''))"
-                     class="p-error">Invalid escalade email</small>
+              <small
+                *ngIf="showErrors && (!formContainer.managerEmail || !emailPattern.test(formContainer.managerEmail || ''))"
+                class="p-error">Invalid escalade email</small>
+            </div>
+
+            <div class="centered-container ">
+              <p-floatLabel>
+
+                <p-chips id="ccMail" [(ngModel)]="formContainer.ccEmail">
+                  <ng-template let-item pTemplate="item">
+                    {{ item }} <i class="pi pi-at ml-2"></i>
+                  </ng-template>
+                  <small *ngIf="showErrors"
+                         class="p-error">Invalid CC emails</small>
+
+                </p-chips>
+                <label for="ccEmail">Carbon Copy Emails</label>
+              </p-floatLabel>
+
+
             </div>
 
             <div class="centered-container flex align-items-center">
               <label for="reminder" class="full-width-input mr-2">Configure reminder delay day</label>
-              <p-inputNumber [(ngModel)]="formContainer.reminderDelayDay" [step]="1" [showButtons]="true" inputId="reminder"
+              <p-inputNumber [(ngModel)]="formContainer.reminderDelayDay" [step]="1" [showButtons]="true"
+                             inputId="reminder"
                              [min]="2" [max]="10" class="small-input-number"></p-inputNumber>
             </div>
           </div>
