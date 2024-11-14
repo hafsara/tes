@@ -9,19 +9,21 @@ import { Subscription } from 'rxjs';
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   tokens: string[] = [];
-  private tokensSubscription: Subscription = new Subscription();
+  private tokenSubscription!: Subscription;
 
   constructor(private tokenService: TokenService) {}
 
   ngOnInit(): void {
-    this.tokensSubscription = this.tokenService.tokens$.subscribe(
-      (tokens) => {
-        this.tokens = tokens;
-      }
-    );
+    this.tokenSubscription = this.tokenService.tokenUpdates.subscribe((tokens: string[]) => {
+      this.tokens = tokens;
+    });
   }
 
   ngOnDestroy(): void {
-    this.tokensSubscription.unsubscribe();
+    this.tokenSubscription.unsubscribe();
+  }
+
+  logout() {
+    this.tokenService.logout();
   }
 }

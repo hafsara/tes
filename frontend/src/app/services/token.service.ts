@@ -6,50 +6,56 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class TokenService {
   private readonly tokenKey = 'appTokens';
-  private readonly expirationKey = 'tokenExpiration';
-  private tokensSubject = new BehaviorSubject<string[]>(this.retrieveTokens());
-  tokens$ = this.tokensSubject.asObservable();
+  private tokenSubject = new BehaviorSubject<string[]>(this.retrieveTokens());
+  tokenUpdates = this.tokenSubject.asObservable();
 
   private isBrowser(): boolean {
-    return typeof window !== 'undefined' && !!window.sessionStorage;
+    return typeof window !== 'undefined' && !!window.localStorage;
   }
 
-  storeTokens(tokens: string[], durationInMinutes: number): void {
+  storeTokens(tokens: string[], expirationMinutes: number = 60): void {
     if (this.isBrowser()) {
-      sessionStorage.setItem(this.tokenKey, JSON.stringify(tokens));
-      const expirationTime = new Date().getTime() + durationInMinutes * 60 * 1000;
-      localStorage.setItem(this.expirationKey, expirationTime.toString());
+      const expirationDate = new Date().getTime() + expirationMinutes * 60 * 1000;
+      const data = { tokens, expirationDate };
+      localStorage.setItem(this.tokenKey, JSON.stringify(data));
+      this.tokenSubject.next(tokens);
     }
   }
+
 
   retrieveTokens(): string[] {
-    if (this.isBrowser() && this.isSessionValid()) {
-      return JSON.parse(sessionStorage.getItem(this.tokenKey) || '[]');
+    if (this.isBrowser()) {
+      const storedData = localStorage.getItem(this.tokenKey);
+      if (storedData) {
+        const { tokens, expirationDate } = JSON.parse(storedData);
+        if (new Date().getTime() > expirationDate) {
+          this.clearTokens();
+          return [];
+        }
+        return tokens;
+      }
     }
-    this.clearTokens();
     return [];
   }
 
-  hasValidTokens(): boolean {
-    return this.retrieveTokens().length > 0;
-  }
 
   clearTokens(): void {
     if (this.isBrowser()) {
-      sessionStorage.removeItem(this.tokenKey);
-      localStorage.removeItem(this.expirationKey);
+      localStorage.removeItem(this.tokenKey);
+      this.tokenSubject.next([]);
     }
   }
 
-  private isSessionValid(): boolean {
-    const expirationTime = localStorage.getItem(this.expirationKey);
-    if (expirationTime) {
-      const now = new Date().getTime();
-      if (now < parseInt(expirationTime, 10)) {
-        return true;
-      }
-    }
-    return false;
+  hasValidTokens(): boolean {
+    const tokens = this.retrieveTokens();
+    return tokens.length > 0;
+  }
+
+  startSessionTimer(durationInMinutes: number) {
+    setTimeout(() => {
+      this.clearTokens();
+      window.location.href = '/access-control';
+    }, durationInMinutes * 60 * 1000);
   }
 
   logout(): void {

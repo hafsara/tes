@@ -1,4 +1,10 @@
-<div class="navbar">
-  <span *ngIf="tokens.length > 0">App Tokens:</span>
-  <div *ngFor="let token of tokens" class="token-badge">{{ token }}</div>
-</div>
+<nav>
+  <ul>
+    <li *ngFor="let token of tokens" class="token-item">
+      <span>{{ token }}</span>
+    </li>
+    <li>
+      <button (click)="logout()">Logout</button>
+    </li>
+  </ul>
+</nav>
