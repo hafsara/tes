@@ -16,14 +16,14 @@ export interface Form {
 
 export interface FormContainer {
   access_token?: string;
-  app_id: string;
-  campaign_id: string;
+  appId: string;
+  campaignId: string;
   title: string;
   description: string;
   userEmail: string;
   reference?: string;
   managerEmail?: string;
-  ccEmail?: string[];
+  ccEmails?: string[];
   escalate: boolean;
   reminderDelayDay: number;
   forms: Form[];

@@ -12,15 +12,15 @@ export class CreateFormContainerComponent implements OnInit{
   currentStep: number = 0;
   showErrors = false;
   formContainer: FormContainer = {
-    app_id: '',
-    campaign_id: '',
+    appId: '',
+    campaignId: '',
     title: '',
     description: '',
     userEmail: '',
     reference: '',
     managerEmail: '',
     escalate: true,
-    ccEmail: [],
+    ccEmails: [],
     reminderDelayDay: 1,
     forms: [{
       questions: [{
@@ -32,46 +32,46 @@ export class CreateFormContainerComponent implements OnInit{
   };
 
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  appOptions: { label: string; value: string }[] = [];
-  companyOptions: { name: string }[] = [];
-  selectedApp: string | null = null;
-  selectedCompany: string | null = null;
+  appOptions: { name: string; token: string }[] = [];
+  campaignOptions: { name: string, id: string }[] = [];
 
   constructor(
     private formService: FormService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
   ) {}
+
   ngOnInit(): void {
     this.loadAppOptions();
   }
 
   loadAppOptions() {
     this.appOptions = [
-      { label: 'App 1', value: 'app1' },
-      { label: 'App 2', value: 'app2' }
+      { name: 'App 1', token: 'app1' },
+      { name: 'App 2', token: 'app2' }
     ];
   }
 
   onAppChange(event: any) {
-    this.loadCompanyOptions(event.value);
+    this.loadCampaignOptions(event.value);
   }
 
-  loadCompanyOptions(appId: string) {
-      this.companyOptions = [{name: "com1"}, {name: "com2"}];
-      this.selectedCompany = this.companyOptions.length > 0 ? this.companyOptions[0].name : null;
-
+  loadCampaignOptions(appId: string) {
+      this.campaignOptions = [{name: "com1", id: 'id1'}, {name: "com2", id: 'id2'}];
   }
   validateCurrentStep(): boolean {
     if (this.currentStep === 0) {
       const isEmailValid = this.emailPattern.test(this.formContainer.userEmail || '');
-      const isManagerEmailValid = !this.formContainer.escalate || (this.formContainer.managerEmail ? this.emailPattern.test(this.formContainer.managerEmail) : false)
-
+      const isManagerEmailValid = !this.formContainer.escalate || (this.formContainer.managerEmail ? this.emailPattern.test(this.formContainer.managerEmail) : false);
+      const isCcEmailValid = true;
       return (
+        this.formContainer.appId.trim() !== '' &&
+        this.formContainer.campaignId.trim() !== '' &&
         this.formContainer.title.trim() !== '' &&
         this.formContainer.description.trim() !== '' &&
         isEmailValid &&
-        isManagerEmailValid
+        isManagerEmailValid &&
+        isCcEmailValid
       );
     } else if (this.currentStep === 1) {
       return this.formContainer.forms[0].questions.every(question => {
@@ -119,6 +119,8 @@ export class CreateFormContainerComponent implements OnInit{
   submitForm() {
     const payload = {
       title: this.formContainer.title,
+      app_id: this.formContainer.appId,
+      campaign_id: this.formContainer.campaignId,
       description: this.formContainer.description,
       user_email: this.formContainer.userEmail,
       escalade_email: this.formContainer.managerEmail,

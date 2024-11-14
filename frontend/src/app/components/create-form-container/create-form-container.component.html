@@ -10,22 +10,25 @@
               <div class="full-width-input mr-2">
                 <p-dropdown
                   [options]="appOptions"
-                  [(ngModel)]="selectedApp"
-                  optionLabel="label"
+                  [(ngModel)]="formContainer.appId"
+                  optionLabel="name"
                   placeholder="Select Application"
                   (onChange)="onAppChange($event)"
                 ></p-dropdown>
+                <small *ngIf="showErrors && !formContainer.appId" class="p-error">Application is required</small>
               </div>
 
-              <!-- Company Name Dropdown (green box) -->
               <div class="full-width-input">
                 <p-dropdown
-                  [options]="companyOptions"
-                  [(ngModel)]="selectedCompany"
+                  [options]="campaignOptions"
+                  [(ngModel)]="formContainer.campaignId"
                   optionLabel="name"
-                  placeholder="Select Company"
-                  [disabled]="!selectedApp"
-                ></p-dropdown>
+                  [filter]="true"
+                  filterBy="name"
+                  [showClear]="true"
+                  placeholder="Select Campaign">
+                </p-dropdown>
+                <small *ngIf="showErrors && !formContainer.campaignId" class="p-error">Campaign is required</small>
               </div>
             </div>
 
@@ -84,19 +87,15 @@
 
             <div class="centered-container ">
               <p-floatLabel>
-
-                <p-chips id="ccMail" [(ngModel)]="formContainer.ccEmail">
+                <p-chips id="ccEmails" [(ngModel)]="formContainer.ccEmails">
                   <ng-template let-item pTemplate="item">
                     {{ item }} <i class="pi pi-at ml-2"></i>
                   </ng-template>
                   <small *ngIf="showErrors"
                          class="p-error">Invalid CC emails</small>
-
                 </p-chips>
-                <label for="ccEmail">Carbon Copy Emails</label>
+                <label for="ccEmails">Carbon Copy Emails</label>
               </p-floatLabel>
-
-
             </div>
 
             <div class="centered-container flex align-items-center">
