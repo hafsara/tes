@@ -8,17 +8,27 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent implements OnInit, OnDestroy {
-  appNames: (string | null)[] = [];
+  appOptions: { label: string; value: string }[] = []; // Options for p-multiSelect
+  selectedApps: string[] = []; // Selected application names
   private tokenSubscription!: Subscription;
 
   constructor(private tokenService: TokenService) {}
 
   ngOnInit(): void {
-    this.appNames = this.tokenService.getAppNames();
+    const appNames = this.tokenService.getAppNames();
+    this.appOptions = appNames.map(appName => ({ label: appName || 'Unknown', value: appName || '' }));
+
+    this.selectedApps = appNames.filter(name => name !== null) as string[];
 
     this.tokenSubscription = this.tokenService.tokenUpdates.subscribe(() => {
-      this.appNames = this.tokenService.getAppNames();
+      const updatedAppNames = this.tokenService.getAppNames();
+      this.appOptions = updatedAppNames.map(appName => ({ label: appName || 'Unknown', value: appName || '' }));
+      this.selectedApps = updatedAppNames.filter(name => name !== null) as string[];
     });
+  }
+
+  onAppSelectionChange(): void {
+    console.log('Selected applications:', this.selectedApps);
   }
 
   ngOnDestroy(): void {

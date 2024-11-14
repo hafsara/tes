@@ -1,6 +1,14 @@
-<nav>
-  <div *ngFor="let name of appNames">
-    <span *ngIf="name">{{ name }}</span> <!-- Display each application name if it exists -->
+<nav class="navbar">
+  <div class="app-selector">
+    <p-multiSelect
+      [options]="appOptions"
+      [(ngModel)]="selectedApps"
+      optionLabel="label"
+      optionValue="value"
+      [defaultLabel]="'Select Applications'"
+      [filter]="false"
+      (onChange)="onAppSelectionChange()"
+    ></p-multiSelect>
   </div>
-  <button (click)="logout()">Logout</button>
+  <button class="logout-button" (click)="logout()">Logout</button>
 </nav>
