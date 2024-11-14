@@ -13,16 +13,26 @@ export class NavbarComponent implements OnInit, OnDestroy {
   selectedApps: string[] = [];
 
   private tokenSubscription!: Subscription;
+  private readonly localStorageKey = 'selectedApps';
+
   constructor(private tokenService: TokenService) {}
 
   ngOnInit(): void {
+    const savedSelection = localStorage.getItem(this.localStorageKey);
+    if (savedSelection) {
+      this.selectedApps = JSON.parse(savedSelection);
+    }
+
     const appData = this.tokenService.getAppNames();
     this.appOptions = appData.map(app => ({
       name: app.name || 'Unknown',
       token: app.token || ''
     }));
 
-    this.selectedApps = appData.map(app => app.name).filter(name => name !== null) as string[];
+    if (!savedSelection) {
+      this.selectedApps = appData.map(app => app.token).filter(token => token !== null) as string[];
+      this.saveSelection();
+    }
 
     this.tokenSubscription = this.tokenService.tokenUpdates.subscribe(() => {
       const updatedAppData = this.tokenService.getAppNames();
@@ -30,7 +40,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
         name: app.name || 'Unknown',
         token: app.token || ''
       }));
-      this.selectedApps = updatedAppData.map(app => app.token).filter(token => token !== null) as string[];
+
+      if (!savedSelection) {
+        this.selectedApps = updatedAppData.map(app => app.token).filter(token => token !== null) as string[];
+        this.saveSelection();
+      }
     });
 
     this.appOptionsLoaded.emit(this.appOptions);
@@ -42,11 +56,17 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
   }
 
-  logout() {
-    this.tokenService.logout();
-  }
-
   onAppSelectionChange(event: any) {
     this.selectedApps = event.value;
+    this.saveSelection();
+  }
+
+  private saveSelection(): void {
+    localStorage.setItem(this.localStorageKey, JSON.stringify(this.selectedApps));
+  }
+
+  logout() {
+    this.tokenService.logout();
+    localStorage.removeItem(this.localStorageKey);
   }
 }

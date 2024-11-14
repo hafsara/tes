@@ -7,6 +7,7 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class TokenService {
   private readonly tokenKey = 'appTokens';
+  private readonly localStorageKey = 'selectedApps';
   private tokenSubject = new BehaviorSubject<string[]>(this.retrieveTokens());
   tokenUpdates = this.tokenSubject.asObservable();
 
@@ -68,6 +69,7 @@ export class TokenService {
   startSessionTimer(durationInMinutes: number) {
     setTimeout(() => {
       this.clearTokens();
+      localStorage.removeItem(this.localStorageKey);
       window.location.href = '/access-control';
     }, durationInMinutes * 60 * 1000);
   }
