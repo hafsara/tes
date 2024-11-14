@@ -3,12 +3,11 @@
     <p-multiSelect
       [options]="appOptions"
       [(ngModel)]="selectedApps"
-      optionLabel="label"
-      optionValue="value"
+      optionLabel="name"
+      optionValue="token"
       display="chip"
       [defaultLabel]="'Select Applications'"
       [filter]="false"
-      (onChange)="onAppSelectionChange()"
     ></p-multiSelect>
   </div>
   <button class="logout-button" (click)="logout()">Logout</button>

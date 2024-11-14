@@ -8,27 +8,29 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent implements OnInit, OnDestroy {
-  appOptions: { label: string; value: string }[] = []; // Options for p-multiSelect
-  selectedApps: string[] = []; // Selected application names
+  appOptions: { name: string; token: string }[] = [];
+  selectedApps: string[] = [];
   private tokenSubscription!: Subscription;
 
   constructor(private tokenService: TokenService) {}
 
   ngOnInit(): void {
-    const appNames = this.tokenService.getAppNames();
-    this.appOptions = appNames.map(appName => ({ label: appName || 'Unknown', value: appName || '' }));
+    const appData = this.tokenService.getAppNames();
+    this.appOptions = appData.map(app => ({
+      name: app.name || 'Unknown',
+      token: app.token || ''
+    }));
 
-    this.selectedApps = appNames.filter(name => name !== null) as string[];
+    this.selectedApps = appData.map(app => app.name).filter(name => name !== null) as string[];
 
     this.tokenSubscription = this.tokenService.tokenUpdates.subscribe(() => {
-      const updatedAppNames = this.tokenService.getAppNames();
-      this.appOptions = updatedAppNames.map(appName => ({ label: appName || 'Unknown', value: appName || '' }));
-      this.selectedApps = updatedAppNames.filter(name => name !== null) as string[];
+      const updatedAppData = this.tokenService.getAppNames();
+      this.appOptions = updatedAppData.map(app => ({
+        name: app.name || 'Unknown',
+        token: app.token || ''
+      }));
+      this.selectedApps = updatedAppData.map(app => app.token).filter(token => token !== null) as string[];
     });
-  }
-
-  onAppSelectionChange(): void {
-    console.log('Selected applications:', this.selectedApps);
   }
 
   ngOnDestroy(): void {

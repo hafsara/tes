@@ -123,7 +123,7 @@ loadForm(): void {
     this.validationErrors = [];
     this.validateResponses();
     if (this.validationErrors.length > 0) {
-        console.log("Validation failed:", this.validationErrors);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: `Validation failed: ${this.validationErrors}`});
     } else {
         this.confirmationService.confirm({
         target: event.target as EventTarget,

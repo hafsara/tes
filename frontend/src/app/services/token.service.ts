@@ -38,20 +38,19 @@ export class TokenService {
     return [];
   }
 
-  getAppNames(): (string | null)[] {
+  getAppNames(): { name: string | null; token: string }[] {
     const tokens = this.retrieveTokens();
-    const appNames: (string | null)[] = [];
+    const appData: { name: string | null; token: string }[] = [];
 
     tokens.forEach(token => {
       try {
         const decoded: { application_name: string } = jwtDecode(token);
-        appNames.push(decoded.application_name);
+        appData.push({ name: decoded.application_name || 'Unknown', token });
       } catch (error) {
-        appNames.push(null);
+        appData.push({ name: null, token });
       }
     });
-
-    return appNames;
+    return appData;
   }
 
   hasValidTokens(): boolean {
