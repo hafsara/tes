@@ -54,7 +54,11 @@ export class AccessControlComponent implements OnInit {
       next: (response) => {
         if (response.is_valid && response.token) {
           this.invalidTokens.delete(token);
-          this.validTokens.push(response.token);
+          if (!this.validTokens.includes(response.token)) {
+            this.validTokens.push(response.token);
+          } else {
+            this.messageService.add({ severity: 'warn', summary: 'Duplicate', detail: `Token ${token} is already exist.` });
+          }
         } else {
           this.isTokenInvalid = true;
           this.invalidTokens.add(token);
@@ -70,6 +74,7 @@ export class AccessControlComponent implements OnInit {
   }
 
   submitTokens(): void {
+    this.validTokens = [...new Set(this.validTokens)];
     if (this.invalidTokens.size > 0) {
       this.messageService.add({ severity: 'error', summary: 'Invalid Tokens', detail: 'Please correct the invalid tokens.' });
     } else if (this.validTokens.length === 0) {

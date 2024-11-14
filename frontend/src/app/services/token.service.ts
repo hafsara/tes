@@ -6,7 +6,7 @@ import { jwtDecode } from 'jwt-decode';
   providedIn: 'root'
 })
 export class TokenService {
-  private readonly tokenKey = 'appTokensNew';
+  private readonly tokenKey = 'appTokens';
   private tokenSubject = new BehaviorSubject<string[]>(this.retrieveTokens());
   tokenUpdates = this.tokenSubject.asObservable();
 

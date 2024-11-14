@@ -1,9 +1,14 @@
 .navbar {
   display: flex;
   justify-content: end;
-  background-color: #00796b;
+  background: var(--highlight-bg);
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  margin-bottom: 50px;
+  border-radius: 4px;
   padding: 10px;
-  margin-bottom: 15px;
+
 }
 
 .app-selector {
@@ -23,4 +28,15 @@
 
 .logout-button:hover {
   background-color: #c0392b;
+}
+
+
+
+.layout-topbar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: calc(100% - var(--scrollbar-width, 0px));
+    z-index: 1100;
+    transition: background-color .5s,border-color .5s;
 }

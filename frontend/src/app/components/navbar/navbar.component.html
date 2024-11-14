@@ -1,10 +1,11 @@
-<nav class="navbar">
+<nav class="navbar layout-topbar">
   <div class="app-selector">
     <p-multiSelect
       [options]="appOptions"
       [(ngModel)]="selectedApps"
       optionLabel="label"
       optionValue="value"
+      display="chip"
       [defaultLabel]="'Select Applications'"
       [filter]="false"
       (onChange)="onAppSelectionChange()"
