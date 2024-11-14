@@ -59,19 +59,23 @@ export class CreateFormContainerComponent implements OnInit{
   loadCampaignOptions(appId: string) {
       this.campaignOptions = [{name: "com1", id: 'id1'}, {name: "com2", id: 'id2'}];
   }
+
+  validateCcEmails(): boolean {
+    return (this.formContainer.ccEmails || []).every(email => this.emailPattern.test(email));
+  }
+
   validateCurrentStep(): boolean {
     if (this.currentStep === 0) {
       const isEmailValid = this.emailPattern.test(this.formContainer.userEmail || '');
-      const isManagerEmailValid = !this.formContainer.escalate || (this.formContainer.managerEmail ? this.emailPattern.test(this.formContainer.managerEmail) : false);
-      const isCcEmailValid = true;
+      const isManagerEmailValid = !this.formContainer.escalate || (this.formContainer.managerEmail ? this.emailPattern.test(this.formContainer.managerEmail) : false)
       return (
-        this.formContainer.appId.trim() !== '' &&
-        this.formContainer.campaignId.trim() !== '' &&
+        this.formContainer.appId !== null &&
+        this.formContainer.campaignId !== null &&
         this.formContainer.title.trim() !== '' &&
         this.formContainer.description.trim() !== '' &&
         isEmailValid &&
         isManagerEmailValid &&
-        isCcEmailValid
+        this.validateCcEmails()
       );
     } else if (this.currentStep === 1) {
       return this.formContainer.forms[0].questions.every(question => {

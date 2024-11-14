@@ -96,6 +96,8 @@
                 </p-chips>
                 <label for="ccEmails">Carbon Copy Emails</label>
               </p-floatLabel>
+                <small *ngIf="showErrors && !validateCcEmails()" class="p-error">Invalid CC emails</small>
+
             </div>
 
             <div class="centered-container flex align-items-center">
