@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { FormService } from '../../services/form.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { FormContainer, Form, Question } from '../../utils/question-formatter';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-create-form-container',
@@ -41,11 +42,21 @@ export class CreateFormContainerComponent {
   ) {}
 
   onAppChange(event: any) {
-    this.loadCampaignOptions(event.value);
+    const selectedAppName = event.value;
+    const decoded: { app_id: string } = jwtDecode(selectedAppName.token);
+    this.loadCampaignOptions(decoded.app_id);
+
   }
 
-  loadCampaignOptions(appId: string) {
-      this.campaignOptions = [{name: "com1", id: 'id1'}, {name: "com2", id: 'id2'}];
+  loadCampaignOptions(appId: string): void {
+    this.formService.loadCampaignOptions(appId).subscribe(
+      (campaigns) => {
+        this.campaignOptions = campaigns;
+      },
+      (error) => {
+        console.error('Failed to load campaigns:', error);
+      }
+    );
   }
 
   validateCcEmails(): boolean {

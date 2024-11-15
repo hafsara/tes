@@ -44,13 +44,20 @@ export class FormService {
     const url = `${this.apiUrl}/${formContainerId}/forms/${formId}/validate`;
     return this.http.post(url, {});
   }
+
   addFormToContainer(containerId: number, formData: any): Observable<any> {
     console.log(containerId, formData)
     const url = `${this.apiUrl}/${containerId}/forms`;
     return this.http.post(url, formData);
   }
+
   validateToken(token: string): Observable<{ is_valid: boolean; token: string | null }> {
     const url = `${environment.apiUrl}/validate-token/${token}`;
     return this.http.get<{ is_valid: boolean; token: string | null }>(url);
+  }
+
+  loadCampaignOptions(appId: string): Observable<any> {
+    const url = `${environment.apiUrl}/campaigns/${appId}`;
+    return this.http.get<any[]>(url);
   }
 }

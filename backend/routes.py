@@ -3,6 +3,7 @@ from models import db, FormContainer, Form, Question, TimelineEntry, Response, A
 from datetime import datetime, timedelta
 from tasks import run_delayed_workflow, send_initial_notification_task
 import jwt
+
 api = Blueprint('api', __name__)
 ADMIN_ID = 'd76476'  # todo enlever cette ligne et la remplacer par ADMIN_ID
 
@@ -311,8 +312,18 @@ def get_form_container_timeline(form_container_id):
 def validate_token(token):
     application = Application.query.filter_by(id=token).first()
     if application:
-        return jsonify({"is_valid": True, "token": generate_token(application)})
-    return jsonify({"is_valid": False, "token": None})
+        return jsonify({"is_valid": True, "token": generate_token(application)}), 200
+    return jsonify({"is_valid": False, "token": None}), 401
+
+
+@api.route('/campaigns/<string:app_id>', methods=['GET'])
+def get_campaigns(app_id):
+    campaigns = Campaign.query.filter_by(app_id=app_id).all()
+    campaign_data = [{"name": campaign.name, "id": campaign.id} for campaign in campaigns]
+    if campaign_data:
+        return jsonify(campaign_data), 200
+
+    return jsonify({"error": "Failed to fetch campaigns"}), 404
 
 
 def generate_token(application):
@@ -320,5 +331,6 @@ def generate_token(application):
         'application_name': application.name,
         'app_id': application.id,
     }
-    token = jwt.encode(payload, 'your_secret_key', algorithm='HS256') # todo
+    # todo
+    token = jwt.encode(payload, 'your_secret_key', algorithm='HS256')
     return token
