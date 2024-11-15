@@ -115,7 +115,6 @@ checkAndLoadForms() {
         this.loading = false;
       },
       (error) => {
-        console.error('Erreur lors du chargement des détails du formulaire:', error);
         this.loading = false;
       }
     );

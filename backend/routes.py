@@ -338,6 +338,7 @@ def get_campaigns(app_id):
 
 @api.route('/form-containers/<string:form_container_id>/forms/<int:form_id>/cancel', methods=['POST'])
 def cancel_form(form_container_id, form_id):
+    admin_id = ADMIN_ID
     data = request.get_json()
     comment = data.get('comment', '').strip()
 
@@ -351,6 +352,13 @@ def cancel_form(form_container_id, form_id):
 
     form.status = 'canceled'
     form.cancel_comment = comment
+    timeline_entry = TimelineEntry(
+        form_container_id=form_container_id,
+        event='FormContainer created',
+        details=f'Form canceled by {admin_id} with comment: {comment}',
+        timestamp=datetime.utcnow()
+    )
+    db.session.add(timeline_entry)
     db.session.commit()
     return jsonify({"message": "Form canceled successfully", "form_id": form_id, "comment": comment}), 200
 
