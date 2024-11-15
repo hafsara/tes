@@ -71,4 +71,8 @@ export class FormService {
     const url = `${this.apiUrl}/${formContainerId}/forms/${formId}/cancel`;
     return this.http.post(url, { comment });
   }
+
+  getValidatedFormContainers(appIds: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/apps/${appIds}/validated`);
+  }
 }

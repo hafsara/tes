@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, session
 from models import db, FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign
-from datetime import datetime, timedelta
+from datetime import datetime
 from tasks import run_delayed_workflow, send_initial_notification_task
 import jwt
 
@@ -184,7 +184,7 @@ def submit_form_response(access_token, form_id):
     return jsonify({"message": "Response submitted successfully"}), 200
 
 
-@api.route('/form-containers/apps/<app_ids>', methods=['GET'])
+@api.route('/form-containers/apps/<string:app_ids>', methods=['GET'])
 def get_form_containers(app_ids):
     admin_id = ADMIN_ID
 
@@ -198,14 +198,10 @@ def get_form_containers(app_ids):
         query = (
             db.session.query(FormContainer, Application, Campaign)
             .join(Form, FormContainer.id == Form.form_container_id)
-            .outerjoin(Application, FormContainer.app_id == Application.id)
-            .outerjoin(Campaign, FormContainer.campaign_id == Campaign.id)
-            .filter(Form.status == status)
+            .join(Application, FormContainer.app_id == Application.id)
+            .join(Campaign, FormContainer.campaign_id == Campaign.id)
+            .filter(Form.status == status, FormContainer.app_id.in_(app_id_list))
         )
-
-        if app_id_list:
-            query = query.filter(FormContainer.app_id.in_(app_id_list))
-
         form_containers = query.all()
         result = [
             {
@@ -300,7 +296,7 @@ def validate_form_container(container_id, form_id):
     return jsonify({"message": "Form successfully validated."}), 200
 
 
-@api.route('/form-containers/<string:form_container_id>/timeline', methods=['GET'])
+@api.route('/form-containers/<int:form_container_id>/timeline', methods=['GET'])
 def get_form_container_timeline(form_container_id):
     timeline_entry = TimelineEntry.query.filter_by(form_container_id=form_container_id).all()
     if not timeline_entry:
@@ -318,7 +314,7 @@ def get_form_container_timeline(form_container_id):
     return jsonify(interaction_timeline), 200
 
 
-@api.route('/validate-token/<token>', methods=['GET'])
+@api.route('/validate-token/<string:token>', methods=['GET'])
 def validate_token(token):
     application = Application.query.filter_by(id=token).first()
     if application:
@@ -336,7 +332,7 @@ def get_campaigns(app_id):
     return jsonify({"error": "Failed to fetch campaigns"}), 404
 
 
-@api.route('/form-containers/<string:form_container_id>/forms/<int:form_id>/cancel', methods=['POST'])
+@api.route('/form-containers/<int:form_container_id>/forms/<int:form_id>/cancel', methods=['POST'])
 def cancel_form(form_container_id, form_id):
     admin_id = ADMIN_ID
     data = request.get_json()
@@ -361,6 +357,35 @@ def cancel_form(form_container_id, form_id):
     db.session.add(timeline_entry)
     db.session.commit()
     return jsonify({"message": "Form canceled successfully", "form_id": form_id, "comment": comment}), 200
+
+
+@api.route('/form-containers/apps/<string:app_ids>/validated', methods=['GET'])
+def get_validated_form_containers(app_ids):
+    app_id_list = app_ids.split(',')
+    validated_form_containers = (
+        db.session.query(FormContainer)
+        .join(Application, FormContainer.app_id == Application.id, isouter=True)
+        .join(Campaign, FormContainer.campaign_id == Campaign.id, isouter=True)
+        .filter(FormContainer.validated == True)
+        .filter(FormContainer.app_id.in_(app_id_list))  # Apply app_id filter
+        .all()
+    )
+
+    result = [
+        {
+            "access_token": fc.access_token,
+            "title": fc.title,
+            "description": fc.description,
+            "created_at": fc.created_at,
+            "user_email": fc.user_email,
+            "escalade_email": fc.escalade_email,
+            "reference": fc.reference,
+            "app_name": fc.application.name if fc.application else None,
+            "campaign_name": fc.campaign.name if fc.campaign else None,
+        }
+        for fc in validated_form_containers
+    ]
+    return jsonify(result), 200
 
 
 def generate_token(application):

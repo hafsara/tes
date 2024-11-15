@@ -40,29 +40,29 @@ export class DashboardComponent implements OnInit {
     ];
   }
 
-ngOnInit() {
-  this.route.paramMap.subscribe(params => {
-    const accessToken = params.get('access_token');
-    if (accessToken) {
-      this.currentView = 'loading';
-      this.loadFormDetails(accessToken);
-    } else {
-      this.currentView = 'loading';
-      this.checkAndLoadForms();
-    }
-  });
-}
-
-onSelectedAppIdsChange(selectedAppIds: string[]) {
-  this.selectedApps = selectedAppIds;
-  this.checkAndLoadForms();
-}
-
-checkAndLoadForms() {
-  if (this.selectedApps.length > 0 && this.status) {
-    this.loadForms(this.status);
+  ngOnInit() {
+    this.route.paramMap.subscribe(params => {
+      const accessToken = params.get('access_token');
+      if (accessToken) {
+        this.currentView = 'loading';
+        this.loadFormDetails(accessToken);
+      } else {
+        this.currentView = 'loading';
+        this.checkAndLoadForms();
+      }
+    });
   }
-}
+
+  onSelectedAppIdsChange(selectedAppIds: string[]) {
+    this.selectedApps = selectedAppIds;
+    this.checkAndLoadForms();
+  }
+
+  checkAndLoadForms() {
+    if (this.selectedApps.length > 0 && this.status) {
+      this.loadForms(this.status);
+    }
+  }
 
   onAppOptionsLoaded(options: { name: string; token: string }[]) {
     this.appOptions = options;
@@ -71,13 +71,17 @@ checkAndLoadForms() {
   onMenuItemClick(status: string) {
     this.status = status;
     this.currentView = 'loading';
-    this.loadForms(this.status);
+    if (status==='validated'){
+      this.loadValidatedForms()
+    } else {
+      this.loadForms(this.status);
+    }
+    this.location.go('/dashboard');
   }
 
   loadForms(status: string) {
       this.loading = true;
       const appIds = this.selectedApps.join(',');
-      console.log('Selected App IDs:', this.selectedApps);
       this.formService.getFormContainersByStatus(appIds, status).subscribe(
           (data) => {
               this.forms = data;
@@ -90,13 +94,25 @@ checkAndLoadForms() {
       );
   }
 
-
+  loadValidatedForms() {
+    this.loading = true;
+    const appIds = this.selectedApps.join(',');
+    this.formService.getValidatedFormContainers(appIds).subscribe(
+      (data) => {
+        this.forms = data;
+        this.currentView = 'table';
+        this.loading = false;
+      },
+      (error) => {
+        this.loading = false;
+      }
+    );
+  }
 
   filterGlobal(table: Table, event: Event) {
     const input = event.target as HTMLInputElement;
     table.filterGlobal(input.value, 'contains');
   }
-
 
   loadFormDetails(access_token: string) {
     this.loading = true;
