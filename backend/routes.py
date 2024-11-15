@@ -193,28 +193,37 @@ def get_form_containers(app_ids):
 
     filter_type = request.args.get('filter')
     status = request.args.get('status')
-
-    app_id_list = app_ids.split(',')
-    query = FormContainer.query.join(Form).filter(FormContainer.app_id.in_(app_id_list))
-
     if filter_type == 'status' and status:
-        query = query.filter(Form.status == status)
+        app_id_list = app_ids.split(',')
+        query = (
+            db.session.query(FormContainer, Application, Campaign)
+            .join(Form, FormContainer.id == Form.form_container_id)
+            .outerjoin(Application, FormContainer.app_id == Application.id)
+            .outerjoin(Campaign, FormContainer.campaign_id == Campaign.id)
+            .filter(Form.status == status)
+        )
 
-    form_containers = query.all()
-    result = [
-        {
-            "access_token": fc.access_token,
-            "title": fc.title,
-            "description": fc.description,
-            "created_at": fc.created_at,
-            "user_email": fc.user_email,
-            "escalade_email": fc.escalade_email,
-            "reference": fc.reference,
-            "app_name": fc.application.name if fc.application else None,
-            "campaign_name": fc.campaign.name if fc.campaign else None
-        }
-        for fc in form_containers
-    ]
+        if app_id_list:
+            query = query.filter(FormContainer.app_id.in_(app_id_list))
+
+        form_containers = query.all()
+        result = [
+            {
+                "access_token": fc.access_token,
+                "title": fc.title,
+                "description": fc.description,
+                "created_at": fc.created_at,
+                "user_email": fc.user_email,
+                "escalade_email": fc.escalade_email,
+                "reference": fc.reference,
+                "app_name": app.name if app else None,
+                "campaign_name": campaign.name if campaign else None
+            }
+            for fc, app, campaign in form_containers
+        ]
+    else:
+        return jsonify({"error": "Invalid filter or status"}), 400
+
     return jsonify(result), 200
 
 

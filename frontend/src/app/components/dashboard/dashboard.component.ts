@@ -40,18 +40,29 @@ export class DashboardComponent implements OnInit {
     ];
   }
 
-  ngOnInit() {
-    this.route.paramMap.subscribe(params => {
-      const accessToken = params.get('access_token');
-      if (accessToken) {
-        this.currentView = 'loading';
-        this.loadFormDetails(accessToken);
-      } else {
-        this.currentView = 'loading';
-        this.loadForms(this.status);
-      }
-    });
+ngOnInit() {
+  this.route.paramMap.subscribe(params => {
+    const accessToken = params.get('access_token');
+    if (accessToken) {
+      this.currentView = 'loading';
+      this.loadFormDetails(accessToken);
+    } else {
+      this.currentView = 'loading';
+      this.checkAndLoadForms();
+    }
+  });
+}
+
+onSelectedAppIdsChange(selectedAppIds: string[]) {
+  this.selectedApps = selectedAppIds;
+  this.checkAndLoadForms();
+}
+
+checkAndLoadForms() {
+  if (this.selectedApps.length > 0 && this.status) {
+    this.loadForms(this.status);
   }
+}
 
   onAppOptionsLoaded(options: { name: string; token: string }[]) {
     this.appOptions = options;
@@ -79,10 +90,7 @@ export class DashboardComponent implements OnInit {
       );
   }
 
-  onSelectedAppIdsChange(selectedAppIds: string[]) {
-    this.selectedApps = selectedAppIds;
-    this.loadForms(this.status);
-  }
+
 
   filterGlobal(table: Table, event: Event) {
     const input = event.target as HTMLInputElement;
