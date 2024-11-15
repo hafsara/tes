@@ -184,36 +184,37 @@ def submit_form_response(access_token, form_id):
     return jsonify({"message": "Response submitted successfully"}), 200
 
 
-@api.route('/form-containers', methods=['GET'])
-def get_form_containers():
+@api.route('/form-containers/apps/<app_ids>', methods=['GET'])
+def get_form_containers(app_ids):
     admin_id = ADMIN_ID
 
     if not admin_id:
         return jsonify({"error": "Admin not authenticated"}), 401
 
     filter_type = request.args.get('filter')
+    status = request.args.get('status')
 
-    if filter_type == 'status':
-        status = request.args.get('status')
-        if not status:
-            return jsonify({"error": "Status param is required"}), 400
+    app_id_list = app_ids.split(',')
+    query = FormContainer.query.join(Form).filter(FormContainer.app_id.in_(app_id_list))
 
-        form_containers = FormContainer.query.join(Form).filter(Form.status == status).all()
-        result = [
-            {
-                "access_token": fc.access_token,
-                "title": fc.title,
-                "description": fc.description,
-                "created_at": fc.created_at,
-                "user_email": fc.user_email,
-                "escalade_email": fc.escalade_email,
-                "reference": fc.reference,
-            }
-            for fc in form_containers
-        ]
-    else:
-        return jsonify({"error": "Is not a valid status"}), 400
+    if filter_type == 'status' and status:
+        query = query.filter(Form.status == status)
 
+    form_containers = query.all()
+    result = [
+        {
+            "access_token": fc.access_token,
+            "title": fc.title,
+            "description": fc.description,
+            "created_at": fc.created_at,
+            "user_email": fc.user_email,
+            "escalade_email": fc.escalade_email,
+            "reference": fc.reference,
+            "app_name": fc.application.name if fc.application else None,
+            "campaign_name": fc.campaign.name if fc.campaign else None
+        }
+        for fc in form_containers
+    ]
     return jsonify(result), 200
 
 

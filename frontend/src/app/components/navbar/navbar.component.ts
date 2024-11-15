@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { TokenService } from '../../services/token.service';
 import { Subscription } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-navbar',
@@ -9,6 +10,8 @@ import { Subscription } from 'rxjs';
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   @Output() appOptionsLoaded = new EventEmitter<{ name: string; token: string }[]>();
+  @Output() selectedAppIdsChange = new EventEmitter<string[]>();  // New output for selected app IDs
+
   appOptions: { name: string; token: string }[] = [];
   selectedApps: string[] = [];
 
@@ -48,6 +51,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     });
 
     this.appOptionsLoaded.emit(this.appOptions);
+    this.emitSelectedAppIds();
   }
 
   ngOnDestroy(): void {
@@ -59,10 +63,24 @@ export class NavbarComponent implements OnInit, OnDestroy {
   onAppSelectionChange(event: any) {
     this.selectedApps = event.value;
     this.saveSelection();
+    this.emitSelectedAppIds();
   }
 
   private saveSelection(): void {
     localStorage.setItem(this.localStorageKey, JSON.stringify(this.selectedApps));
+  }
+
+  private emitSelectedAppIds(): void {
+    const decodedAppIds = this.selectedApps.map(token => {
+      try {
+        const decoded: { app_id: string } = jwtDecode(token);
+        return decoded.app_id;
+      } catch (error) {
+        console.error('Invalid token', token, error);
+        return null;
+      }
+    }).filter(app_id => app_id !== null) as string[];
+    this.selectedAppIdsChange.emit(decodedAppIds);
   }
 
   logout() {

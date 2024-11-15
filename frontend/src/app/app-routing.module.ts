@@ -9,13 +9,12 @@ import { AuthGuard } from './guards/auth.guard';
 const routes: Routes = [
   { path: 'access-control', component: AccessControlComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-  { path: '404', component: PageNotFoundComponent },
+  { path: 'dashboard/load-form/:access_token', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'user-view/:access_token', component: UserViewComponent },
+  { path: '404', component: PageNotFoundComponent },
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
   { path: '**', redirectTo: '404' },
-  { path: 'dashboard/load-form/:access_token', component: DashboardComponent,  canActivate: [AuthGuard] },
 ];
-
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

@@ -22,6 +22,7 @@ export class DashboardComponent implements OnInit {
   minDate: Date = new Date(new Date().setFullYear(new Date().getFullYear() - 1));
   maxDate: Date = new Date();
   appOptions: { name: string; token: string }[] = [];
+  selectedApps: string[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -35,6 +36,7 @@ export class DashboardComponent implements OnInit {
       { label: 'Reminder', icon: 'pi pi-bell', command: () => this.onMenuItemClick('reminder') },
       { label: 'Escalate', icon: 'pi pi-exclamation-triangle', command: () => this.onMenuItemClick('escalate') },
       { label: 'Archived', icon: 'pi pi-book', command: () => this.onMenuItemClick('validated') },
+      { label: 'Canceled', icon: 'pi pi-times-circle', command: () => this.onMenuItemClick('Canceled') }
     ];
   }
 
@@ -62,22 +64,30 @@ export class DashboardComponent implements OnInit {
   }
 
   loadForms(status: string) {
-    this.loading = true;
-    this.formService.getFormContainersByStatus(status).subscribe(
-      (data) => {
-        this.forms = data;
-        this.currentView = 'table';
-        this.loading = false;
-      },
-      (error) => {
-        this.loading = false;
-      }
-    );
+      this.loading = true;
+      const appIds = this.selectedApps.join(',');
+      console.log('Selected App IDs:', this.selectedApps);
+      this.formService.getFormContainersByStatus(appIds, status).subscribe(
+          (data) => {
+              this.forms = data;
+              this.currentView = 'table';
+              this.loading = false;
+          },
+          (error) => {
+              this.loading = false;
+          }
+      );
   }
-filterGlobal(table: Table, event: Event) {
-  const input = event.target as HTMLInputElement;
-  table.filterGlobal(input.value, 'contains');
-}
+
+  onSelectedAppIdsChange(selectedAppIds: string[]) {
+    this.selectedApps = selectedAppIds;
+    this.loadForms(this.status);
+  }
+
+  filterGlobal(table: Table, event: Event) {
+    const input = event.target as HTMLInputElement;
+    table.filterGlobal(input.value, 'contains');
+  }
 
 
   loadFormDetails(access_token: string) {
