@@ -16,7 +16,6 @@ export class CreateFormContainerComponent {
   visible: boolean = false;
   appSelected: boolean = false;
   campaignName: string = '';
-  selectedAppId: string = '';
 
   formContainer: FormContainer = {
     appId: '',
@@ -34,9 +33,11 @@ export class CreateFormContainerComponent {
         label: '',
         type: 'text',
         options: [],
-        isRequired: true}]
+        isRequired: true
       }]
+    }]
   };
+
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   campaignOptions: { name: string, id: string }[] = [];
 
@@ -50,9 +51,8 @@ export class CreateFormContainerComponent {
     this.appSelected = true;
     const selectedAppName = event.value;
     const decoded: { app_id: string } = jwtDecode(selectedAppName.token);
-    this.selectedAppId = decoded.app_id
-    this.loadCampaignOptions(this.selectedAppId);
-
+    this.formContainer.appId = decoded.app_id;
+    this.loadCampaignOptions(this.formContainer.appId);
   }
 
   loadCampaignOptions(appId: string): void {
@@ -73,10 +73,11 @@ export class CreateFormContainerComponent {
   validateCurrentStep(): boolean {
     if (this.currentStep === 0) {
       const isEmailValid = this.emailPattern.test(this.formContainer.userEmail || '');
-      const isManagerEmailValid = !this.formContainer.escalate || (this.formContainer.managerEmail ? this.emailPattern.test(this.formContainer.managerEmail) : false)
+      const isManagerEmailValid = !this.formContainer.escalate || (this.formContainer.managerEmail ? this.emailPattern.test(this.formContainer.managerEmail) : false);
+
       return (
-        this.formContainer.appId !== null &&
-        this.formContainer.campaignId !== null &&
+        this.formContainer.appId !== '' &&
+        this.formContainer.campaignId !== '' &&
         this.formContainer.title.trim() !== '' &&
         this.formContainer.description.trim() !== '' &&
         isEmailValid &&
@@ -111,22 +112,25 @@ export class CreateFormContainerComponent {
     }
   }
 
-  confirmSubmit(event: Event): void{
-        this.confirmationService.confirm({
-        target: event.target as EventTarget,
-        message: 'Are you sure that you want to submit?',
-        header: 'Confirmation',
-        icon: 'pi pi-exclamation-triangle',
-        acceptIcon:"none",
-        rejectIcon:"none",
-        rejectButtonStyleClass:"p-button-text",
-        accept: () => {
-          this.submitForm();
-          setTimeout(() => window.location.reload(), 1000);
-        }});
+  confirmSubmit(event: Event): void {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Are you sure that you want to submit?',
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      acceptIcon: "none",
+      rejectIcon: "none",
+      rejectButtonStyleClass: "p-button-text",
+      accept: () => {
+        this.submitForm();
+        setTimeout(() => window.location.reload(), 1000);
+      }
+    });
   }
 
   submitForm() {
+    console.log(this.formContainer.appId);
+    console.log(this.formContainer.campaignId);
     const payload = {
       title: this.formContainer.title,
       app_id: this.formContainer.appId,
@@ -162,7 +166,7 @@ export class CreateFormContainerComponent {
 
     const newCampaign = {
       name: this.campaignName,
-      app_id: this.selectedAppId
+      app_id: this.formContainer.appId
     };
 
     this.formService.createCampaign(newCampaign).subscribe(
@@ -170,7 +174,7 @@ export class CreateFormContainerComponent {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Campaign created successfully' });
         this.visible = false;
         this.campaignName = '';
-        this.loadCampaignOptions(this.selectedAppId);
+        this.loadCampaignOptions(this.formContainer.appId);
       },
       (error) => {
         console.error('Failed to create campaign:', error);
@@ -178,6 +182,4 @@ export class CreateFormContainerComponent {
       }
     );
   }
-
-
 }
