@@ -18,6 +18,7 @@ export class FormContainerPreviewComponent implements OnInit {
   currentForm: any;
   historyForms: any[] = [];
   sidebarVisible: boolean = false;
+  cancelVisible: boolean = false;
 
   constructor(
     private formService: FormService,
@@ -91,7 +92,7 @@ export class FormContainerPreviewComponent implements OnInit {
     this.visible = false
   }
 
-  addForm(event: Event): void{
+  addForm(event: Event): void {
     if (this.validateNewForm()){
         this.confirmationService.confirm({
         target: event.target as EventTarget,
@@ -138,4 +139,8 @@ export class FormContainerPreviewComponent implements OnInit {
         return isQuestionTextValid && areOptionsValid;
       });
   }
+
+ showCancelComment() {
+   this.cancelVisible = true;
+ }
 }

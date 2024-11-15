@@ -28,7 +28,7 @@
             <div class="centered-container-button flex justify-content-end"
                  *ngIf="currentForm.status === 'open'">
               <div class="button-group">
-                <p-button label="Cancel" class="custom-button"></p-button>
+                <p-button label="Cancel" class="custom-button" (onClick)="showCancelComment()"></p-button>
               </div>
             </div>
           </div>
@@ -68,3 +68,15 @@
     </div>
   </p-dialog>
 </div>
+
+<p-dialog header="Add cancel comment" [modal]="true" [(visible)]="cancelVisible" [style]="{ width: '25rem' }">
+  <span class="p-text-secondary block mb-5">Please add cancel justification</span>
+  <div>
+      <textarea rows="5" cols="30">
+    </textarea>
+  </div>
+  <div class="flex pt-4 justify-content-between">
+    <p-button label="Cancel" severity="secondary" (onClick)="cancelVisible = false"/>
+    <p-button label="Save" (onClick)="cancelVisible = false"/>
+  </div>
+</p-dialog>

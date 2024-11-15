@@ -48,6 +48,7 @@ class Form(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     form_container_id = db.Column(db.Integer, db.ForeignKey('form_containers.id'), nullable=False)
     status = db.Column(db.String(50), nullable=False, default='open')
+    cancel_comment = db.Column(db.String(50), nullable=True)
     questions = db.relationship('Question', backref='form', lazy=True, cascade="all, delete-orphan")
     responses = db.relationship('Response', backref='form', lazy=True)
 
