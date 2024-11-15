@@ -60,4 +60,9 @@ export class FormService {
     const url = `${environment.apiUrl}/campaigns/${appId}`;
     return this.http.get<any[]>(url);
   }
+
+  createCampaign(campaign: any): Observable<any> {
+    const url = `${environment.apiUrl}/campaigns`;
+    return this.http.post(url, campaign);
+  }
 }

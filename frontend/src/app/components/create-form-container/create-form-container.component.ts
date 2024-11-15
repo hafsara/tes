@@ -13,6 +13,11 @@ export class CreateFormContainerComponent {
   @Input() appOptions: { name: string; token: string }[] = [];
   currentStep: number = 0;
   showErrors = false;
+  visible: boolean = false;
+  appSelected: boolean = false;
+  campaignName: string = '';
+  selectedAppId: string = '';
+
   formContainer: FormContainer = {
     appId: '',
     campaignId: '',
@@ -42,9 +47,11 @@ export class CreateFormContainerComponent {
   ) {}
 
   onAppChange(event: any) {
+    this.appSelected = true;
     const selectedAppName = event.value;
     const decoded: { app_id: string } = jwtDecode(selectedAppName.token);
-    this.loadCampaignOptions(decoded.app_id);
+    this.selectedAppId = decoded.app_id
+    this.loadCampaignOptions(this.selectedAppId);
 
   }
 
@@ -144,6 +151,33 @@ export class CreateFormContainerComponent {
   }
 
   onAddCampaign() {
-    console.log('Add Campaign button clicked');
+    this.visible = !this.visible;
   }
+
+  createCampaign() {
+    if (!this.campaignName.trim()) {
+      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Campaign name cannot be empty' });
+      return;
+    }
+
+    const newCampaign = {
+      name: this.campaignName,
+      app_id: this.selectedAppId
+    };
+
+    this.formService.createCampaign(newCampaign).subscribe(
+      (response) => {
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Campaign created successfully' });
+        this.visible = false;
+        this.campaignName = '';
+        this.loadCampaignOptions(this.selectedAppId);
+      },
+      (error) => {
+        console.error('Failed to create campaign:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create campaign' });
+      }
+    );
+  }
+
+
 }
