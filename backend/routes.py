@@ -356,6 +356,7 @@ def cancel_form(form_container_id, form_id):
     )
     db.session.add(timeline_entry)
     db.session.commit()
+    # todo add pause to the workflow
     return jsonify({"message": "Form canceled successfully", "form_id": form_id, "comment": comment}), 200
 
 
