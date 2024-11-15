@@ -30,6 +30,13 @@
                 </p-dropdown>
                 <small *ngIf="showErrors && !formContainer.campaignId" class="p-error">Campaign is required</small>
               </div>
+  <button pButton
+    type="button"
+    icon="pi pi-plus"
+    class="add-button"
+    (click)="onAddCampaign()">
+  </button>
+
             </div>
 
             <div class="centered-container">
@@ -96,7 +103,7 @@
                 </p-chips>
                 <label for="ccEmails">Carbon Copy Emails</label>
               </p-floatLabel>
-                <small *ngIf="showErrors && !validateCcEmails()" class="p-error">Invalid CC emails</small>
+              <small *ngIf="showErrors && !validateCcEmails()" class="p-error">Invalid CC emails</small>
 
             </div>
 

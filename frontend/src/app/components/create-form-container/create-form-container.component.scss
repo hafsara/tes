@@ -131,3 +131,21 @@ textarea[pInputTextarea] {
   resize: none;
 }
 
+.add-button {
+  border: 2px solid #28a745;
+  background-color: transparent;
+  color: #28a745;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 4px;
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-button:hover {
+  background-color: #28a745;
+  color: white;
+}
+

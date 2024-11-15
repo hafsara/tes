@@ -142,4 +142,8 @@ export class CreateFormContainerComponent {
       }
     );
   }
+
+  onAddCampaign() {
+    console.log('Add Campaign button clicked');
+  }
 }
