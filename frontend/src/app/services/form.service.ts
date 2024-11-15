@@ -66,4 +66,9 @@ export class FormService {
     const url = `${environment.apiUrl}/campaigns`;
     return this.http.post(url, campaign);
   }
+
+  cancelForm(formContainerId: string, formId: number, comment: string): Observable<any> {
+    const url = `${this.apiUrl}/${formContainerId}/forms/${formId}/cancel`;
+    return this.http.post(url, { comment });
+  }
 }

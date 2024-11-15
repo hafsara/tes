@@ -19,6 +19,8 @@ export class FormContainerPreviewComponent implements OnInit {
   historyForms: any[] = [];
   sidebarVisible: boolean = false;
   cancelVisible: boolean = false;
+  cancelComment: string = '';
+  showCommentError: boolean = false;
 
   constructor(
     private formService: FormService,
@@ -115,10 +117,10 @@ export class FormContainerPreviewComponent implements OnInit {
   confirmAddForm(): void {
     this.formService.addFormToContainer(this.formContainer.id, this.newForm).subscribe(
       (response) => {
-        this.messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'Form added with success, ID: ' + response.form_id });
+        this.messageService.add({ severity: 'success', summary: 'Confirmed', detail: `Form added with success, ID: ${response.form_id}`});
       },
       (error) => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error while adding form: ' + error });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: `Error while adding form: ${error}` });
       }
     );
   }
@@ -141,6 +143,27 @@ export class FormContainerPreviewComponent implements OnInit {
   }
 
  showCancelComment() {
+   this.cancelComment = '';
    this.cancelVisible = true;
+   this.showCommentError = false;
  }
+
+  cancelForm() {
+    if (this.cancelComment.trim().length < 4) {
+      this.showCommentError = true;
+      return;
+    }
+    this.showCommentError = false;
+
+    this.formService.cancelForm(this.formContainer.id, this.currentForm.form_id, this.cancelComment).subscribe(
+      (response) => {
+        this.messageService.add({ severity: 'success', summary: 'Confirmed', detail: `Form cancelled with success`});
+        this.cancelVisible = false;
+        setTimeout(() => window.location.reload(), 1000);
+      },
+      (error) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: `Error while canceling form: ${error}`});
+      }
+    );
+  }
 }

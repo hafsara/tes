@@ -72,11 +72,11 @@
 <p-dialog header="Add cancel comment" [modal]="true" [(visible)]="cancelVisible" [style]="{ width: '25rem' }">
   <span class="p-text-secondary block mb-5">Please add cancel justification</span>
   <div>
-      <textarea rows="5" cols="30">
-    </textarea>
+    <textarea rows="5" cols="30" [(ngModel)]="cancelComment"></textarea>
+    <small *ngIf="showCommentError" class="p-error">Comment must be at least 4 characters.</small>
   </div>
   <div class="flex pt-4 justify-content-between">
     <p-button label="Cancel" severity="secondary" (onClick)="cancelVisible = false"/>
-    <p-button label="Save" (onClick)="cancelVisible = false"/>
+    <p-button label="Save" (onClick)="cancelForm()"/>
   </div>
 </p-dialog>

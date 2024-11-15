@@ -336,6 +336,25 @@ def get_campaigns(app_id):
     return jsonify({"error": "Failed to fetch campaigns"}), 404
 
 
+@api.route('/form-containers/<string:form_container_id>/forms/<int:form_id>/cancel', methods=['POST'])
+def cancel_form(form_container_id, form_id):
+    data = request.get_json()
+    comment = data.get('comment', '').strip()
+
+    if not comment or len(comment) < 4:
+        return jsonify({"error": "Comment must be at least 4 characters long."}), 400
+
+    form = Form.query.filter_by(id=form_id, form_container_id=form_container_id).first()
+
+    if not form:
+        return jsonify({"error": "Form not found"}), 404
+
+    form.status = 'canceled'
+    form.cancel_comment = comment
+    db.session.commit()
+    return jsonify({"message": "Form canceled successfully", "form_id": form_id, "comment": comment}), 200
+
+
 def generate_token(application):
     payload = {
         'application_name': application.name,

@@ -36,7 +36,7 @@ export class DashboardComponent implements OnInit {
       { label: 'Reminder', icon: 'pi pi-bell', command: () => this.onMenuItemClick('reminder') },
       { label: 'Escalate', icon: 'pi pi-exclamation-triangle', command: () => this.onMenuItemClick('escalate') },
       { label: 'Archived', icon: 'pi pi-book', command: () => this.onMenuItemClick('validated') },
-      { label: 'Canceled', icon: 'pi pi-times-circle', command: () => this.onMenuItemClick('Canceled') }
+      { label: 'Canceled', icon: 'pi pi-times-circle', command: () => this.onMenuItemClick('canceled') }
     ];
   }
 
