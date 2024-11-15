@@ -71,6 +71,7 @@ export class TokenService {
       this.clearTokens();
       localStorage.removeItem(this.localStorageKey);
       window.location.href = '/access-control';
+      location.reload();
     }, durationInMinutes * 60 * 1000);
   }
 
