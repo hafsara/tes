@@ -1,5 +1,5 @@
 <div *ngFor="let question of formQuestions.questions; let i = index">
-  <h5>{{ question.label }}</h5>
+  <h5>{{ question.label }}  {{ question.type === 'dropdown' ? ' - [DropDown]' : '' }}</h5>
   <ng-container [ngSwitch]="question.type">
     <div *ngSwitchCase="'text'">
       <textarea
@@ -28,6 +28,7 @@
         <p-checkbox
           [binary]="true"
           [label]="option.label"
+          [(ngModel)]="question.response"
           [disabled]="true"
         ></p-checkbox>
       </div>

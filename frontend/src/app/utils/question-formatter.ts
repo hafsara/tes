@@ -1,9 +1,9 @@
 export interface Question {
   label: string;
-  type: string;
+  type: 'text' | 'radioButton' | 'checkbox' | 'dropdown';
   options: string[];
   isRequired?: boolean;
-  response?: string;
+  response?: string | string[] | undefined;
   selectedOptions?: string[];
   formattedOptions?: { label: string; value: string }[];
 }

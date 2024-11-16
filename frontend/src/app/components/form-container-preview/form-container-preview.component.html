@@ -9,10 +9,10 @@
             <p-card header="{{ formContainer.title }}" class="card-background">
               <p class="m-0">{{ formContainer.description }}</p>
             </p-card>
-            <div *ngIf="currentForm.status === 'open'">
+            <div *ngIf="currentForm.status === 'open' || currentForm.status === 'canceled'">
               <app-form-preview [formQuestions]="currentForm"></app-form-preview>
             </div>
-            <div *ngIf="currentForm.status !== 'open'">
+            <div *ngIf="currentForm.status !== 'open' && currentForm.status !== 'canceled'">
               <app-form-response-preview [questions]="currentForm.questions"></app-form-response-preview>
             </div>
 
