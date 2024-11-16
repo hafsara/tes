@@ -111,14 +111,6 @@ loadForm(): void {
       );
     }
 
-  getDisplayResponse(question: Question): string {
-    if (question.type === 'checkbox') {
-      return (question.selectedOptions || []).join(', ');
-    } else {
-      return question.response || 'No response';
-    }
-  }
-
   confirm(event: Event) {
     this.validationErrors = [];
     this.validateResponses();
