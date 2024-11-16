@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { FormService } from '../../services/form.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { FormContainer, Form, Question } from '../../utils/question-formatter';
+import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 
 @Component({
@@ -44,6 +45,7 @@ export class CreateFormContainerComponent {
 
   constructor(
     private formService: FormService,
+    private router: Router,
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
   ) {}
