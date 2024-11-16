@@ -16,6 +16,7 @@ export class UserViewComponent implements OnInit {
   sidebarVisible = true;
   currentForm: any;
   historyForms: any[] = [];
+  markdownDescription: string = '';
 
   constructor(
     private router: Router,
@@ -28,6 +29,7 @@ export class UserViewComponent implements OnInit {
   ngOnInit() {
     this.loadForm();
   }
+
   toggleSidebar() {
     this.sidebarVisible = !this.sidebarVisible;
   }
@@ -36,36 +38,37 @@ export class UserViewComponent implements OnInit {
     this.currentForm = form;
   }
 
-loadForm(): void {
-  const accessToken = this.route.snapshot.paramMap.get('access_token');
-  if (accessToken) {
-    this.formService.getFormContainerByAccessToken(accessToken).subscribe(
-      (data) => {
-        this.formData = data;
-        this.formData.access_token = accessToken;
+  loadForm(): void {
+    const accessToken = this.route.snapshot.paramMap.get('access_token');
+    if (accessToken) {
+      this.formService.getFormContainerByAccessToken(accessToken).subscribe(
+        (data) => {
+          this.formData = data;
+          this.markdownDescription = this.formData.description.replace(/\\n/g, '\n');
+          this.formData.access_token = accessToken;
 
-        if (this.formData.forms && this.formData.forms.length > 0) {
-          this.formData.forms.forEach((form: Form) => {
-            form.questions = formatQuestions(form.questions);
-          });
-        }
-        this.historyForms = this.formData.forms.filter((form: any) => form.status === 'unsubstantial');
-        this.currentForm = this.formData.forms.find((form: any) => form.status !== 'unsubstantial');
-        const formStatus = this.currentForm?.status;
-        if (this.formData.validated || formStatus === 'canceled') {
+          if (this.formData.forms && this.formData.forms.length > 0) {
+            this.formData.forms.forEach((form: Form) => {
+              form.questions = formatQuestions(form.questions);
+            });
+          }
+          this.historyForms = this.formData.forms.filter((form: any) => form.status === 'unsubstantial');
+          this.currentForm = this.formData.forms.find((form: any) => form.status !== 'unsubstantial');
+          const formStatus = this.currentForm?.status;
+          if (this.formData.validated || formStatus === 'canceled') {
+            this.router.navigate(['/404']);
+          } else if (formStatus === 'answered' || formStatus === 'unsubstantial') {
+            this.isSubmitted = true;
+          } else {
+            this.isSubmitted = false;
+          }
+        },
+        (error) => {
           this.router.navigate(['/404']);
-        } else if (formStatus === 'answered' || formStatus === 'unsubstantial') {
-          this.isSubmitted = true;
-        } else {
-          this.isSubmitted = false;
         }
-      },
-      (error) => {
-        this.router.navigate(['/404']);
-      }
-    );
+      );
+    }
   }
-}
 
   validateResponses(): void {
     this.currentForm.questions.forEach((question: any, index: number) => {

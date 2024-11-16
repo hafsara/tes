@@ -17,7 +17,9 @@
   <div class="main-content centered-container">
     <div class="card">
       <p-card header="{{ formData.title }}" class="card-background">
-        <p class="m-0">{{ formData.description }}</p>
+        <p class="m-0">
+          <markdown [data]="markdownDescription"></markdown>
+        </p>
       </p-card>
     </div>
     <ng-container *ngIf="!isSubmitted && currentForm?.status === 'open'">

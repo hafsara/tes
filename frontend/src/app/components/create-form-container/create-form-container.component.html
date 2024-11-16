@@ -155,7 +155,9 @@
 
             <div class="mb-3">
               <label class="font-bold">Description:</label>
-              <div>{{ formContainer.description }}</div>
+              <div class="m-0">
+                <markdown [data]="formContainer.description"></markdown>
+              </div>
             </div>
 
             <div class="mb-3">

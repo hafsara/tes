@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { MarkdownModule } from 'ngx-markdown';
 
 // PrimeNG Modules
 import { DialogModule } from 'primeng/dialog';
@@ -81,6 +82,7 @@ import { FormTableComponent } from './components/form-table/form-table.component
     ConfirmDialogModule,
     BrowserAnimationsModule,
     HttpClientModule,
+    MarkdownModule.forRoot(),
     // PrimeNG Modules
     StepsModule,
     ChipsModule,

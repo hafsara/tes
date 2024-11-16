@@ -47,7 +47,6 @@ export class FormService {
   }
 
   addFormToContainer(containerId: number, formData: any): Observable<any> {
-    console.log(containerId, formData)
     const url = `${this.apiUrl}/${containerId}/forms`;
     return this.http.post(url, formData);
   }

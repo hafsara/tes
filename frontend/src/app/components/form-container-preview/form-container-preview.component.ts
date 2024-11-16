@@ -21,6 +21,7 @@ export class FormContainerPreviewComponent implements OnInit {
   cancelVisible: boolean = false;
   cancelComment: string = '';
   showCommentError: boolean = false;
+  markdownDescription: string = '';
 
   constructor(
     private formService: FormService,
@@ -30,6 +31,7 @@ export class FormContainerPreviewComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.markdownDescription = this.formContainer.description.replace(/\\n/g, '\n');
     this.loadForms();
   }
 

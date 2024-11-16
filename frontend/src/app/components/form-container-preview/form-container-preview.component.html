@@ -7,7 +7,9 @@
         <p-tabPanel header="Overview">
           <div class="form-main">
             <p-card header="{{ formContainer.title }}" class="card-background">
-              <p class="m-0">{{ formContainer.description }}</p>
+              <p class="m-0">
+                <markdown [data]="markdownDescription"></markdown>
+              </p>
             </p-card>
             <div *ngIf="currentForm.status === 'open' || currentForm.status === 'canceled'">
               <app-form-preview [formQuestions]="currentForm"></app-form-preview>
