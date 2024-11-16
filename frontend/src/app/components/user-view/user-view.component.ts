@@ -76,7 +76,7 @@ loadForm(): void {
           this.validationErrors.push(questionError);
         } else if (question.type === 'radioButton' && !question.response) {
           this.validationErrors.push(questionError);
-        } else if (question.type === 'checkbox' && (!question.selectedOptions || question.selectedOptions.length === 0)) {
+        } else if (question.type === 'checkbox' && (!question.response || question.response.length === 0)) {
           this.validationErrors.push(`Please select at least one option for question ${index + 1}: ${question.label}`);
         } else if (question.type === 'dropdown' && !question.response) {
           this.validationErrors.push(questionError);
@@ -85,17 +85,16 @@ loadForm(): void {
     });
   }
 
-  isChecked(selectedOptions: string[], option: string): boolean {
-    return selectedOptions.includes(option);
-  }
-
   toggleOption(question: Question, option: string): void {
-    question.selectedOptions = question.selectedOptions || [];
-    const index = question.selectedOptions.indexOf(option);
-    if (index > -1) {
-      question.selectedOptions.splice(index, 1);
-    } else {
-      question.selectedOptions.push(option);
+    question.response = question.response || [];
+
+    if (Array.isArray(question.response)) {
+      const index = question.response.indexOf(option);
+      if (index > -1) {
+        question.response.splice(index, 1);
+      } else {
+        question.response.push(option);
+      }
     }
   }
 

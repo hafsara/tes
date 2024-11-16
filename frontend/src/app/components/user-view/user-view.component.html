@@ -67,7 +67,7 @@
               <p-checkbox
                 [binary]="true"
                 [label]="option.label"
-                [ngModel]="isChecked(question.selectedOptions || [], option.value)"
+                [ngModel]="question.response?.includes(option.value)"
                 (ngModelChange)="toggleOption(question, option.value)"
               ></p-checkbox>
             </div>

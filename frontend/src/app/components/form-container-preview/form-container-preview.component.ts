@@ -75,20 +75,6 @@ export class FormContainerPreviewComponent implements OnInit {
       }
     );}
 
-  isChecked(selectedOptions: string[], option: string): boolean {
-    return selectedOptions.includes(option);
-  }
-
-  toggleOption(question: Question, option: string): void {
-    question.selectedOptions = question.selectedOptions || [];
-    const index = question.selectedOptions.indexOf(option);
-    if (index > -1) {
-      question.selectedOptions.splice(index, 1);
-    } else {
-      question.selectedOptions.push(option);
-    }
-  }
-
   resetForm(){
     this.newForm = createForm()
     this.visible = false

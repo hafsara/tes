@@ -19,16 +19,16 @@ export class FormService {
     return this.http.get(`${this.apiUrl}/${accessToken}`);
   }
 
-  submitUserForm(access_token:string, formData: any): Observable<any> {
-      return this.http.post(
-          `${this.apiUrl}/${access_token}/forms/${formData.form_id}/submit-response`,
-          {
-              questions: formData.questions.map((q: any) => ({
-                  id: q.id,
-                  response: q.response || q.selectedOptions
-              }))
-          }
-      );
+  submitUserForm(access_token: string, formData: any): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/${access_token}/forms/${formData.form_id}/submit-response`,
+      {
+        questions: formData.questions.map((q: any) => ({
+          id: q.id,
+          response: q.response
+        }))
+      }
+    );
   }
 
   getFormContainerTimeline(formContainerId: number): Observable<any> {

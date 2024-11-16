@@ -9,6 +9,7 @@ export class PreviewFormResponseComponent implements OnInit {
   @Input() questions: any[] = [];
 
   ngOnInit() {
+    console.log(this.questions);
     this.formatDropdownOptions();
   }
 
