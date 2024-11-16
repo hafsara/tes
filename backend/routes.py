@@ -376,8 +376,8 @@ def get_validated_form_containers(app_ids):
     app_id_list = app_ids.split(',')
     validated_form_containers = (
         db.session.query(FormContainer, Application, Campaign)
-        .join(Application, FormContainer.app_id == Application.id, isouter=True)
-        .join(Campaign, FormContainer.campaign_id == Campaign.id, isouter=True)
+        .outerjoin(Application, FormContainer.app_id == Application.id)
+        .outerjoin(Campaign, FormContainer.campaign_id == Campaign.id)
         .filter(FormContainer.validated == True)
         .filter(FormContainer.app_id.in_(app_id_list))
         .all()
@@ -385,18 +385,19 @@ def get_validated_form_containers(app_ids):
 
     result = [
         {
-            "access_token": fc.access_token,
-            "title": fc.title,
-            "description": fc.description,
-            "created_at": fc.created_at,
-            "user_email": fc.user_email,
-            "escalade_email": fc.escalade_email,
-            "reference": fc.reference,
-            "app_name": fc.application.name if fc.application else None,
-            "campaign_name": fc.campaign.name if fc.campaign else None,
+            "access_token": form_container.access_token,
+            "title": form_container.title,
+            "description": form_container.description,
+            "created_at": form_container.created_at,
+            "user_email": form_container.user_email,
+            "escalade_email": form_container.escalade_email,
+            "reference": form_container.reference,
+            "app_name": application.name if application else None,
+            "campaign_name": campaign.name if campaign else None,
         }
-        for fc in validated_form_containers
+        for form_container, application, campaign in validated_form_containers
     ]
+
     return jsonify(result), 200
 
 
