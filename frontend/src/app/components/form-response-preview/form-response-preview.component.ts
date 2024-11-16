@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-      import { formatQuestions } from '../../utils/question-formatter';
 
 @Component({
   selector: 'app-form-response-preview',
@@ -9,7 +8,18 @@ import { Component, Input, OnInit } from '@angular/core';
 export class PreviewFormResponseComponent implements OnInit {
   @Input() questions: any[] = [];
 
-  constructor() { }
+  ngOnInit() {
+    this.formatDropdownOptions();
+  }
 
-  ngOnInit(): void {}
+  formatDropdownOptions() {
+    this.questions.forEach(question => {
+      if (question.type === 'dropdown') {
+        question.formattedOptions = question.options.map((option: string) => ({
+          label: option,
+          value: option
+        }));
+      }
+    });
+  }
 }

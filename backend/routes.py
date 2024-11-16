@@ -361,7 +361,7 @@ def cancel_form(form_container_id, form_id):
     timeline_entry = TimelineEntry(
         form_container_id=form_container_id,
         form_id=form.id,
-        event='FormContainer created',
+        event='FormContainer canceled',
         details=f'Form canceled by {admin_id} with comment: {comment}',
         timestamp=datetime.utcnow()
     )
