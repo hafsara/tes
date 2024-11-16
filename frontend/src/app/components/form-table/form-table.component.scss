@@ -1,0 +1,31 @@
+.card {
+  width: 100%;
+  margin: 1rem 0;
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+}
+
+.ml-auto {
+  margin-left: auto;
+}
+
+.title-link {
+  font-size: 1.1em;
+  color: #374151;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 4px;
+  transition: color 0.3s, border-color 0.3s;
+}
+
+.title-link:hover {
+  color: var(--highlight-text-color);
+  cursor: pointer;
+}
+
+.ref {
+  margin-top: 0.5rem;
+}

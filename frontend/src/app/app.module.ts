@@ -51,6 +51,7 @@ import { PageNotFoundComponent } from './components/page-not-found/page-not-foun
 import { PreviewFormResponseComponent } from './components/form-response-preview/form-response-preview.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { AccessControlComponent } from './components/access-control/access-control.component';
+import { FormTableComponent } from './components/form-table/form-table.component';
 
 @NgModule({
   declarations: [
@@ -65,7 +66,8 @@ import { AccessControlComponent } from './components/access-control/access-contr
     PageNotFoundComponent,
     PreviewFormResponseComponent,
     NavbarComponent,
-    AccessControlComponent
+    AccessControlComponent,
+    FormTableComponent
   ],
   imports: [
     BrowserModule,

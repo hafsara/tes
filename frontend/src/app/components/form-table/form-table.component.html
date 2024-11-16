@@ -1,0 +1,73 @@
+<div class="card">
+  <p-table
+    #dt
+    [value]="forms"
+    dataKey="id"
+    [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [loading]="loading"
+    [paginator]="true"
+    [globalFilterFields]="['title', 'description', 'reference']"
+  >
+    <ng-template pTemplate="caption">
+      <div class="flex">
+        <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)" />
+        <span class="p-input-icon-left ml-auto">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" placeholder="Search keyword" (input)="filterGlobal(dt, $event)" />
+        </span>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:80%;min-width:15rem">
+          <div class="flex align-items-center">
+            Title
+            <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+          </div>
+        </th>
+        <th pSortableColumn="created_at" style="min-width:10rem">
+          <div class="flex align-items-center">
+            Created at
+            <p-columnFilter type="date" field="created_at" display="menu">
+              <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                <p-calendar
+                  [(ngModel)]="filterDates"
+                  selectionMode="range"
+                  [minDate]="minDate"
+                  [maxDate]="maxDate"
+                  placeholder="Select date range"
+                ></p-calendar>
+              </ng-template>
+            </p-columnFilter>
+            <p-sortIcon field="created_at"></p-sortIcon>
+          </div>
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-form>
+      <tr [pSelectableRow]="form">
+        <td>
+          <a
+            [routerLink]="['/dashboard', form.app_name, 'load-form', form.access_token]"
+            (click)="selectForm(form.access_token)"
+            class="title-link"
+          >
+            {{ form.title }}
+          </a>
+          <div *ngIf="form.reference" class="ref">
+            <p-tag [value]="form.reference" severity="info"></p-tag>
+          </div>
+        </td>
+        <td>
+          {{ form.created_at | date: 'dd/MM/yyyy' }}
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="2">No Forms found.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

@@ -1,46 +1,32 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { Table } from 'primeng/table';
-import { FormService } from '../../services/form.service';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { formatQuestions } from '../../utils/question-formatter';
+import { FormService } from '../../services/form.service';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+  styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
   menuItems: any[] = [];
   forms: any[] = [];
   formContainer: any = {};
-  searchValue: string | undefined;
-  currentView: string = 'loading';
-  loading: boolean = false;
-  status: string = 'answered';
-  filterDates: Date[] = [];
-  minDate: Date = new Date(new Date().setFullYear(new Date().getFullYear() - 1));
-  maxDate: Date = new Date();
   appOptions: { name: string; token: string }[] = [];
   selectedApps: string[] = [];
+  loading = false;
+  currentView = 'loading';
+  status = 'answered';
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
     private formService: FormService,
     private location: Location
   ) {
-    this.menuItems = [
-      { label: 'To be checked', icon: 'pi pi-check-square', command: () => this.onMenuItemClick('answered') },
-      { label: 'Open', icon: 'pi pi-folder-open', command: () => this.onMenuItemClick('open') },
-      { label: 'Reminder', icon: 'pi pi-bell', command: () => this.onMenuItemClick('reminder') },
-      { label: 'Escalate', icon: 'pi pi-exclamation-triangle', command: () => this.onMenuItemClick('escalate') },
-      { label: 'Archived', icon: 'pi pi-book', command: () => this.onMenuItemClick('validated') },
-      { label: 'Canceled', icon: 'pi pi-times-circle', command: () => this.onMenuItemClick('canceled') }
-    ];
+    this.initializeMenuItems();
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const accessToken = params.get('access_token');
       if (accessToken) {
@@ -53,48 +39,52 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  onSelectedAppIdsChange(selectedAppIds: string[]) {
-    this.selectedApps = selectedAppIds;
-    this.checkAndLoadForms();
+  initializeMenuItems(): void {
+    this.menuItems = [
+      { label: 'To be checked', icon: 'pi pi-check-square', command: () => this.updateStatus('answered') },
+      { label: 'Open', icon: 'pi pi-folder-open', command: () => this.updateStatus('open') },
+      { label: 'Reminder', icon: 'pi pi-bell', command: () => this.updateStatus('reminder') },
+      { label: 'Escalate', icon: 'pi pi-exclamation-triangle', command: () => this.updateStatus('escalate') },
+      { label: 'Archived', icon: 'pi pi-book', command: () => this.updateStatus('validated') },
+      { label: 'Canceled', icon: 'pi pi-times-circle', command: () => this.updateStatus('canceled') },
+    ];
   }
 
-  checkAndLoadForms() {
+  updateStatus(newStatus: string): void {
+    this.status = newStatus;
+    this.currentView = 'loading';
+    newStatus === 'validated' ? this.loadValidatedForms() : this.loadForms(newStatus);
+  }
+
+  checkAndLoadForms(): void {
     if (this.selectedApps.length > 0 && this.status) {
       this.loadForms(this.status);
     }
   }
 
-  onAppOptionsLoaded(options: { name: string; token: string }[]) {
+  onAppOptionsLoaded(options: { name: string; token: string }[]): void {
     this.appOptions = options;
   }
 
-  onMenuItemClick(status: string) {
-    this.status = status;
-    this.currentView = 'loading';
-    if (status==='validated'){
-      this.loadValidatedForms()
-    } else {
-      this.loadForms(this.status);
-    }
-    this.location.go('/dashboard');
+  onSelectedAppIdsChange(selectedAppIds: string[]): void {
+    this.selectedApps = selectedAppIds;
+    this.checkAndLoadForms();
   }
 
-  loadForms(status: string) {
-      this.loading = true;
-      const appIds = this.selectedApps.join(',');
-      this.formService.getFormContainersByStatus(appIds, status).subscribe(
-          (data) => {
-              this.forms = data;
-              this.currentView = 'table';
-              this.loading = false;
-          },
-          (error) => {
-              this.loading = false;
-          }
-      );
+  loadForms(status: string): void {
+    this.loading = true;
+    const appIds = this.selectedApps.join(',');
+    this.formService.getFormContainersByStatus(appIds, status).subscribe(
+      (data) => {
+        this.forms = data;
+        this.currentView = 'table';
+        this.loading = false;
+      },
+      () => (this.loading = false)
+    );
   }
 
-  loadValidatedForms() {
+  loadValidatedForms(): void {
     this.loading = true;
     const appIds = this.selectedApps.join(',');
     this.formService.getValidatedFormContainers(appIds).subscribe(
@@ -103,40 +93,24 @@ export class DashboardComponent implements OnInit {
         this.currentView = 'table';
         this.loading = false;
       },
-      (error) => {
-        this.loading = false;
-      }
+      () => (this.loading = false)
     );
   }
 
-  filterGlobal(table: Table, event: Event) {
-    const input = event.target as HTMLInputElement;
-    table.filterGlobal(input.value, 'contains');
-  }
 
-  loadFormDetails(access_token: string) {
+  loadFormDetails(accessToken: string): void {
     this.loading = true;
-    this.formService.getFormContainerByAccessToken(access_token).subscribe(
+    this.formService.getFormContainerByAccessToken(accessToken).subscribe(
       (data) => {
-        if (data.forms) {
-            data.forms.forEach((form: any) => {
-              if (form.questions) {
-                form.questions = formatQuestions(form.questions);
-              }
-            });
-          }
         this.formContainer = data;
-        this.formContainer.access_token = access_token;
         this.currentView = 'questions';
         this.loading = false;
       },
-      (error) => {
-        this.loading = false;
-      }
+      () => (this.loading = false)
     );
   }
 
-  switchTo(view: string) {
+  switchTo(view: string): void {
     this.currentView = view;
     if (view === 'table') {
       this.loadForms(this.status);
@@ -148,8 +122,11 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  clear(table: Table) {
-    table.clear();
-    this.searchValue = '';
+  navigateToCreateForm(): void {
+    this.switchTo('createForm');
+  }
+
+  onFormSelected(accessToken: string): void {
+    this.loadFormDetails(accessToken);
   }
 }
