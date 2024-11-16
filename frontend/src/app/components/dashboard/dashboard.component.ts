@@ -138,9 +138,12 @@ export class DashboardComponent implements OnInit {
 
   switchTo(view: string) {
     this.currentView = view;
-    this.location.go('/dashboard');
     if (view === 'table') {
       this.loadForms(this.status);
+    } else if(view === 'createForm'){
+      this.location.go('/create-form');
+    } else {
+      this.location.go('/dashboard');
     }
   }
 
