@@ -8,13 +8,13 @@
           <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
             <div class="centered-container flex align-items-center">
               <div class="full-width-input mr-2">
-                <p-dropdown
-                  [options]="appOptions"
-                  [(ngModel)]="formContainer.appId"
-                  optionLabel="name"
-                  placeholder="Select Application"
-                  (onChange)="onAppChange($event)"
-                ></p-dropdown>
+              <p-dropdown
+                [options]="appOptions"
+                [(ngModel)]="selectedApp"
+                optionLabel="name"
+                placeholder="Select Application"
+                (onChange)="onAppChange($event)"
+              ></p-dropdown>
                 <small *ngIf="showErrors && !formContainer.appId" class="p-error">Application is required</small>
               </div>
 

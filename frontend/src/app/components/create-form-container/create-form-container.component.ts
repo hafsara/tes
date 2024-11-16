@@ -40,6 +40,7 @@ export class CreateFormContainerComponent {
   };
 
   selectedCampaign: string | undefined;
+  selectedApp: string | undefined;
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   campaignOptions: { name: string, id: string }[] = [];
 
