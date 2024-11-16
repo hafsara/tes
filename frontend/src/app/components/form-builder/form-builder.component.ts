@@ -43,7 +43,8 @@ export class FormBuilderComponent {
   duplicateQuestion(index: number) {
     const questionToDuplicate = this.form.questions[index];
     this.form.questions.splice(index + 1, 0, {
-      ...questionToDuplicate
+      ...questionToDuplicate,
+      options: [...questionToDuplicate.options],
     });
   }
 
