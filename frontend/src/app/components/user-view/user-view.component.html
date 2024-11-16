@@ -44,7 +44,7 @@
             </small>
           </div>
 
-          <div *ngSwitchCase="'multipleChoice'">
+          <div *ngSwitchCase="'radioButton'">
             <div *ngFor="let option of question.formattedOptions" class="opts">
               <p-radioButton
                 name="group{{i}}"

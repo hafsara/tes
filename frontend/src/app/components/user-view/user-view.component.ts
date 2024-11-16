@@ -74,7 +74,7 @@ loadForm(): void {
       if (question.isRequired) {
         if (question.type === 'text' && (!question.response || question.response.trim() === '')) {
           this.validationErrors.push(questionError);
-        } else if (question.type === 'multipleChoice' && !question.response) {
+        } else if (question.type === 'radioButton' && !question.response) {
           this.validationErrors.push(questionError);
         } else if (question.type === 'checkbox' && (!question.selectedOptions || question.selectedOptions.length === 0)) {
           this.validationErrors.push(`Please select at least one option for question ${index + 1}: ${question.label}`);

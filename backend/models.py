@@ -89,6 +89,7 @@ class TimelineEntry(db.Model):
     __tablename__ = 'timeline_entries'
     id = db.Column(db.Integer, primary_key=True)
     form_container_id = db.Column(db.Integer, db.ForeignKey('form_containers.id'), nullable=False)
+    form_id = db.Column(db.Integer, db.ForeignKey('forms.id'), nullable=False)
     event = db.Column(db.String(255), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     details = db.Column(db.Text, nullable=True)

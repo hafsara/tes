@@ -21,13 +21,14 @@
               <div class="full-width-input">
                 <p-dropdown
                   [options]="campaignOptions"
-                  [(ngModel)]="formContainer.campaignId"
+                  [(ngModel)]="selectedCampaign"
                   optionValue="id"
                   optionLabel="name"
                   [filter]="true"
                   filterBy="name"
                   [showClear]="true"
                   [disabled]="!appSelected"
+                  (onChange)="onCampaignChange($event)"
                   placeholder="Select Campaign">
                 </p-dropdown>
                 <small *ngIf="showErrors && !formContainer.campaignId" class="p-error">Campaign is required</small>

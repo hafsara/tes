@@ -81,20 +81,21 @@ def create_form_container():
         form.questions.append(question)
 
     db.session.add(form)
+    db.session.commit()
 
     timeline_entry = TimelineEntry(
         form_container_id=form_container.id,
+        form_id=form.id,
         event='FormContainer created',
         details=f'Form container created with title {form_container.title} by {admin_id}',
         timestamp=datetime.utcnow()
     )
-    db.session.add(timeline_entry)
 
+    db.session.add(timeline_entry)
     db.session.commit()
     send_initial_notification_task(form_container.id)
     # TODO
     # run_delayed_workflow(container_id=form_container.id)
-
     return jsonify(
         {"container_id": form_container.id, "form_id": form.id, "access_token": form_container.access_token}), 201
 
@@ -122,17 +123,23 @@ def add_form_to_container(container_id):
         form_container_id=container_id,
         questions=questions
     )
+    try:
+        db.session.add(new_form)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "An error occurred while adding the form"}), 500
 
     timeline_entry = TimelineEntry(
         form_container_id=form_container.id,
+        form_id=new_form.id,
         event='Unsubstantial response',
         details=f'Response marked as unsubstantial by {admin_id}',
         timestamp=datetime.utcnow()
     )
-    db.session.add(new_form)
-    db.session.add(timeline_entry)
 
     try:
+        db.session.add(timeline_entry)
         db.session.commit()
         return jsonify({"form_id": new_form.id}), 201
     except Exception as e:
@@ -173,6 +180,7 @@ def submit_form_response(access_token, form_id):
 
     timeline_entry = TimelineEntry(
         form_container_id=form_container.id,
+        form_id=form.id,
         event='Response submitted',
         details=f'Response submitted for form ID {form_id} by {responder_uid}',
         timestamp=datetime.utcnow()
@@ -285,6 +293,7 @@ def validate_form_container(container_id, form_id):
 
     timeline_entry = TimelineEntry(
         form_container_id=form_container.id,
+        form_id=form.id,
         event='FormContainer validated',
         details=f'Form container validated by {admin_id}',
         timestamp=datetime.utcnow()
@@ -348,8 +357,10 @@ def cancel_form(form_container_id, form_id):
 
     form.status = 'canceled'
     form.cancel_comment = comment
+
     timeline_entry = TimelineEntry(
         form_container_id=form_container_id,
+        form_id=form.id,
         event='FormContainer created',
         details=f'Form canceled by {admin_id} with comment: {comment}',
         timestamp=datetime.utcnow()
@@ -364,11 +375,11 @@ def cancel_form(form_container_id, form_id):
 def get_validated_form_containers(app_ids):
     app_id_list = app_ids.split(',')
     validated_form_containers = (
-        db.session.query(FormContainer)
+        db.session.query(FormContainer, Application, Campaign)
         .join(Application, FormContainer.app_id == Application.id, isouter=True)
         .join(Campaign, FormContainer.campaign_id == Campaign.id, isouter=True)
         .filter(FormContainer.validated == True)
-        .filter(FormContainer.app_id.in_(app_id_list))  # Apply app_id filter
+        .filter(FormContainer.app_id.in_(app_id_list))
         .all()
     )
 

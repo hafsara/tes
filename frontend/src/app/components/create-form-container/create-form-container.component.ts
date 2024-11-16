@@ -38,6 +38,7 @@ export class CreateFormContainerComponent {
     }]
   };
 
+  selectedCampaign: string | undefined;
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   campaignOptions: { name: string, id: string }[] = [];
 
@@ -55,13 +56,17 @@ export class CreateFormContainerComponent {
     this.loadCampaignOptions(this.formContainer.appId);
   }
 
+  onCampaignChange(event: any) {
+    this.formContainer.campaignId = event.value;
+  }
+
   loadCampaignOptions(appId: string): void {
     this.formService.loadCampaignOptions(appId).subscribe(
       (campaigns) => {
         this.campaignOptions = campaigns;
       },
       (error) => {
-        console.error('Failed to load campaigns:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: `Failed to load campaigns: ${error}` });
       }
     );
   }
@@ -129,8 +134,6 @@ export class CreateFormContainerComponent {
   }
 
   submitForm() {
-    console.log(this.formContainer.appId);
-    console.log(this.formContainer.campaignId);
     const payload = {
       title: this.formContainer.title,
       app_id: this.formContainer.appId,
@@ -177,8 +180,7 @@ export class CreateFormContainerComponent {
         this.loadCampaignOptions(this.formContainer.appId);
       },
       (error) => {
-        console.error('Failed to create campaign:', error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create campaign' });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: `Failed to create campaign ${error}` });
       }
     );
   }

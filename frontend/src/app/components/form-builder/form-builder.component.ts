@@ -11,7 +11,7 @@ export class FormBuilderComponent {
   @Input() showErrors: boolean = false;
 
   questionTypes = [
-    { label: 'Multiple choices', value: 'multipleChoice' },
+    { label: 'Radio Button', value: 'radioButton' },
     { label: 'Checkboxes', value: 'checkbox' },
     { label: 'Drop-down list', value: 'dropdown' },
     { label: 'Text', value: 'text' }
