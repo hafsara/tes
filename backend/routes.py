@@ -155,6 +155,7 @@ def get_form_container_by_access_token(access_token):
         "escalate": form_container.escalate,
         "validated": form_container.validated,
         "initiated_by": form_container.initiated_by,
+        "created_at": form_container.created_at,
         "app_name": form_container.application.name,
         "campaign_name": form_container.campaign.name,
         "forms": [
