@@ -24,8 +24,10 @@ class FormContainer(db.Model):
     app_id = db.Column(db.String(36), db.ForeignKey('application.id'), nullable=True)
     campaign_id = db.Column(db.Integer, db.ForeignKey('campaign.id'), nullable=True)
 
-    forms = db.relationship('Form', backref='form', lazy=True)
-    timeline = db.relationship('TimelineEntry', backref='timeline', lazy=True)
+    application = db.relationship('Application', backref='form_containers')
+    campaign = db.relationship('Campaign', backref='form_containers')
+    timeline = db.relationship('TimelineEntry', backref='form_containers', lazy=True)
+    forms = db.relationship('Form', backref='form_containers', lazy=True)
 
 
 class Campaign(db.Model):
@@ -51,7 +53,7 @@ class Form(db.Model):
     cancel_comment = db.Column(db.String(1024), nullable=True)
     questions = db.relationship('Question', backref='form', lazy=True, cascade="all, delete-orphan")
     responses = db.relationship('Response', backref='form', lazy=True)
-
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     # TODO
     # last_reminder_sent = db.Column(db.DateTime, nullable=True)
     # reminder_count = db.Column(db.Integer, default=0)

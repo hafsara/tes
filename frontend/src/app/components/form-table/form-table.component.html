@@ -39,7 +39,7 @@
           </div>
         </th>
 
-        <th pSortableColumn="created_at" style="min-width:10rem">
+        <th pSortableColumn="created_at">
           <div class="flex align-items-center">
             Created at
             <p-columnFilter type="date" field="created_at" display="menu">
@@ -68,7 +68,7 @@
           >
             {{ form.title }}
           </a>
-          <div class="card flex gap-2">
+          <div class="card flex gap-2"  style="margin-top: 0.7rem;">
             <p-tag [value]="'APP: ' + form.app_name"></p-tag>
             <p-tag *ngIf="form.reference" [value]="form.reference" severity="info" ></p-tag>
           </div>
