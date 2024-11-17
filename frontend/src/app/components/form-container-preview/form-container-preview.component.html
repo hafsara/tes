@@ -3,7 +3,7 @@
 <div class="dashboard-container">
   <div class="main-content">
     <div class="card">
-      <p-tabView>
+      <p-tabView [(activeIndex)]="activeTabIndex">
         <p-tabPanel header="Overview">
           <div class="form-main">
             <p-card header="{{ formContainer.title }}" class="card-background">
@@ -54,8 +54,8 @@
     <ul>
       <li *ngFor="let form of formContainer.forms; let i = index" (click)="selectForm(form)"
           [class.active]="form === currentForm">
-        <button (click)="selectForm(form)">
-          <i class="pi pi-star"></i> Form {{ i + 1 }}
+        <button (click)="selectPreviousForm(form)">
+          <i class="pi pi-star"></i> {{ form.created_at | date: 'dd/MM/yyyy HH:mm:ss' }}
         </button>
       </li>
     </ul>

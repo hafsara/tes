@@ -22,6 +22,7 @@ export class FormContainerPreviewComponent implements OnInit {
   cancelComment: string = '';
   showCommentError: boolean = false;
   markdownDescription: string = '';
+  activeTabIndex: number = 0;
 
   constructor(
     private formService: FormService,
@@ -42,6 +43,11 @@ export class FormContainerPreviewComponent implements OnInit {
 
   selectForm(form: Form) {
     this.currentForm = form;
+  }
+
+  selectPreviousForm(form: any): void {
+    this.selectForm(form);
+    this.activeTabIndex = 0;
   }
 
   toggleSidebar() {

@@ -7,6 +7,7 @@ import jwt
 api = Blueprint('api', __name__)
 ADMIN_ID = 'd76476'  # todo enlever cette ligne et la remplacer par ADMIN_ID
 
+
 def error_response(message, status_code):
     return jsonify({"error": message}), status_code
 
@@ -101,6 +102,7 @@ def create_form_container():
         "form_id": form.id,
         "access_token": form_container.access_token
     }), 201
+
 
 @api.route('/form-containers/apps/<string:app_ids>', methods=['GET'])
 def get_form_containers(app_ids):
@@ -197,7 +199,7 @@ def validate_form_container(container_id, form_id):
 
     form = Form.query.filter_by(id=form_id, form_container_id=form_container.id).first()
     if not form:
-        return jsonify({"error": "Form not found"}), 404
+        return error_response("Form not found", 404)
 
     form_container.validated = True
     form.status = 'validated'
@@ -220,7 +222,7 @@ def validate_form_container(container_id, form_id):
 def get_form_container_timeline(form_container_id):
     timeline_entry = TimelineEntry.query.filter_by(form_container_id=form_container_id).all()
     if not timeline_entry:
-        return jsonify({"error": "Timeline not found"}), 404
+        return error_response("Timeline not found", 404)
 
     interaction_timeline = [
         {
@@ -259,12 +261,12 @@ def cancel_form(form_container_id, form_id):
     comment = data.get('comment', '').strip()
 
     if not comment or len(comment) < 4:
-        return jsonify({"error": "Comment must be at least 4 characters long."}), 400
+        return error_response("Comment must be at least 4 characters long.", 400),
 
     form = Form.query.filter_by(id=form_id, form_container_id=form_container_id).first()
 
     if not form:
-        return jsonify({"error": "Form not found"}), 404
+        return error_response("Form not found", 404)
 
     form.status = 'canceled'
     form.cancel_comment = comment
@@ -280,6 +282,99 @@ def cancel_form(form_container_id, form_id):
     db.session.commit()
     # todo add pause to the workflow
     return jsonify({"message": "Form canceled successfully", "form_id": form_id, "comment": comment}), 200
+
+
+@api.route('/form-containers/<int:container_id>/forms', methods=['POST'])
+def add_form_to_container(container_id):
+    admin_id = ADMIN_ID
+    if not admin_id:
+        return error_response("Admin not authenticated", 401)
+    form_container = FormContainer.query.get_or_404(container_id)
+
+    if len(form_container.forms) >= 5:
+        return error_response("You can't add more than 5 forms to this container", 400)
+
+    current_form = next((form for form in form_container.forms if form.status == 'answered'), None)
+
+    if current_form:
+        current_form.status = 'unsubstantial'
+
+    data = request.json
+    questions_data = data.get('questions', [])
+    questions = [Question(label=question['label'], type=question['type'], options=question.get('options', []),
+                          is_required=question.get('isRequired', True)) for question in questions_data]
+    new_form = Form(
+        form_container_id=container_id,
+        questions=questions
+    )
+    try:
+        db.session.add(new_form)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return error_response("An error occurred while adding the form", 500)
+
+    timeline_entry = TimelineEntry(
+        form_container_id=form_container.id,
+        form_id=new_form.id,
+        event='Unsubstantial response',
+        details=f'Response marked as unsubstantial by {admin_id}',
+        timestamp=datetime.utcnow()
+    )
+    try:
+        db.session.add(timeline_entry)
+        db.session.commit()
+        return jsonify({"form_id": new_form.id}), 201
+    except Exception as e:
+        db.session.rollback()
+        return error_response("An error occurred while adding the form", 500)
+
+
+@api.route('/form-containers/<string:access_token>/forms/<int:form_id>/submit-response', methods=['POST'])
+def submit_form_response(access_token, form_id):
+    data = request.json
+    responder_uid = ADMIN_ID
+
+    form_container = FormContainer.query.filter_by(access_token=access_token).first_or_404()
+    if form_container.validated:
+        return error_response("Form container already validated", 401)
+
+    form = Form.query.filter_by(id=form_id, form_container_id=form_container.id).first_or_404()
+
+    if form.status == 'answered':
+        return error_response("Form already answered", 401)
+
+    response_record = Response(
+        form_id=form.id,
+        responder_uid=responder_uid,
+        answers=[]
+    )
+
+    for question_data in data.get('questions', []):
+        question_id = question_data.get('id')
+        response_content = question_data.get('response')
+        question = Question.query.filter_by(id=question_id, form_id=form.id).first_or_404()
+        question.response = response_content
+        response_record.answers.append({
+            "questionId": question.id,
+            "response": response_content
+        })
+
+    form.responses.append(response_record)
+    form.status = 'answered'
+
+    timeline_entry = TimelineEntry(
+        form_container_id=form_container.id,
+        form_id=form.id,
+        event='Response submitted',
+        details=f'Response submitted for form ID {form_id} by {responder_uid}',
+        timestamp=datetime.utcnow()
+    )
+    db.session.add(timeline_entry)
+    db.session.commit()
+    # form_workflow = FormWorkflowManager(container_id=form_container.id)
+    # form_workflow.stop_workflow()
+    return jsonify({"message": "Response submitted successfully"}), 200
 
 
 @api.route('/form-containers/apps/<string:app_ids>/validated', methods=['GET'])
@@ -307,7 +402,7 @@ def get_validated_form_containers(app_ids):
 
 
 def generate_token(application):
-    payload = { 'application_name': application.name, 'app_id': application.id }
+    payload = {'application_name': application.name, 'app_id': application.id}
     # todo
     token = jwt.encode(payload, 'your_secret_key', algorithm='HS256')
     return token
