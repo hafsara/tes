@@ -115,8 +115,10 @@ def get_form_containers(app_ids):
     status = request.args.get('status')
     if filter_type == 'status' and status:
         app_id_list = app_ids.split(',')
-        query = FormContainer.query.filter(FormContainer.app_id.in_(app_id_list)).filter(
-            FormContainer.forms.any(Form.status == status))
+        query = (FormContainer.query
+                 .filter(FormContainer.app_id.in_(app_id_list))
+                 .filter(FormContainer.forms.any(Form.status == status))
+                 .order_by(FormContainer.created_at.desc()))
         form_containers = query.all()
         result = [
             {
@@ -141,6 +143,7 @@ def get_form_containers(app_ids):
 @api.route('/form-containers/<string:access_token>', methods=['GET'])
 def get_form_container_by_access_token(access_token):
     form_container = FormContainer.query.filter_by(access_token=access_token).first_or_404()
+    sorted_forms = sorted(form_container.forms, key=lambda form: form.created_at or datetime.min, reverse=True)
 
     result = {
         "id": form_container.id,
@@ -180,7 +183,7 @@ def get_form_container_by_access_token(access_token):
                     for response in form.responses
                 ]
             }
-            for form in form_container.forms
+            for form in sorted_forms
         ]
     }
 
@@ -191,6 +194,7 @@ def get_form_container_by_access_token(access_token):
 def validate_form_container(container_id, form_id):
     admin_id = ADMIN_ID
     form_container = FormContainer.query.get_or_404(container_id)
+
     if not form_container:
         return error_response("Form Container not found", 404)
 
@@ -198,6 +202,7 @@ def validate_form_container(container_id, form_id):
         return error_response("Form container already validated", 401)
 
     form = Form.query.filter_by(id=form_id, form_container_id=form_container.id).first()
+
     if not form:
         return error_response("Form not found", 404)
 
