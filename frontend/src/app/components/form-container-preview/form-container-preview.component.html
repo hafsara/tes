@@ -6,12 +6,15 @@
       <p-tabView [(activeIndex)]="activeTabIndex">
         <p-tabPanel header="Overview">
           <div class="form-main">
-            <div class="card flex gap-2" style="margin-top: 0.7rem;margin-bottom: 0.7rem;">
-              <p-tag [value]="'APP: ' + formContainer.app_name"></p-tag>
-              <p-tag [value]="formContainer.campaign_name" severity="info"></p-tag>
-              <p-tag *ngIf="formContainer.reference" [value]="formContainer.reference" severity="info"></p-tag>
-              <div class="date-badge align-items-center justify-content-center">
-                <i class="pi pi-clock"></i>
+            <div class="card flex align-items-center justify-content-between"
+                 style="margin-top: 0.7rem; margin-bottom: 2rem;">
+              <div class="tags-container flex gap-2">
+                <p-tag [value]="'APP: ' + formContainer.app_name"></p-tag>
+                <p-tag [value]="formContainer.campaign_name" severity="info"></p-tag>
+                <p-tag *ngIf="formContainer.reference" [value]="formContainer.reference" severity="info"></p-tag>
+              </div>
+              <div class="date-badge flex align-items-center" style="margin-left: auto;">
+                <i class="pi pi-clock" style="margin-right: 0.5rem;"></i>
                 <span>{{ formContainer.created_at | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
               </div>
             </div>
