@@ -7,25 +7,38 @@
     [rowsPerPageOptions]="[10, 25, 50]"
     [loading]="loading"
     [paginator]="true"
-    [globalFilterFields]="['title', 'description', 'reference']"
+    [globalFilterFields]="['title', 'description', 'reference', 'user_email']"
   >
     <ng-template pTemplate="caption">
       <div class="flex">
-        <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)" />
+        <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)"/>
         <span class="p-input-icon-left ml-auto">
           <i class="pi pi-search"></i>
-          <input pInputText type="text" placeholder="Search keyword" (input)="filterGlobal(dt, $event)" />
+          <input pInputText type="text" placeholder="Search keyword" (input)="filterGlobal(dt, $event)"/>
         </span>
       </div>
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
-        <th style="width:80%;min-width:15rem">
+        <th style="width:50%;min-width:15rem">
           <div class="flex align-items-center">
             Title
             <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
           </div>
         </th>
+        <th>
+          <div class="flex align-items-center">
+            User
+            <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+          </div>
+        </th>
+        <th>
+          <div class="flex align-items-center">
+            Campaign
+            <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+          </div>
+        </th>
+
         <th pSortableColumn="created_at" style="min-width:10rem">
           <div class="flex align-items-center">
             Created at
@@ -55,9 +68,16 @@
           >
             {{ form.title }}
           </a>
-          <div *ngIf="form.reference" class="ref">
-            <p-tag [value]="form.reference" severity="info"></p-tag>
+          <div class="card flex gap-2">
+            <p-tag [value]="'APP: ' + form.app_name"></p-tag>
+            <p-tag *ngIf="form.reference" [value]="form.reference" severity="info" ></p-tag>
           </div>
+        </td>
+        <td>
+          {{ form.user_email }}
+        </td>
+        <td>
+          {{ form.campaign_name }}
         </td>
         <td>
           {{ form.created_at | date: 'dd/MM/yyyy' }}
