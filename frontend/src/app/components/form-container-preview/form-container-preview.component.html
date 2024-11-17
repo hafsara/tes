@@ -7,31 +7,38 @@
         <p-tabPanel header="Overview">
           <div class="form-main">
             <p-card header="{{ formContainer.title }}" class="card-background">
-              <p class="m-0">
-                <markdown [data]="markdownDescription"></markdown>
-              </p>
+              <div class="card">
+                <p-fieldset legend="Description">
+                  <markdown [data]="markdownDescription"></markdown>
+                </p-fieldset>
+              </div>
             </p-card>
-            <div *ngIf="currentForm.status === 'open' || currentForm.status === 'canceled'">
-              <app-form-preview [formQuestions]="currentForm"></app-form-preview>
-            </div>
-            <div *ngIf="currentForm.status !== 'open' && currentForm.status !== 'canceled'">
-              <app-form-response-preview [questions]="currentForm.questions"></app-form-response-preview>
-            </div>
+            <div class="card desc-card">
 
-            <div class="centered-container-button flex justify-content-end"
-                 *ngIf="currentForm.status === 'answered'">
-              <div class="button-group">
-                <p-button label="Ask again" class="custom-button" [outlined]="true"
-                          (onClick)="verifAddNewForm()"></p-button>
-                <p-button label="Validate" class="custom-button" [outlined]="true"
-                          (onClick)="validateFormContainer($event)"></p-button>
-              </div>
-            </div>
-            <div class="centered-container-button flex justify-content-end"
-                 *ngIf="currentForm.status === 'open'">
-              <div class="button-group">
-                <p-button label="Cancel" class="custom-button" (onClick)="showCancelComment()"></p-button>
-              </div>
+              <p-fieldset legend="Form">
+                <div *ngIf="currentForm.status === 'open' || currentForm.status === 'canceled'">
+                  <app-form-preview [formQuestions]="currentForm"></app-form-preview>
+                </div>
+                <div *ngIf="currentForm.status !== 'open' && currentForm.status !== 'canceled'">
+                  <app-form-response-preview [questions]="currentForm.questions"></app-form-response-preview>
+                </div>
+
+                <div class="centered-container-button flex justify-content-end"
+                     *ngIf="currentForm.status === 'answered'">
+                  <div class="button-group">
+                    <p-button label="Ask again" class="custom-button" [outlined]="true"
+                              (onClick)="verifAddNewForm()"></p-button>
+                    <p-button label="Validate" class="custom-button" [outlined]="true"
+                              (onClick)="validateFormContainer($event)"></p-button>
+                  </div>
+                </div>
+                <div class="centered-container-button flex justify-content-end"
+                     *ngIf="currentForm.status === 'open'">
+                  <div class="button-group">
+                    <p-button label="Cancel" class="custom-button" (onClick)="showCancelComment()"></p-button>
+                  </div>
+                </div>
+              </p-fieldset>
             </div>
           </div>
         </p-tabPanel>
