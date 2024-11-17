@@ -13,8 +13,14 @@
                 </p-fieldset>
               </div>
             </p-card>
-            <div class="card desc-card">
 
+            <div *ngIf="currentForm.status === 'canceled'" class="card desc-card">
+              <p-fieldset legend="Cancel justification">
+                <markdown [data]="currentForm.cancel_comment"></markdown>
+              </p-fieldset>
+            </div>
+
+            <div class="card desc-card">
               <p-fieldset legend="Form">
                 <div *ngIf="currentForm.status === 'open' || currentForm.status === 'canceled'">
                   <app-form-preview [formQuestions]="currentForm"></app-form-preview>
