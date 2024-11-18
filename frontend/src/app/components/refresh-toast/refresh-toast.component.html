@@ -1,0 +1,19 @@
+<p-toast key="br" position="bottom-right"
+         [showTransformOptions]="'translateY(100%)'"
+         [showTransitionOptions]="'1000ms'"
+         [hideTransitionOptions]="'1000ms'"
+         [showTransformOptions]="'translateX(100%)'">
+  <ng-template let-message pTemplate="message">
+    <div class="flex flex-column align-items-start" style="flex: 1">
+      <div class="font-bold">
+        {{ message.summary }}
+      </div>
+      <div>
+        {{ message.detail }}
+      </div>
+      <button class="refresh-btn" (click)="handleToastClick()" aria-label="Refresh">
+        <i class="pi pi-spin pi-refresh"></i>
+      </button>
+    </div>
+  </ng-template>
+</p-toast>

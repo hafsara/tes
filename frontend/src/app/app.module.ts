@@ -54,6 +54,7 @@ import { PreviewFormResponseComponent } from './components/form-response-preview
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { AccessControlComponent } from './components/access-control/access-control.component';
 import { FormTableComponent } from './components/form-table/form-table.component';
+import { RefreshToastComponent } from './components/refresh-toast/refresh-toast.component';
 
 @NgModule({
   declarations: [
@@ -69,7 +70,8 @@ import { FormTableComponent } from './components/form-table/form-table.component
     PreviewFormResponseComponent,
     NavbarComponent,
     AccessControlComponent,
-    FormTableComponent
+    FormTableComponent,
+    RefreshToastComponent
   ],
   imports: [
     BrowserModule,
