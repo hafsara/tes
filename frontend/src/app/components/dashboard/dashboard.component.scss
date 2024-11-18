@@ -153,26 +153,3 @@ p-button {
   color: var(--highlight-text-color);
   cursor: pointer;
 }
-
-.refresh-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  color: #d9822b;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 50%;
-  transition: background-color 0.2s ease;
-  margin-left: auto
-}
-
-.refresh-btn:hover {
-  background-color: rgba(217, 130, 43, 0.1);
-}
-
-.refresh-btn:focus {
-  outline: none;
-}

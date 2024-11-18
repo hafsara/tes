@@ -192,7 +192,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleToastClick(): void {
+  handleRefresh(): void {
     this.messageService.clear();
     this.refreshFormContainer();
   }
