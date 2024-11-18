@@ -33,9 +33,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const accessToken = params.get('access_token');
-      console.log(accessToken);
       if (accessToken) {
-        console.log('je suis ici');
         this.loadFormDetails(accessToken);
         this.startFormPolling();
       } else {
@@ -151,28 +149,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   startFormPolling(): void {
-    if (!this.formContainer || !this.accessToken) {
+    if (!this.formContainer || !this.accessToken ||
+      this.formContainer.validated || this.formContainer.forms.some((form: any) => form.status === 'canceled')) {
       return;
     }
 
-    console.log('Starting form polling...');
     this.pollingInterval = setInterval(() => {
       this.formService.getFormContainerByAccessToken(this.accessToken).subscribe((newData: any) => {
-        console.log('Polling response:', newData);
-        if (JSON.stringify(newData) !== JSON.stringify(this.formContainer)) {
-          console.log('Form updated:', newData);
+        const hasFormContainerChanged =
+          newData.validated !== this.formContainer.validated ||
+          newData.forms.length !== this.formContainer.forms.length ||
+          newData.forms.some((newForm: any) => {
+            const existingForm = this.formContainer.forms.find((form: any) => form.form_id === newForm.form_id);
+            return existingForm && newForm.status !== existingForm.status;
+          });
+
+        if (hasFormContainerChanged) {
           this.messageService.add({
             severity: 'warn',
             summary: 'Form Updated',
             detail: 'The form has been updated. Click here to refresh.',
             sticky: true,
             key: 'br',
-            data: { action: 'refresh' },
           });
-          if (newData.status === 'validated' || newData.status === 'canceled') {
-            this.stopPolling();
-            return;
-          }
         }
       });
     }, 15000);
@@ -185,10 +184,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleToastClick(event: any): void {
-    if (event.data.action === 'refresh') {
-      this.loadFormDetails(this.accessToken);
-    }
+  handleToastClick(): void {
+    this.loadFormDetails(this.accessToken);
   }
-
 }

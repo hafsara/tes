@@ -1,4 +1,21 @@
-<p-toast (onClick)="handleToastClick($event)"/>
+<p-toast key="br" position="bottom-right"
+         [showTransformOptions]="'translateY(100%)'"
+         [showTransitionOptions]="'1000ms'"
+         [hideTransitionOptions]="'1000ms'"
+         [showTransformOptions]="'translateX(100%)'">
+  <ng-template let-message pTemplate="message">
+    <div class="flex flex-column align-items-start" style="flex: 1">
+      <div class="font-bold">
+        {{ message.summary }}
+      </div>
+      <div>
+        {{ message.detail }}
+      </div>
+      <p-button size="small" label="refresh" (onClick)="handleToastClick()" severity="warning"/>
+    </div>
+  </ng-template>
+
+</p-toast>
 <app-navbar
   (appOptionsLoaded)="onAppOptionsLoaded($event)"
   (selectedAppIdsChange)="onSelectedAppIdsChange($event)">
