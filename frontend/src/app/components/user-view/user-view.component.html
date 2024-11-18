@@ -1,8 +1,4 @@
 <div class="container">
-  <div class="sidebar-toggle-button" (click)="toggleSidebar()" *ngIf="historyForms.length > 0">
-    <i class="pi pi-bars"></i>
-  </div>
-
   <div class="sidebar" *ngIf="sidebarVisible && historyForms.length > 0">
     <h4>Previous Forms</h4>
     <ul>
@@ -13,6 +9,9 @@
         </button>
       </li>
     </ul>
+  </div>
+    <div class="sidebar-toggle-button" (click)="toggleSidebar()" *ngIf="historyForms.length > 0">
+    <i class="pi pi-bars"></i>
   </div>
   <div class="main-content centered-container">
     <div class="card">
