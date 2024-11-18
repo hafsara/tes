@@ -1,14 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { FormService } from '../../services/form.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   menuItems: any[] = [];
   forms: any[] = [];
   formContainer: any = {};
@@ -17,17 +18,19 @@ export class DashboardComponent implements OnInit {
   loading = false;
   currentView = 'loading';
   status = 'answered';
+  pollingInterval: any;
 
   constructor(
     private route: ActivatedRoute,
     private formService: FormService,
-    private location: Location
+    private location: Location,
+    private messageService: MessageService
   ) {
     this.initializeMenuItems();
   }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       const accessToken = params.get('access_token');
       if (accessToken) {
         this.currentView = 'loading';
@@ -35,8 +38,13 @@ export class DashboardComponent implements OnInit {
       } else {
         this.currentView = 'loading';
         this.checkAndLoadForms();
+        this.startTablePolling();
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.stopTablePolling();
   }
 
   initializeMenuItems(): void {
@@ -97,7 +105,6 @@ export class DashboardComponent implements OnInit {
     );
   }
 
-
   loadFormDetails(accessToken: string): void {
     this.loading = true;
     this.formService.getFormContainerByAccessToken(accessToken).subscribe(
@@ -126,5 +133,23 @@ export class DashboardComponent implements OnInit {
 
   onFormSelected(accessToken: string): void {
     this.loadFormDetails(accessToken);
+  }
+
+  startTablePolling(): void {
+    this.pollingInterval = setInterval(() => {
+      const appIds = this.selectedApps.join(',');
+      this.formService.getFormContainersByStatus(appIds, this.status).subscribe((newData: any[]) => {
+        if (JSON.stringify(newData) !== JSON.stringify(this.forms)) {
+          this.forms = newData;
+        }
+      });
+    }, 15000);
+  }
+
+
+  stopTablePolling(): void {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+    }
   }
 }
