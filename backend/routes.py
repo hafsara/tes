@@ -196,6 +196,7 @@ def get_form_container_by_access_token(access_token):
 
 @api.route('/form-containers/<int:container_id>/forms/<int:form_id>/validate', methods=['POST'])
 def validate_form_container(container_id, form_id):
+    # todo add plus de controle avant de modofier les status
     admin_id = ADMIN_ID
     form_container = FormContainer.query.get_or_404(container_id)
 
