@@ -25,7 +25,7 @@ export class CreateFormContainerComponent {
     description: '',
     userEmail: '',
     reference: '',
-    managerEmail: '',
+    escaladeEmail: '',
     escalate: true,
     ccEmails: [],
     reminderDelayDay: 1,
@@ -81,7 +81,7 @@ export class CreateFormContainerComponent {
   validateCurrentStep(): boolean {
     if (this.currentStep === 0) {
       const isEmailValid = this.emailPattern.test(this.formContainer.userEmail || '');
-      const isManagerEmailValid = !this.formContainer.escalate || (this.formContainer.managerEmail ? this.emailPattern.test(this.formContainer.managerEmail) : false);
+      const isManagerEmailValid = !this.formContainer.escalate || (this.formContainer.escaladeEmail ? this.emailPattern.test(this.formContainer.escaladeEmail) : false);
 
       return (
         this.formContainer.appId !== '' &&
@@ -143,7 +143,7 @@ export class CreateFormContainerComponent {
       campaign_id: this.formContainer.campaignId,
       description: this.formContainer.description,
       user_email: this.formContainer.userEmail,
-      escalade_email: this.formContainer.managerEmail,
+      escalade_email: this.formContainer.escaladeEmail,
       reference: this.formContainer.reference,
       escalate: this.formContainer.escalate,
       reminder_delay_day: this.formContainer.reminderDelayDay,

@@ -88,11 +88,11 @@
 
             <div *ngIf="formContainer.escalate" class="centered-container">
               <p-floatLabel>
-                <input pInputText id="managerMail" [(ngModel)]="formContainer.managerEmail"/>
+                <input pInputText id="managerMail" [(ngModel)]="formContainer.escaladeEmail"/>
                 <label for="managerMail">Escalade Email</label>
               </p-floatLabel>
               <small
-                *ngIf="showErrors && (!formContainer.managerEmail || !emailPattern.test(formContainer.managerEmail || ''))"
+                *ngIf="showErrors && (!formContainer.escaladeEmail || !emailPattern.test(formContainer.escaladeEmail || ''))"
                 class="p-error">Invalid escalade email</small>
             </div>
 
@@ -177,7 +177,7 @@
 
             <div *ngIf="formContainer.escalate" class="mb-3">
               <label class="font-bold">Escalade Email:</label>
-              <div>{{ formContainer.managerEmail }}</div>
+              <div>{{ formContainer.escaladeEmail }}</div>
             </div>
 
             <div class="mb-3">

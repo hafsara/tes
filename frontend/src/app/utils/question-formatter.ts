@@ -21,7 +21,7 @@ export interface FormContainer {
   description: string;
   userEmail: string;
   reference?: string;
-  managerEmail?: string;
+  escaladeEmail?: string;
   ccEmails?: string[];
   escalate: boolean;
   reminderDelayDay: number;

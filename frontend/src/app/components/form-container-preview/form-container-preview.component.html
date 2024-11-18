@@ -28,7 +28,7 @@
                   <strong>Escalade Email: </strong>
                   <span>{{ formContainer.escalade_email }}</span>
                 </div>
-                <div class="info-text" *ngIf="formContainer.cc_emails">
+                <div class="info-text" *ngIf="formContainer.cc_emails.length > 0">
                   <strong>CC Email: </strong>
                   <span>{{ formContainer.cc_emails }}</span>
                 </div>
