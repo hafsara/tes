@@ -152,6 +152,7 @@ def get_form_container_by_access_token(access_token):
         "user_email": form_container.user_email,
         "escalade_email": form_container.escalade_email,
         "reference": form_container.reference,
+        "cc_emails": form_container.cc_emails,
         "escalate": form_container.escalate,
         "validated": form_container.validated,
         "initiated_by": form_container.initiated_by,
