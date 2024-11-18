@@ -149,10 +149,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   startFormPolling(): void {
-    if (!this.formContainer || !this.accessToken ||
-      this.formContainer.validated || this.formContainer.forms.some((form: any) => form.status === 'canceled')) {
+    if (!this.formContainer || !this.accessToken){
       return;
     }
+    if (
+    this.formContainer.validated ||
+    (Array.isArray(this.formContainer.forms) && this.formContainer.forms.some((form: any) => form.status === 'canceled'))
+    ) {
+      return;
+    }
+
+    let toastDisplayed = false;
 
     this.pollingInterval = setInterval(() => {
       this.formService.getFormContainerByAccessToken(this.accessToken).subscribe((newData: any) => {
@@ -163,15 +170,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
             const existingForm = this.formContainer.forms.find((form: any) => form.form_id === newForm.form_id);
             return existingForm && newForm.status !== existingForm.status;
           });
-
-        if (hasFormContainerChanged) {
+        if (hasFormContainerChanged && !toastDisplayed) {
+          toastDisplayed = true;
           this.messageService.add({
-            severity: 'warn',
-            summary: 'Form Updated',
-            detail: 'The form has been updated. Click here to refresh.',
-            sticky: true,
-            key: 'br',
+              severity: 'warn',
+              summary: 'Form Updated',
+              detail: 'The form has been updated. Click here to refresh.',
+              sticky: true,
+              key: 'br',
           });
+          this.stopPolling();
         }
       });
     }, 15000);
@@ -185,6 +193,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   handleToastClick(): void {
-    this.loadFormDetails(this.accessToken);
+    this.messageService.clear();
+    this.refreshFormContainer();
+  }
+
+  refreshFormContainer(): void {
+    this.loadFormDetails(this.formContainer.access_token);
+    this.startFormPolling();
   }
 }
