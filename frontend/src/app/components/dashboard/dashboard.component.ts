@@ -18,6 +18,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   loading = false;
   currentView = 'loading';
   status = 'answered';
+  accessToken = '';
   pollingInterval: any;
 
   constructor(
@@ -30,13 +31,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.subscribe(params => {
       const accessToken = params.get('access_token');
+      console.log(accessToken);
       if (accessToken) {
-        this.currentView = 'loading';
+        console.log('je suis ici');
         this.loadFormDetails(accessToken);
+        this.startFormPolling();
       } else {
-        this.currentView = 'loading';
+        this.currentView = 'table';
         this.checkAndLoadForms();
         this.startTablePolling();
       }
@@ -44,7 +47,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.stopTablePolling();
+    this.stopPolling();
   }
 
   initializeMenuItems(): void {
@@ -107,6 +110,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   loadFormDetails(accessToken: string): void {
     this.loading = true;
+    this.accessToken = accessToken;
     this.formService.getFormContainerByAccessToken(accessToken).subscribe(
       (data) => {
         this.formContainer = data;
@@ -146,10 +150,45 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }, 15000);
   }
 
+  startFormPolling(): void {
+    if (!this.formContainer || !this.accessToken) {
+      return;
+    }
 
-  stopTablePolling(): void {
+    console.log('Starting form polling...');
+    this.pollingInterval = setInterval(() => {
+      this.formService.getFormContainerByAccessToken(this.accessToken).subscribe((newData: any) => {
+        console.log('Polling response:', newData);
+        if (JSON.stringify(newData) !== JSON.stringify(this.formContainer)) {
+          console.log('Form updated:', newData);
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Form Updated',
+            detail: 'The form has been updated. Click here to refresh.',
+            sticky: true,
+            key: 'br',
+            data: { action: 'refresh' },
+          });
+          if (newData.status === 'validated' || newData.status === 'canceled') {
+            this.stopPolling();
+            return;
+          }
+        }
+      });
+    }, 15000);
+  }
+
+  stopPolling(): void {
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
     }
   }
+
+  handleToastClick(event: any): void {
+    if (event.data.action === 'refresh') {
+      this.loadFormDetails(this.accessToken);
+    }
+  }
+
 }
