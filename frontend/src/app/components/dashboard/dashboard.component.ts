@@ -9,6 +9,7 @@ import { MessageService } from 'primeng/api';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
+
 export class DashboardComponent implements OnInit, OnDestroy {
   menuItems: any[] = [];
   forms: any[] = [];
@@ -20,6 +21,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   status = 'answered';
   accessToken = '';
   pollingInterval: any;
+  selectedMenuItem: number = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -46,6 +48,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopPolling();
+  }
+  selectMenuItem(index: number): void {
+    this.selectedMenuItem = index;
+    this.menuItems[index].command();
   }
 
   initializeMenuItems(): void {

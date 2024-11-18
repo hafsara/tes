@@ -4,17 +4,24 @@
   (selectedAppIdsChange)="onSelectedAppIdsChange($event)">
 </app-navbar>
 
-<div class="dashboard">
-  <div class="sidebar">
-    <aside>
-      <button (click)="navigateToCreateForm()" class="button-17">Create New Form</button>
-      <div class="card flex justify-content-center">
-        <p-menu [model]="menuItems" class="custom-menu"></p-menu>
-      </div>
-    </aside>
+<div class="layout">
+  <div class="menu-container">
+    <button class="create-button" (click)="navigateToCreateForm()">Create New Form</button>
+    <ul class="menu-buttons">
+      <li
+        *ngFor="let item of menuItems; let i = index"
+        (click)="selectMenuItem(i)"
+        [class.active]="i === selectedMenuItem"
+        class="menu-item"
+      >
+        <button class="menu-button">
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </button>
+      </li>
+    </ul>
   </div>
-
-  <div class="content" [ngSwitch]="currentView">
+  <div class="content-container content" [ngSwitch]="currentView">
     <div *ngSwitchCase="'table'">
       <app-form-table
         [forms]="forms"

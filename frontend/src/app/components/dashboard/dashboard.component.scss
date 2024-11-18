@@ -77,65 +77,6 @@ p-button {
   margin-right: 8px;
 }
 
-.button-17 {
-    height: 48px;
-    display: inline-flex;
-    align-items: center;
-    background-color: #00796b !important;
-    font-weight: bold;
-    color: white !important;
-    align-items: center;
-    border-radius: 14px;
-    border-style: none;
-    justify-content: center;
-    padding: 2px 24px;
-    width: 100%;
-}
-
-.button-17:hover {
-  background-color: #004d40 !important;
-}
-
-.custom-menu .p-menuitem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 15px;
-  border-radius: 5px;
-  transition: background-color 0.3s;
-}
-
-.custom-menu .p-menuitem-text {
-  font-weight: bold;
-}
-
-.custom-menu .p-menuitem-badge {
-  background-color: #34c759;
-  color: white;
-  border-radius: 10px;
-  padding: 5px 10px;
-  font-weight: bold;
-}
-
-.custom-menu .p-menuitem:hover {
-  background-color: #e6f7ff; /* Couleur de hover */
-}
-
-.custom-menu .p-menuitem-active {
-  background-color: #dff7e6;
-}
-
-:host ::ng-deep {
-    .p-progressbar {
-        height: .5rem;
-        background-color: #D8DADC;
-
-        .p-progressbar-value {
-            background-color: #607D8B;
-        }
-    }
-}
-
 .ref {
   padding-top: 10px
   }
@@ -152,4 +93,78 @@ p-button {
 .title-link:hover {
   color: var(--highlight-text-color);
   cursor: pointer;
+}
+
+.layout {
+  display: flex;
+}
+
+.menu-container {
+  position: fixed;
+  background-color: #ffffff;
+  padding: 15px;
+}
+
+.create-button {
+  display: block;
+  width: 100%;
+  background-color: #007b5e;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 15px;
+  font-size: 16px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.create-button:hover {
+  background-color: #005b47;
+}
+
+.menu-buttons {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-item {
+  margin-bottom: 10px;
+}
+
+.menu-button {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
+  color: #555;
+  width: 100%;
+  text-align: left;
+  gap: 10px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.menu-button:hover {
+  background-color: #e0e0e0;
+}
+
+.menu-item.active .menu-button {
+    background-color: #f5f5f5;
+    color: #555;
+    font-weight: bold;
+}
+
+.menu-button i {
+  font-size: 1.2rem;
+  color: inherit;
+}
+
+.content-container {
+  margin-left: 260px;
+  padding: 20px;
+  flex: 1;
 }
