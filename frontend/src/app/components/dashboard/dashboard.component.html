@@ -11,11 +11,14 @@
       <div>
         {{ message.detail }}
       </div>
-      <p-button size="small" label="refresh" (onClick)="handleToastClick()" severity="warning"/>
+      <button class="refresh-btn" (click)="handleToastClick()" aria-label="Refresh">
+        <i class="pi pi-spin pi-refresh"></i>
+      </button>
     </div>
   </ng-template>
-
 </p-toast>
+
+
 <app-navbar
   (appOptionsLoaded)="onAppOptionsLoaded($event)"
   (selectedAppIdsChange)="onSelectedAppIdsChange($event)">
