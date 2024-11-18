@@ -198,7 +198,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   refreshFormContainer(): void {
-    this.loadFormDetails(this.formContainer.access_token);
+    this.loadFormDetails(this.accessToken);
     this.startFormPolling();
   }
 }

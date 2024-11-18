@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { Question, Form, formatQuestions, createForm } from '../../utils/question-formatter';
 import { FormService } from '../../services/form.service';
 import { ActivatedRoute } from '@angular/router';
@@ -9,7 +9,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
   templateUrl: './form-container-preview.component.html',
   styleUrls: ['./form-container-preview.component.scss'],
 })
-export class FormContainerPreviewComponent implements OnInit {
+export class FormContainerPreviewComponent implements OnInit, OnChanges {
   @Input() formContainer!: any;
   visible: boolean = false;
   showErrors = false;
@@ -32,6 +32,12 @@ export class FormContainerPreviewComponent implements OnInit {
 
   ngOnInit(): void {
     this.updateFormContainerDetails();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['formContainer'] && changes['formContainer'].currentValue) {
+      this.updateFormContainerDetails();
+    }
   }
 
   updateFormContainerDetails(): void {
