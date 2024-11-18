@@ -18,6 +18,37 @@
                 <span>{{ formContainer.created_at | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
               </div>
             </div>
+            <div class="info-blocks flex justify-content-between mt-3 card-background">
+              <div class="info-left flex flex-column">
+                <div>
+                  <strong>User Email: </strong>
+                  <span>{{ formContainer.user_email }}</span>
+                </div>
+                <div *ngIf="formContainer.escalade_email">
+                  <strong>Escalade Email: </strong>
+                  <span>{{ formContainer.escalade_email }}</span>
+                </div>
+                <div  *ngIf="formContainer.cc_emails">
+                  <strong>CC Email: </strong>
+                  <span>{{ formContainer.cc_emails }}</span>
+                </div>
+              </div>
+
+              <div class="info-left flex flex-column">
+                <div>
+                  <strong>Status: </strong>
+                  <span>{{ formContainer.status }}</span>
+                </div>
+                <div>
+                  <strong>Initiated By: </strong>
+                  <span>{{ formContainer.initiated_by }}</span>
+                </div>
+                <div>
+                  <strong>Reminder Delay: </strong>
+                  <span>{{ formContainer.reminder_delay }} days</span>
+                </div>
+              </div>
+            </div>
 
             <p-card header="{{ formContainer.title }}" class="card-background">
               <div class="card">

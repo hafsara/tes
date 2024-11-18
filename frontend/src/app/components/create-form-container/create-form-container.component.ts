@@ -147,6 +147,7 @@ export class CreateFormContainerComponent {
       reference: this.formContainer.reference,
       escalate: this.formContainer.escalate,
       reminder_delay_day: this.formContainer.reminderDelayDay,
+      cc_emails: this.formContainer.ccEmails,
       forms: { questions: this.formContainer.forms[0].questions }
     };
 

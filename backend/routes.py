@@ -62,6 +62,7 @@ def create_form_container():
         escalate=data.get('escalate', False),
         initiated_by=admin_id,
         reminder_delay=data.get('reminder_delay_day'),
+        cc_emails= data.get('cc_emails'),
         app_id=data.get('app_id'),
         campaign_id=data.get('campaign_id')
     )
@@ -155,6 +156,7 @@ def get_form_container_by_access_token(access_token):
         "cc_emails": form_container.cc_emails,
         "escalate": form_container.escalate,
         "validated": form_container.validated,
+        "reminder_delay": form_container.reminder_delay,
         "initiated_by": form_container.initiated_by,
         "created_at": form_container.created_at,
         "app_name": form_container.application.name,

@@ -13,7 +13,7 @@ class FormContainer(db.Model):
     description = db.Column(db.String(1024), nullable=False)
     user_email = db.Column(db.String(255), nullable=False)
     escalade_email = db.Column(db.String(255), nullable=True)
-    cc_emails = db.Column(db.String(255), nullable=True)
+    cc_emails = db.Column(db.JSON, nullable=True)
     reference = db.Column(db.String(255), nullable=True)
     escalate = db.Column(db.Boolean, default=False)
     validated = db.Column(db.Boolean, default=False)
