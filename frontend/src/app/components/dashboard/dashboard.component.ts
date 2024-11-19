@@ -49,6 +49,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.stopPolling();
   }
+
   selectMenuItem(index: number): void {
     this.selectedMenuItem = index;
     this.menuItems[index].command();
@@ -147,7 +148,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.pollingInterval = setInterval(() => {
       const appIds = this.selectedApps.join(',');
       this.formService.getFormContainersByStatus(appIds, this.status).subscribe((newData: any[]) => {
-        if (JSON.stringify(newData) !== JSON.stringify(this.forms)) {
+        if (newData.length !== this.forms.length) {
           this.forms = newData;
         }
       });
