@@ -27,7 +27,10 @@ export class UserViewComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadForm();
+    const accessToken = this.route.snapshot.paramMap.get('access_token');
+    if (accessToken) {
+      this.loadForm(accessToken);
+    }
   }
 
   toggleSidebar() {
@@ -38,9 +41,7 @@ export class UserViewComponent implements OnInit {
     this.currentForm = form;
   }
 
-  loadForm(): void {
-    const accessToken = this.route.snapshot.paramMap.get('access_token');
-    if (accessToken) {
+  loadForm(accessToken: string): void {
       this.formService.getFormContainerByAccessToken(accessToken).subscribe(
         (data) => {
           this.formData = data;
@@ -67,7 +68,7 @@ export class UserViewComponent implements OnInit {
           this.router.navigate(['/404']);
         }
       );
-    }
+
   }
 
   validateResponses(): void {

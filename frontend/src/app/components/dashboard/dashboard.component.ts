@@ -16,7 +16,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   forms: any[] = [];
   appOptions: { name: string; token: string }[] = [];
   selectedApps: string[] = [];
-  loading = false;
   currentView = 'loading';
   status = 'answered';
   accessToken = '';
@@ -92,27 +91,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   loadForms(appIds:string, status: string): void {
-    this.loading = true;
     this.formService.getFormContainersByStatus(appIds, status).subscribe(
       (data) => {
         this.forms = data;
         this.currentView = 'table';
-        this.loading = false;
-      },
-      () => (this.loading = false)
+      }
     );
   }
 
   loadValidatedForms(): void {
-    this.loading = true;
     const appIds = this.selectedApps.join(',');
     this.formService.getValidatedFormContainers(appIds).subscribe(
       (data) => {
         this.forms = data;
         this.currentView = 'table';
-        this.loading = false;
-      },
-      () => (this.loading = false)
+      }
     );
   }
 

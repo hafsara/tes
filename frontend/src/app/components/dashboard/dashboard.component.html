@@ -24,7 +24,6 @@
     <div *ngSwitchCase="'table'">
       <app-form-table
         [forms]="forms"
-        [loading]="loading"
         (formSelected)="onFormSelected($event)">
       </app-form-table>
     </div>

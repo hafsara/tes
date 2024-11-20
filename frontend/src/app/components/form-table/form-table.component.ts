@@ -8,8 +8,6 @@ import { Table } from 'primeng/table';
 })
 export class FormTableComponent {
   @Input() forms: any[] = [];
-  @Input() loading = false;
-
   @Output() formSelected = new EventEmitter<string>();
 
   filterDates: Date[] = [];
