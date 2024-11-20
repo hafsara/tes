@@ -70,6 +70,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.status = newStatus;
     this.currentView = 'loading';
     newStatus === 'validated' ? this.loadValidatedForms() : this.loadForms(newStatus);
+    this.location.go('/dashboard');
   }
 
   checkAndLoadForms(): void {

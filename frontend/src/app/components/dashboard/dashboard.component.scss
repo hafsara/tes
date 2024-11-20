@@ -113,7 +113,8 @@ p-button {
   border: none;
   border-radius: 8px;
   padding: 10px 15px;
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: bold;
   margin-bottom: 15px;
   cursor: pointer;
   text-align: center;
@@ -124,6 +125,8 @@ p-button {
 }
 
 .menu-buttons {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -153,8 +156,8 @@ p-button {
 }
 
 .menu-item.active .menu-button {
-    background-color: #f5f5f5;
-    color: #555;
+    background-color: #F0FDFA;
+    color: #047857;
     font-weight: bold;
 }
 
