@@ -1,7 +1,7 @@
 <p-toast key="global-toast"/>
 <app-refresh-toast (refreshTriggered)="handleRefresh()"></app-refresh-toast>
 <p-confirmDialog></p-confirmDialog>
-<div class="dashboard-container">
+<div class="dashboard-container" *ngIf="formContainer">
   <div class="main-content">
     <div class="card">
       <p-tabView [(activeIndex)]="activeTabIndex">

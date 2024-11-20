@@ -21,7 +21,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   currentView = 'loading';
   status = 'answered';
   accessToken = '';
-  pollingInterval: any;
   selectedMenuItem: number = 0;
 
   constructor(
