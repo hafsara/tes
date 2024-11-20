@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { Question, Form, formatQuestions, createForm } from '../../utils/question-formatter';
 import { FormService } from '../../services/form.service';
+import { PollingService } from '../../services/polling.service';
 import { ActivatedRoute } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
@@ -10,7 +11,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
   styleUrls: ['./form-container-preview.component.scss'],
 })
 export class FormContainerPreviewComponent implements OnInit, OnChanges {
-  @Input() formContainer!: any;
+  @Input() accessToken!: string;
   visible: boolean = false;
   showErrors = false;
   newForm: Form = createForm();
@@ -22,16 +23,96 @@ export class FormContainerPreviewComponent implements OnInit, OnChanges {
   showCommentError: boolean = false;
   markdownDescription: string = '';
   activeTabIndex: number = 0;
+  formContainer!: any;
 
   constructor(
     private formService: FormService,
+    private pollingService: PollingService,
     private route: ActivatedRoute,
     private confirmationService: ConfirmationService,
     private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
-    this.updateFormContainerDetails();
+    if (this.accessToken) {
+      this.loadFormContainer();
+      this.startPolling();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.pollingService.stopPolling(this.accessToken);
+  }
+
+  loadFormContainer(): void {
+    this.formService.getFormContainerByAccessToken(this.accessToken).subscribe(
+      (data) => {
+        this.formContainer = data;
+        this.updateFormContainerDetails();
+      },
+      (error) => {
+        console.error('Error loading form container:', error);
+      }
+    );
+  }
+
+  private startPolling(): void {
+    this.pollingService.startPolling(
+      this.accessToken,
+      15000,
+      () => this.fetchFormContainer(),
+      (data) => this.updateFormContainer(data),
+      (newData) => {
+        this.messageService.add({
+           severity: 'warn',
+           summary: 'Form Updated',
+           detail: 'The form has been updated. Click here to refresh.',
+           sticky: true,
+           key: 'br',
+        });
+        this.pollingService.stopPolling(this.accessToken);
+      },
+      (newData, previousData) => {
+          if (!previousData) {
+            return false;
+          }
+
+          const hasFormContainerChanged =
+            newData.validated !== previousData.validated ||
+            newData.forms.length !== previousData.forms.length ||
+            newData.forms.some((newForm: any) => {
+              const existingForm = previousData.forms.find((form: any) => form.form_id === newForm.form_id);
+              return existingForm && newForm.status !== existingForm.status;
+            });
+
+          return hasFormContainerChanged;
+    }
+    );
+  }
+
+  private fetchFormContainer(): Promise<any> {
+    return this.formService.getFormContainerByAccessToken(this.accessToken).toPromise();
+  }
+
+  private updateFormContainer(data: any): void {
+    this.formContainer = data;
+  }
+  handleRefresh(): void {
+    this.messageService.clear();
+    this.refreshFormContainer();
+  }
+
+  refreshFormContainer(): void {
+    this.formService.getFormContainerByAccessToken(this.accessToken).subscribe(
+      (data) => {
+        this.formContainer = data;
+        console.log('Form container refreshed:', data);
+      },
+      (error) => {
+        console.error('Error refreshing form container:', error);
+      }
+    );
+    this.startFormPolling();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
