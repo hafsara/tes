@@ -12,7 +12,7 @@ export class AuthGuard implements CanActivate {
     if (!this.tokenService.hasValidTokens()) {
       this.router.navigate(['/access-control']);
       return false;
-    }else {
+    } else {
       const appName = route.params['appName'];
       if (appName) {
         const connectedAppNames = this.tokenService.getAppNames().map(app => app.name);

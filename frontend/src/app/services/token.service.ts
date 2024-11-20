@@ -8,37 +8,67 @@ import { jwtDecode } from 'jwt-decode';
 export class TokenService {
   private readonly tokenKey = 'appTokens';
   private readonly localStorageKey = 'selectedApps';
-  private tokenSubject = new BehaviorSubject<string[]>(this.retrieveTokens());
+  private tokenSubject = new BehaviorSubject<string[]>(this.safeRetrieveTokens());
   tokenUpdates = this.tokenSubject.asObservable();
 
   private isBrowser(): boolean {
-    return typeof window !== 'undefined' && !!window.localStorage;
+    return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+  }
+
+  private safeLocalStorageGet(key: string): string | null {
+    if (this.isBrowser()) {
+      return localStorage.getItem(key);
+    }
+    return null;
+  }
+
+  private safeLocalStorageSet(key: string, value: string): void {
+    if (this.isBrowser()) {
+      localStorage.setItem(key, value);
+    }
+  }
+
+  private safeLocalStorageRemove(key: string): void {
+    if (this.isBrowser()) {
+      localStorage.removeItem(key);
+    }
   }
 
   storeTokens(tokens: string[], expirationMinutes: number = 60): void {
-    if (!this.isBrowser()) return;
-
     const expirationDate = Date.now() + expirationMinutes * 60 * 1000;
     const data = { tokens, expirationDate };
-    localStorage.setItem(this.tokenKey, JSON.stringify(data));
+    this.safeLocalStorageSet(this.tokenKey, JSON.stringify(data));
     this.tokenSubject.next(tokens);
   }
 
-  retrieveTokens(): string[] {
-    if (!this.isBrowser()) return [];
-
-    const storedData = localStorage.getItem(this.tokenKey);
+  private safeRetrieveTokens(): string[] {
+    const storedData = this.safeLocalStorageGet(this.tokenKey);
     if (!storedData) return [];
 
-    const { tokens, expirationDate } = JSON.parse(storedData);
-    if (Date.now() > expirationDate) {
+    try {
+      const { tokens, expirationDate } = JSON.parse(storedData);
+      if (Date.now() > expirationDate) {
+        this.clearTokens();
+        return [];
+      }
+      return tokens;
+    } catch (error) {
+      console.error('Error parsing tokens from localStorage:', error);
       this.clearTokens();
       return [];
     }
-    return tokens;
   }
 
-  private decodeToken(token: string): any | null {
+  retrieveTokens(): string[] {
+    return this.safeRetrieveTokens();
+  }
+
+  clearTokens(): void {
+    this.safeLocalStorageRemove(this.tokenKey);
+    this.tokenSubject.next([]);
+  }
+
+  decodeToken(token: string): any | null {
     try {
       return jwtDecode(token);
     } catch (error) {
@@ -48,7 +78,7 @@ export class TokenService {
   }
 
   getAppNames(): { name: string | null; token: string }[] {
-    return this.retrieveTokens().map(token => {
+    return this.retrieveTokens().map((token) => {
       const decoded = this.decodeToken(token);
       return { name: decoded?.application_name || 'Unknown', token };
     });
@@ -57,14 +87,6 @@ export class TokenService {
   hasValidTokens(): boolean {
     return this.retrieveTokens().length > 0;
   }
-
-  clearTokens(): void {
-    if (!this.isBrowser()) return;
-
-    localStorage.removeItem(this.tokenKey);
-    this.tokenSubject.next([]);
-  }
-
   startSessionTimer(durationInMinutes: number): void {
     setTimeout(() => {
       this.clearTokens();
@@ -76,12 +98,8 @@ export class TokenService {
 
   logout(): void {
     this.clearTokens();
-    window.location.href = '/access-control';
-  }
-
-  getConnectedAppNamesFromToken(): string[] {
-    return this.retrieveTokens()
-      .map(token => this.decodeToken(token)?.connectedApps || [])
-      .flat();
+    if (this.isBrowser()) {
+      window.location.href = '/access-control';
+    }
   }
 }

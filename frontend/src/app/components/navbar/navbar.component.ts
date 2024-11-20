@@ -10,7 +10,7 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   @Output() appOptionsLoaded = new EventEmitter<{ name: string; token: string }[]>();
-  @Output() selectedAppIdsChange = new EventEmitter<string[]>();  // New output for selected app IDs
+  @Output() selectedAppIdsChange = new EventEmitter<string[]>();
 
   appOptions: { name: string; token: string }[] = [];
   selectedApps: string[] = [];
