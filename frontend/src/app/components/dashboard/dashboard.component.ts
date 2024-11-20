@@ -14,7 +14,6 @@ import { MessageService } from 'primeng/api';
 export class DashboardComponent implements OnInit, OnDestroy {
   menuItems: any[] = [];
   forms: any[] = [];
-  formContainer: any = {};
   appOptions: { name: string; token: string }[] = [];
   selectedApps: string[] = [];
   loading = false;
@@ -70,13 +69,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   updateStatus(newStatus: string): void {
     this.status = newStatus;
     this.currentView = 'loading';
-    newStatus === 'validated' ? this.loadValidatedForms() : this.loadForms(newStatus);
+    newStatus === 'validated' ? this.loadValidatedForms() : this.checkAndLoadForms();
     this.location.go('/dashboard');
   }
 
   checkAndLoadForms(): void {
     if (this.selectedApps.length > 0 && this.status) {
-      this.loadForms(this.status);
+      const appIds = this.selectedApps.join(',');
+      this.loadForms(appIds, this.status);
+    } else {
+      this.forms = []
     }
   }
 
@@ -89,9 +91,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.checkAndLoadForms();
   }
 
-  loadForms(status: string): void {
+  loadForms(appIds:string, status: string): void {
     this.loading = true;
-    const appIds = this.selectedApps.join(',');
     this.formService.getFormContainersByStatus(appIds, status).subscribe(
       (data) => {
         this.forms = data;
@@ -118,7 +119,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   switchTo(view: string): void {
     this.currentView = view;
     if (view === 'table') {
-      this.loadForms(this.status);
+      this.checkAndLoadForms();
       this.location.go('/dashboard');
     } else if (view === 'createForm') {
       this.location.go('/dashboard');
@@ -136,11 +137,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   startTablePolling(): void {
     const appIds = this.selectedApps.join(',');
-
     this.pollingService.startPolling(
       'tablePolling',
       15000,
-      () => this.fetchForms(appIds),
+      () => {
+      const appIds = this.selectedApps.join(',');
+      if (!appIds) {
+        return Promise.resolve([]);
+      }
+      return this.fetchForms(appIds);
+    },
       (newData) => this.updateForms(newData)
     );
   }
