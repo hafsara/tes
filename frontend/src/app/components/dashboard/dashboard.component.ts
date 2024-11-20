@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { FormService } from '../../services/form.service';
+import { PollingService } from '../../services/polling.service';
 import { MessageService } from 'primeng/api';
 
 @Component({
@@ -27,7 +28,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private formService: FormService,
     private location: Location,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private pollingService: PollingService
   ) {
     this.initializeMenuItems();
   }
@@ -36,8 +38,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.route.paramMap.subscribe(params => {
       const accessToken = params.get('access_token');
       if (accessToken) {
-        this.loadFormDetails(accessToken);
-        this.startFormPolling();
+        this.accessToken = accessToken;
+        this.switchTo('questions');
       } else {
         this.currentView = 'table';
         this.checkAndLoadForms();
@@ -114,25 +116,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     );
   }
 
-  loadFormDetails(accessToken: string): void {
-    this.loading = true;
-    this.accessToken = accessToken;
-    this.formService.getFormContainerByAccessToken(accessToken).subscribe(
-      (data) => {
-        this.formContainer = data;
-        this.currentView = 'questions';
-        this.loading = false;
-      },
-      () => (this.loading = false)
-    );
-  }
-
   switchTo(view: string): void {
     this.currentView = view;
     if (view === 'table') {
       this.loadForms(this.status);
       this.location.go('/dashboard');
-    } else {
+    } else if (view === 'createForm') {
       this.location.go('/dashboard');
     }
   }
@@ -142,71 +131,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   onFormSelected(accessToken: string): void {
-    this.loadFormDetails(accessToken);
+    this.accessToken = accessToken;
+    this.switchTo('questions');
   }
 
   startTablePolling(): void {
-    this.pollingInterval = setInterval(() => {
-      const appIds = this.selectedApps.join(',');
-      this.formService.getFormContainersByStatus(appIds, this.status).subscribe((newData: any[]) => {
-        if (newData.length !== this.forms.length) {
-          this.forms = newData;
-        }
-      });
-    }, 15000);
-  }
+    const appIds = this.selectedApps.join(',');
 
-  startFormPolling(): void {
-    if (!this.formContainer || !this.accessToken){
-      return;
-    }
-    if (
-    this.formContainer.validated ||
-    (Array.isArray(this.formContainer.forms) && this.formContainer.forms.some((form: any) => form.status === 'canceled'))
-    ) {
-      return;
-    }
-
-    let toastDisplayed = false;
-
-    this.pollingInterval = setInterval(() => {
-      this.formService.getFormContainerByAccessToken(this.accessToken).subscribe((newData: any) => {
-        const hasFormContainerChanged =
-          newData.validated !== this.formContainer.validated ||
-          newData.forms.length !== this.formContainer.forms.length ||
-          newData.forms.some((newForm: any) => {
-            const existingForm = this.formContainer.forms.find((form: any) => form.form_id === newForm.form_id);
-            return existingForm && newForm.status !== existingForm.status;
-          });
-        if (hasFormContainerChanged && !toastDisplayed) {
-          toastDisplayed = true;
-          this.messageService.add({
-              severity: 'warn',
-              summary: 'Form Updated',
-              detail: 'The form has been updated. Click here to refresh.',
-              sticky: true,
-              key: 'br',
-          });
-          this.stopPolling();
-        }
-      });
-    }, 15000);
+    this.pollingService.startPolling(
+      'tablePolling',
+      15000,
+      () => this.fetchForms(appIds),
+      (newData) => this.updateForms(newData)
+    );
   }
 
   stopPolling(): void {
-    if (this.pollingInterval) {
-      clearInterval(this.pollingInterval);
-      this.pollingInterval = null;
+    this.pollingService.stopPolling('tablePolling');
+  }
+
+  private fetchForms(appIds: string): Promise<any[]> {
+    return this.formService.getFormContainersByStatus(appIds, this.status).toPromise();
+  }
+
+  private updateForms(newData: any[]): void {
+    if (newData.length !== this.forms.length) {
+      this.forms = newData;
     }
-  }
-
-  handleRefresh(): void {
-    this.messageService.clear();
-    this.refreshFormContainer();
-  }
-
-  refreshFormContainer(): void {
-    this.loadFormDetails(this.accessToken);
-    this.startFormPolling();
   }
 }
