@@ -17,6 +17,8 @@ export class CreateFormContainerComponent {
   visible: boolean = false;
   appSelected: boolean = false;
   campaignName: string = '';
+  selectedAppName: string = '';
+  selectedCampaignName: string = '';
 
   formContainer: FormContainer = {
     appId: '',
@@ -53,14 +55,18 @@ export class CreateFormContainerComponent {
 
   onAppChange(event: any) {
     this.appSelected = true;
-    const selectedAppName = event.value;
-    const decoded: { app_id: string } = jwtDecode(selectedAppName.token);
+    const selectedApp = event.value;
+    const decoded: { app_id: string } = jwtDecode(selectedApp.token);
     this.formContainer.appId = decoded.app_id;
     this.loadCampaignOptions(this.formContainer.appId);
+    this.selectedAppName = selectedApp.name;
   }
 
   onCampaignChange(event: any) {
     this.formContainer.campaignId = event.value;
+    const campaign = this.campaignOptions.find(c => c.id === event.value);
+    this.selectedCampaignName = campaign ? campaign.name : '';
+
   }
 
   loadCampaignOptions(appId: string): void {

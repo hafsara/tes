@@ -37,8 +37,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       if (accessToken) {
         this.onFormSelected(accessToken);
       } else {
-        this.currentView = 'table';
-        this.checkAndLoadForms();
+        this.switchTo('table')
         this.startTablePolling();
       }
     });
@@ -110,10 +109,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   switchTo(view: string): void {
     this.currentView = view;
-    if (view === 'table' || view === 'createForm') {
+    if (view === 'table') {
       this.checkAndLoadForms();
       this.location.go('/dashboard');
-      this.accessToken = null;
+    } else if (view === 'createForm') {
+      this.location.go('/create-form');
     }
   }
 

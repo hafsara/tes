@@ -9,6 +9,7 @@ import { AuthGuard } from './guards/auth.guard';
 const routes: Routes = [
   { path: 'access-control', component: AccessControlComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'create-form', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'dashboard/:appName/load-form/:access_token', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'user-view/:access_token', component: UserViewComponent },
   { path: '404', component: PageNotFoundComponent },

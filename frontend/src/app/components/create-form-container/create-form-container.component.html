@@ -8,13 +8,13 @@
           <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
             <div class="centered-container flex align-items-center">
               <div class="full-width-input mr-2">
-              <p-dropdown
-                [options]="appOptions"
-                [(ngModel)]="selectedApp"
-                optionLabel="name"
-                placeholder="Select Application"
-                (onChange)="onAppChange($event)"
-              ></p-dropdown>
+                <p-dropdown
+                  [options]="appOptions"
+                  [(ngModel)]="selectedApp"
+                  optionLabel="name"
+                  placeholder="Select Application"
+                  (onChange)="onAppChange($event)"
+                ></p-dropdown>
                 <small *ngIf="showErrors && !formContainer.appId" class="p-error">Application is required</small>
               </div>
 
@@ -148,41 +148,45 @@
       <ng-template pTemplate="content" let-prevCallback="prevCallback">
         <div class="flex flex-column">
           <div class="border-2 border-dashed surface-border border-round surface-ground p-4 font-medium">
+            <div class="info-blocks flex justify-content-between mt-3">
+              <div class="info-left info-div">
+                <div class="info-text">
+                  <strong>User Email: </strong>
+                  <span>{{ formContainer.userEmail }}</span>
+                </div>
+                <div class="info-text" *ngIf="formContainer.escaladeEmail">
+                  <strong>Escalade Email: </strong>
+                  <span>{{ formContainer.escaladeEmail }}</span>
+                </div>
+                <div class="info-text" *ngIf="formContainer.ccEmails && formContainer.ccEmails.length > 0">
+                  <strong>CC Email: </strong>
+                  <span>{{ formContainer.ccEmails }}</span>
+                </div>
+              </div>
+
+              <div class="info-right">
+                <div class="tags-container flex gap-2 info-text">
+                  <p-tag [value]="selectedAppName" severity="info"></p-tag>
+                </div>
+                <div class="tags-container flex gap-2 info-text">
+                  <p-tag [value]="selectedCampaignName" severity="info"></p-tag>
+                </div>
+                <div class="tags-container flex gap-2 info-text">
+                  <p-tag *ngIf="formContainer.reference" [value]="formContainer.reference" severity="info"></p-tag>
+                </div>
+                <div class="info-text">
+                  <strong>Reminder Delay: </strong>
+                  <span>{{ formContainer.reminderDelayDay }} days</span>
+                </div>
+              </div>
+            </div>
             <div class="mb-3">
               <label class="font-bold">Title:</label>
               <div>{{ formContainer.title }}</div>
             </div>
-
             <div class="mb-3">
               <label class="font-bold">Description:</label>
-              <div class="m-0">
-                <markdown [data]="formContainer.description"></markdown>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="font-bold">User Email:</label>
-              <div>{{ formContainer.userEmail }}</div>
-            </div>
-
-            <div class="mb-3">
-              <label class="font-bold">Reference:</label>
-              <div>{{ formContainer.reference || 'Not specified' }}</div>
-            </div>
-
-            <div class="mb-3">
-              <label class="font-bold">Escalade:</label>
-              <div>{{ formContainer.escalate ? 'yes' : 'No' }}</div>
-            </div>
-
-            <div *ngIf="formContainer.escalate" class="mb-3">
-              <label class="font-bold">Escalade Email:</label>
-              <div>{{ formContainer.escaladeEmail }}</div>
-            </div>
-
-            <div class="mb-3">
-              <label class="font-bold">Reminder days delay:</label>
-              <div>{{ formContainer.reminderDelayDay }}</div>
+              <markdown [data]="formContainer.description"></markdown>
             </div>
 
             <h5>Form preview :</h5>
@@ -203,15 +207,15 @@
 
 
 <div class="card flex justify-content-center">
-    <p-dialog header="Add new campaign" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
-        <span class="p-text-secondary block mb-5">Please enter the name of the campaign to create</span>
-        <div class="flex align-items-center gap-3 mb-3">
-            <label for="CampaignName" class="font-semibold w-6rem">Name</label>
-            <input pInputText id="CampaignName" class="flex-auto" autocomplete="off" [(ngModel)]="campaignName"/>
-        </div>
-        <div class="flex justify-content-end gap-2">
-            <p-button label="Cancel" severity="secondary" (onClick)="visible = false" />
-            <p-button label="Save" (onClick)="createCampaign()" />
-        </div>
-    </p-dialog>
+  <p-dialog header="Add new campaign" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
+    <span class="p-text-secondary block mb-5">Please enter the name of the campaign to create</span>
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="CampaignName" class="font-semibold w-6rem">Name</label>
+      <input pInputText id="CampaignName" class="flex-auto" autocomplete="off" [(ngModel)]="campaignName"/>
+    </div>
+    <div class="flex justify-content-end gap-2">
+      <p-button label="Cancel" severity="secondary" (onClick)="visible = false"/>
+      <p-button label="Save" (onClick)="createCampaign()"/>
+    </div>
+  </p-dialog>
 </div>
