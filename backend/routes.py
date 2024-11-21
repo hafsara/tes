@@ -62,7 +62,7 @@ def create_form_container():
         escalate=data.get('escalate', False),
         initiated_by=admin_id,
         reminder_delay=data.get('reminder_delay_day'),
-        cc_emails= data.get('cc_emails'),
+        cc_emails=data.get('cc_emails'),
         app_id=data.get('app_id'),
         campaign_id=data.get('campaign_id')
     )
@@ -237,6 +237,7 @@ def get_form_container_timeline(form_container_id):
     interaction_timeline = [
         {
             "form_container_id": te.form_container_id,
+            "form_id": te.form_id,
             "event": te.event,
             "details": te.details,
             "timestamp": te.timestamp
@@ -409,6 +410,26 @@ def get_validated_form_containers(app_ids):
     ]
 
     return jsonify(result), 200
+
+
+@api.route('/forms/<int:form_id>', methods=['GET'])
+def get_form_by_id(form_id):
+    form = Form.query.get_or_404(form_id)
+    if not form:
+        return error_response("Form not found", 404)
+    form_data = {"questions": [
+        {
+            "id": question.id,
+            "label": question.label,
+            "type": question.type,
+            "options": question.options,
+            "is_required": question.is_required,
+            "response": getattr(question, 'response', None)
+        }
+        for question in form.questions]
+    }
+
+    return jsonify(form_data), 201
 
 
 def generate_token(application):

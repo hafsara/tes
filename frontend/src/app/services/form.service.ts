@@ -74,4 +74,9 @@ export class FormService {
   getValidatedFormContainers(appIds: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/apps/${appIds}/validated`);
   }
+
+  getFormById(formId: number): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/forms/${formId}`);
+  }
+
 }

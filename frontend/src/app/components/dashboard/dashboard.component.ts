@@ -3,7 +3,6 @@ import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { FormService } from '../../services/form.service';
 import { PollingService } from '../../services/polling.service';
-import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,7 +24,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private formService: FormService,
     private location: Location,
-    private messageService: MessageService,
     private pollingService: PollingService
   ) {
     this.initializeMenuItems();
