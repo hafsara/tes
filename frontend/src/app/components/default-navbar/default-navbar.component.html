@@ -4,16 +4,6 @@
   </div>
   <div class="nav-right">
     <div class="app-selector">
-      <p-multiSelect
-        [options]="appOptions"
-        [(ngModel)]="selectedApps"
-        optionLabel="name"
-        optionValue="token"
-        display="chip"
-        placeholder="Select Applications"
-        [filter]="false"
-        (onChange)="onAppSelectionChange($event)">
-      </p-multiSelect>
     </div>
     <button class="logout-button" (click)="logout()">Logout</button>
   </div>

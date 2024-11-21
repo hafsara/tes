@@ -1,10 +1,5 @@
 <div class="card">
   <p-timeline [value]="events" align="alternate" styleClass="customized-timeline">
-    <ng-template pTemplate="opposite" let-event>
-      <span class="flex w-2rem h-2rem align-items-center justify-content-center text-white border-circle z-1 shadow-1">
-        <i *ngIf="event.event === 'Response submitted'" class="pi pi-check-circle"></i>
-      </span>
-    </ng-template>
     <ng-template pTemplate="content" let-event>
       <p-card [header]="event.event" [subheader]="event.timestamp">
         <p>
@@ -22,19 +17,19 @@
     </ng-template>
   </p-timeline>
 
-  <!-- Popup (Boîte de dialogue) -->
-  <p-dialog
-    header="Form Preview"
-    [(visible)]="formDialogVisible"
-    [modal]="true"
-    [style]="{ width: '50vw' }"
-    (onHide)="closeFormDialog()"
-  >
-    <ng-container *ngIf="selectedForm">
-      <app-form-response-preview [questions]="selectedForm.questions"></app-form-response-preview>
-    </ng-container>
-    <ng-container *ngIf="!selectedForm">
-      <p>No form data available.</p>
-    </ng-container>
-  </p-dialog>
+
 </div>
+<p-dialog
+  header="Form Preview"
+  [(visible)]="formDialogVisible"
+  [modal]="true"
+  [style]="{ width: '50vw' }"
+  (onHide)="closeFormDialog()"
+>
+  <ng-container *ngIf="selectedForm">
+    <app-form-response-preview [questions]="selectedForm.questions"></app-form-response-preview>
+  </ng-container>
+  <ng-container *ngIf="!selectedForm">
+    <p>No form data available.</p>
+  </ng-container>
+</p-dialog>

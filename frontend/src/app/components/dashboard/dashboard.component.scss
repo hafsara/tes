@@ -162,9 +162,9 @@ p-button {
 
 .sidebar {
   position: fixed;
-  top: 70px; /* Ajusté pour rester sous la navbar */
+  top: 70px;
   left: 0;
-  height: calc(100vh - 70px); /* Ajuste la hauteur avec la navbar sticky */
+  height: calc(100vh - 70px);
   background-color: #ffffff;
   overflow-y: auto;
   padding: 15px;
