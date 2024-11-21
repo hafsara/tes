@@ -30,7 +30,7 @@
 
     <div *ngSwitchCase="'questions'">
       <p-button icon="pi pi-chevron-left" (click)="switchTo('table')"></p-button>
-      <app-form-container-preview [accessToken]="accessToken"></app-form-container-preview>
+      <app-form-container-preview *ngIf="accessToken" [accessToken]="accessToken"></app-form-container-preview>
     </div>
 
     <div *ngSwitchCase="'createForm'">

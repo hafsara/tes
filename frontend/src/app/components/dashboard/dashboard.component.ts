@@ -18,7 +18,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   selectedApps: string[] = [];
   currentView = 'loading';
   status = 'answered';
-  accessToken = '';
+  accessToken: string | null = null;
   selectedMenuItem: number = 0;
 
   constructor(
@@ -35,8 +35,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.route.paramMap.subscribe(params => {
       const accessToken = params.get('access_token');
       if (accessToken) {
-        this.accessToken = accessToken;
-        this.switchTo('questions');
+        this.onFormSelected(accessToken);
       } else {
         this.currentView = 'table';
         this.checkAndLoadForms();
@@ -111,11 +110,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   switchTo(view: string): void {
     this.currentView = view;
-    if (view === 'table') {
+    if (view === 'table' || view === 'createForm') {
       this.checkAndLoadForms();
       this.location.go('/dashboard');
-    } else if (view === 'createForm') {
-      this.location.go('/dashboard');
+      this.accessToken = null;
     }
   }
 

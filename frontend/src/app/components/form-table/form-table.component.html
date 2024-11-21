@@ -61,8 +61,7 @@
       <tr [pSelectableRow]="form">
         <td>
           <a
-            [routerLink]="['/dashboard', form.app_name, 'load-form', form.access_token]"
-            (click)="selectForm(form.access_token)"
+            (click)="selectForm(form.access_token, form.app_name)"
             class="title-link"
           >
             {{ form.title }}
