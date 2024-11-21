@@ -29,7 +29,7 @@
                   <strong>Escalade Email: </strong>
                   <span>{{ formContainer.escalade_email }}</span>
                 </div>
-                <div class="info-text" *ngIf="formContainer.cc_emails">
+                <div class="info-text" *ngIf="formContainer.cc_emails && formContainer.cc_emails.length > 0">
                   <strong>CC Email: </strong>
                   <span>{{ formContainer.cc_emails }}</span>
                 </div>
@@ -127,6 +127,10 @@
       <p-button label="Save" (onClick)="addForm($event)"/>
     </div>
   </p-dialog>
+</div>
+
+<div *ngIf="!formContainer" class="card flex justify-content-center">
+  <p-progressSpinner ariaLabel="loading"></p-progressSpinner>
 </div>
 
 <p-dialog header="Add cancel comment" [modal]="true" [(visible)]="cancelVisible" [style]="{ width: '25rem' }">
