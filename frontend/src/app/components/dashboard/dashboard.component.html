@@ -4,22 +4,10 @@
 </app-navbar>
 
 <div class="layout">
-  <div class="sidebar">
-    <button class="create-button" (click)="navigateToCreateForm()">Create New Form</button>
-    <ul class="menu-buttons">
-      <li
-        *ngFor="let item of menuItems; let i = index"
-        (click)="selectMenuItem(i)"
-        [class.active]="i === selectedMenuItem"
-        class="menu-item"
-      >
-        <button class="menu-button">
-          <i [class]="item.icon"></i>
-          <span>{{ item.label }}</span>
-        </button>
-      </li>
-    </ul>
-  </div>
+  <app-sidebar
+    (menuItemSelected)="selectMenuItem($event)"
+    (createFormClicked)="navigateToCreateForm()">
+  </app-sidebar>
   <div class="content-container content" [ngSwitch]="currentView">
     <div *ngSwitchCase="'table'">
       <app-form-table

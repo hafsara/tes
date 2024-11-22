@@ -11,23 +11,19 @@ import { PollingService } from '../../services/polling.service';
 })
 
 export class DashboardComponent implements OnInit, OnDestroy {
-  menuItems: any[] = [];
   forms: any[] = [];
   appOptions: { name: string; token: string }[] = [];
   selectedApps: string[] = [];
   currentView = 'loading';
   status = 'answered';
   accessToken: string | null = null;
-  selectedMenuItem: number = 0;
 
   constructor(
     private route: ActivatedRoute,
     private formService: FormService,
     private location: Location,
     private pollingService: PollingService
-  ) {
-    this.initializeMenuItems();
-  }
+  ) {}
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -45,20 +41,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.stopPolling();
   }
 
-  selectMenuItem(index: number): void {
-    this.selectedMenuItem = index;
-    this.menuItems[index].command();
-  }
-
-  initializeMenuItems(): void {
-    this.menuItems = [
-      { label: 'To be checked', icon: 'pi pi-check-square', command: () => this.updateStatus('answered') },
-      { label: 'Open', icon: 'pi pi-folder-open', command: () => this.updateStatus('open') },
-      { label: 'Reminder', icon: 'pi pi-bell', command: () => this.updateStatus('reminder') },
-      { label: 'Escalate', icon: 'pi pi-exclamation-triangle', command: () => this.updateStatus('escalate') },
-      { label: 'Archived', icon: 'pi pi-book', command: () => this.updateStatus('validated') },
-      { label: 'Canceled', icon: 'pi pi-times-circle', command: () => this.updateStatus('canceled') },
-    ];
+  selectMenuItem(status: string): void {
+    this.updateStatus(status);
   }
 
   updateStatus(newStatus: string): void {

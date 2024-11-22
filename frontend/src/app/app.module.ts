@@ -56,6 +56,7 @@ import { AccessControlComponent } from './components/access-control/access-contr
 import { FormTableComponent } from './components/form-table/form-table.component';
 import { RefreshToastComponent } from './components/refresh-toast/refresh-toast.component';
 import { DefaultNavbarComponent } from './components/default-navbar/default-navbar.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
 
 @NgModule({
   declarations: [
@@ -73,7 +74,8 @@ import { DefaultNavbarComponent } from './components/default-navbar/default-navb
     AccessControlComponent,
     FormTableComponent,
     RefreshToastComponent,
-    DefaultNavbarComponent
+    DefaultNavbarComponent,
+    SidebarComponent
   ],
   imports: [
     BrowserModule,
