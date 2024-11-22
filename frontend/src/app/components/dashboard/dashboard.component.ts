@@ -64,7 +64,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   updateStatus(newStatus: string): void {
     this.status = newStatus;
     this.currentView = 'loading';
-    newStatus === 'validated' ? this.loadValidatedForms() : this.checkAndLoadForms();
+    newStatus === 'validated' ? this.loadValidatedForms() : this.switchTo('table');
     this.location.go('/dashboard');
   }
 
@@ -90,7 +90,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.formService.getFormContainersByStatus(appIds, status).subscribe(
       (data) => {
         this.forms = data;
-        this.currentView = 'table';
       }
     );
   }
