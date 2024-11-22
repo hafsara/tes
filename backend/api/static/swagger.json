@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "Form Management API",
+    "title": "Fouras Management API",
     "description": "API for managing applications, campaigns, form containers, and related resources."
   },
   "host": "localhost:5000",

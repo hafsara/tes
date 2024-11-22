@@ -16,7 +16,7 @@ class Config:
     OAUTH_PROVIDER = "https://provider.example.com"
 
     SWAGGER_URL = '/api/docs'
-    API_URL = '/static/swagger.json'
+    API_URL = '/api/static/swagger.json'
 
     # Configuration de mail
     SMTP_SERVER = 'smtp.example.com'

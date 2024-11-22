@@ -1,10 +1,11 @@
 from flask import Blueprint, jsonify, request, session
-from models import db, FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign
+from api.models import FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign
 from datetime import datetime
 from tasks import run_delayed_workflow, send_initial_notification_task
+from extensions import db
 import jwt
 
-api = Blueprint('api', __name__)
+api = Blueprint('api', __name__, url_prefix='/api')
 ADMIN_ID = 'd76476'  # todo enlever cette ligne et la remplacer par ADMIN_ID
 
 

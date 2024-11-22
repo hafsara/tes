@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from celery import shared_task
-from models import FormContainer, TimelineEntry
+from api.models import FormContainer, TimelineEntry
 from email_manager import send_email
 from extensions import db
 
