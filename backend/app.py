@@ -22,7 +22,7 @@ app.register_blueprint(auth_bp, url_prefix='/auth')
 # Swagger setup
 SWAGGER_URL = Config.SWAGGER_URL
 API_URL = '/static/swagger.json'
-swaggerui_blueprint = get_swaggerui_blueprint(SWAGGER_URL, API_URL, config={'app_name': "Form Management API"})
+swaggerui_blueprint = get_swaggerui_blueprint(SWAGGER_URL, API_URL, config={'app_name': "Fouras Management API"})
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 if __name__ == "__main__":

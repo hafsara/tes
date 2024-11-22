@@ -3,366 +3,256 @@
   "info": {
     "version": "1.0.0",
     "title": "Form Management API",
-    "description": "API for managing form containers and forms",
-    "contact": {
-      "name": "API Support",
-      "url": "http://www.example.com",
-      "email": "support@example.com"
-    }
+    "description": "API for managing applications, campaigns, form containers, and related resources."
   },
   "host": "localhost:5000",
-  "basePath": "/",
-  "tags": [
-    {
-      "name": "form-containers",
-      "description": "Operations related to form containers"
-    }
-  ],
+  "basePath": "/api",
   "schemes": ["http"],
   "paths": {
-    "/form-containers": {
-      "get": {
-        "tags": ["form-containers"],
-        "summary": "List all form containers",
-        "description": "Fetch a list of all form containers created by the authenticated admin.",
-        "responses": {
-          "200": {
-            "description": "A list of form containers",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/FormContainerSummary"
-              }
-            }
-          }
-        }
-      },
+    "/applications": {
       "post": {
-        "tags": ["form-containers"],
-        "summary": "Create a new form container",
-        "description": "Creates a new form container with the provided details.",
+        "summary": "Create an Application",
         "parameters": [
           {
             "in": "body",
             "name": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/FormContainerInput"
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "id": { "type": "string" }
+              },
+              "required": ["name", "id"]
             }
           }
         ],
         "responses": {
-          "201": {
-            "description": "Form container created",
+          "201": { "description": "Application created successfully" },
+          "400": { "description": "Invalid input" }
+        }
+      }
+    },
+    "/applications/{app_token}": {
+      "put": {
+        "summary": "Update Application Name or Token",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "app_token",
+            "type": "string",
+            "required": true,
+            "description": "Application token to update"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/FormContainerResponse"
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "new_token": { "type": "string" }
+              }
             }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
           }
+        ],
+        "responses": {
+          "200": { "description": "Application updated successfully" },
+          "400": { "description": "Invalid input" },
+          "404": { "description": "Application not found" }
+        }
+      }
+    },
+    "/campaigns": {
+      "post": {
+        "summary": "Create a Campaign",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "app_id": { "type": "string" }
+              },
+              "required": ["name", "app_id"]
+            }
+          }
+        ],
+        "responses": {
+          "201": { "description": "Campaign created successfully" },
+          "400": { "description": "Invalid input" }
+        }
+      }
+    },
+    "/campaigns/{campaign_id}": {
+      "put": {
+        "summary": "Update a Campaign",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "campaign_id",
+            "type": "integer",
+            "required": true,
+            "description": "ID of the campaign to update"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" }
+              },
+              "required": ["name"]
+            }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Campaign updated successfully" },
+          "400": { "description": "Invalid input" },
+          "404": { "description": "Campaign not found" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a Campaign",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "campaign_id",
+            "type": "integer",
+            "required": true,
+            "description": "ID of the campaign to delete"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Campaign deleted successfully" },
+          "404": { "description": "Campaign not found" }
+        }
+      }
+    },
+    "/form-containers": {
+      "post": {
+        "summary": "Create a Form Container",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string" },
+                "description": { "type": "string" },
+                "user_email": { "type": "string" },
+                "escalade_email": { "type": "string" },
+                "app_id": { "type": "string" },
+                "campaign_id": { "type": "integer" },
+                "forms": {
+                  "type": "object",
+                  "properties": {
+                    "questions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "label": { "type": "string" },
+                          "type": { "type": "string" },
+                          "isRequired": { "type": "boolean" },
+                          "options": {
+                            "type": "array",
+                            "items": { "type": "string" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "required": ["title", "description", "user_email", "escalade_email", "app_id"]
+            }
+          }
+        ],
+        "responses": {
+          "201": { "description": "Form container created successfully" },
+          "400": { "description": "Invalid input" }
+        }
+      }
+    },
+    "/form-containers/apps/{app_ids}": {
+      "get": {
+        "summary": "Get Form Containers by Applications",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "app_ids",
+            "type": "string",
+            "required": true,
+            "description": "Comma-separated application IDs"
+          },
+          {
+            "in": "query",
+            "name": "filter",
+            "type": "string",
+            "description": "Filter type (e.g., 'status')"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "type": "string",
+            "description": "Form container status"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Form containers fetched successfully" },
+          "400": { "description": "Invalid filter or status" }
         }
       }
     },
     "/form-containers/{access_token}": {
       "get": {
-        "tags": ["form-containers"],
-        "summary": "Get a form container by access token",
-        "description": "Fetch the details of a specific form container by its access token.",
+        "summary": "Get Form Container by Access Token",
         "parameters": [
           {
+            "in": "path",
             "name": "access_token",
-            "in": "path",
-            "required": true,
             "type": "string",
-            "description": "Access token of the form container to fetch"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Details of the form container",
-            "schema": {
-              "$ref": "#/definitions/FormContainerDetail"
-            }
-          },
-          "404": {
-            "description": "Form container not found"
-          }
-        }
-      }
-    },
-    "/form-containers/{container_id}/forms": {
-      "post": {
-        "tags": ["form-containers"],
-        "summary": "Add a form to a container",
-        "description": "Add a new form to the specified form container.",
-        "parameters": [
-          {
-            "name": "container_id",
-            "in": "path",
             "required": true,
-            "type": "integer",
-            "description": "ID of the form container"
-          },
-          {
-            "in": "body",
-            "name": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/FormInput"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Form added to the container",
-            "schema": {
-              "$ref": "#/definitions/FormResponse"
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/form-containers/{container_id}/forms/{form_id}/submit-response": {
-      "post": {
-        "tags": ["form-containers"],
-        "summary": "Submit a response to a form",
-        "description": "Submit a user's response to a specific form in a container.",
-        "parameters": [
-          {
-            "name": "container_id",
-            "in": "path",
-            "required": true,
-            "type": "integer",
-            "description": "ID of the form container"
-          },
-          {
-            "name": "form_id",
-            "in": "path",
-            "required": true,
-            "type": "integer",
-            "description": "ID of the form"
-          },
-          {
-            "in": "body",
-            "name": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/SubmitResponseInput"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Response submitted successfully"
-          },
-          "400": {
-            "description": "Response already submitted"
-          }
-        }
-      }
-    },
-    "/form-containers/{access_token}/timeline": {
-      "get": {
-        "tags": ["form-containers"],
-        "summary": "Get form container timeline",
-        "description": "Fetch the timeline of interactions for a specific form container by its access token.",
-        "parameters": [
-          {
-            "name": "access_token",
-            "in": "path",
-            "required": true,
-            "type": "string",
             "description": "Access token of the form container"
           }
         ],
         "responses": {
-          "200": {
-            "description": "Timeline of form container interactions",
-            "schema": {
-              "$ref": "#/definitions/FormContainerTimeline"
-            }
+          "200": { "description": "Form container fetched successfully" },
+          "404": { "description": "Form container not found" }
+        }
+      }
+    },
+    "/form-containers/{container_id}/forms/{form_id}/validate": {
+      "post": {
+        "summary": "Validate a Form Container",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "container_id",
+            "type": "integer",
+            "required": true,
+            "description": "ID of the form container"
           },
-          "404": {
-            "description": "Form container not found"
+          {
+            "in": "path",
+            "name": "form_id",
+            "type": "integer",
+            "required": true,
+            "description": "ID of the form"
           }
-        }
-      }
-    }
-  },
-  "definitions": {
-    "FormContainerSummary": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "title": {
-          "type": "string"
-        }
-      }
-    },
-    "FormContainerInput": {
-      "type": "object",
-      "properties": {
-        "title": {
-          "type": "string",
-          "example": "Project Feedback Form"
-        },
-        "user_email": {
-          "type": "string",
-          "example": "user@example.com"
-        },
-        "escalade_email": {
-          "type": "string",
-          "example": "manager@example.com"
-        },
-        "reference": {
-          "type": "string",
-          "example": "12345"
-        },
-        "escalate": {
-          "type": "boolean"
-        },
-        "reminderDelayDay": {
-          "type": "integer",
-          "example": 3
-        },
-        "questions": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Question"
-          }
-        }
-      }
-    },
-    "FormContainerResponse": {
-      "type": "object",
-      "properties": {
-        "container_id": {
-          "type": "integer"
-        },
-        "form_id": {
-          "type": "integer"
-        },
-        "access_token": {
-          "type": "string"
-        }
-      }
-    },
-    "FormInput": {
-      "type": "object",
-      "properties": {
-        "questions": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Question"
-          }
-        }
-      }
-    },
-    "FormResponse": {
-      "type": "object",
-      "properties": {
-        "form_id": {
-          "type": "integer"
-        }
-      }
-    },
-    "Question": {
-      "type": "object",
-      "properties": {
-        "label": {
-          "type": "string"
-        },
-        "type": {
-          "type": "string"
-        },
-        "options": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "isRequired": {
-          "type": "boolean"
-        }
-      }
-    },
-    "SubmitResponseInput": {
-      "type": "object",
-      "properties": {
-        "response": {
-          "type": "object"
-        },
-        "responder_uid": {
-          "type": "string"
-        }
-      }
-    },
-    "FormContainerTimeline": {
-      "type": "object",
-      "properties": {
-        "container_id": {
-          "type": "integer"
-        },
-        "title": {
-          "type": "string"
-        },
-        "user_email": {
-          "type": "string"
-        },
-        "escalade_email": {
-          "type": "string"
-        },
-        "reference": {
-          "type": "string"
-        },
-        "escalate": {
-          "type": "boolean"
-        },
-        "forms": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/FormTimelineEntry"
-          }
-        }
-      }
-    },
-    "FormTimelineEntry": {
-      "type": "object",
-      "properties": {
-        "form_id": {
-          "type": "integer"
-        },
-        "questions": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Question"
-          }
-        },
-        "response": {
-          "type": "object"
-        },
-        "status": {
-          "type": "string"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updated_at": {
-          "type": "string",
-          "format": "date-time"
+        ],
+        "responses": {
+          "200": { "description": "Form container validated successfully" },
+          "404": { "description": "Form container or form not found" }
         }
       }
     }

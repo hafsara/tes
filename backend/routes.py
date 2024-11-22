@@ -388,6 +388,61 @@ def submit_form_response(access_token, form_id):
     return jsonify({"message": "Response submitted successfully"}), 200
 
 
+@api.route('/campaigns/<int:campaign_id>', methods=['PUT'])
+def update_campaign(campaign_id):
+    """
+    Update campaign
+    """
+    data = request.json
+    new_name = data.get('name')
+
+    if not new_name:
+        return error_response("Campaign name is required to update.", 400)
+
+    campaign = Campaign.query.get_or_404(campaign_id)
+    campaign.name = new_name
+
+    db.session.commit()
+
+    return jsonify({"message": "Campaign updated successfully", "campaign_id": campaign_id}), 200
+
+
+@api.route('/applications/<string:app_token>', methods=['PUT'])
+def update_application(app_token):
+    """
+    Update Application Name or Token
+    """
+    data = request.json
+    new_name = data.get('name')
+    new_token = data.get('new_token')
+
+    if not new_name and not new_token:
+        return error_response("Name or new token is required to update the application.", 400)
+
+    application = Application.query.filter_by(token=app_token).first_or_404()
+
+    if new_name:
+        application.name = new_name
+    if new_token:
+        application.token = new_token
+
+    db.session.commit()
+
+    return jsonify({"message": "Application updated successfully", "app_token": application.token}), 200
+
+
+@api.route('/campaigns/<int:campaign_id>', methods=['DELETE'])
+def delete_campaign(campaign_id):
+    """
+    Delete a Campaign
+    """
+    campaign = Campaign.query.get_or_404(campaign_id)
+    db.session.delete(campaign)
+    db.session.commit()
+
+    return jsonify({"message": "Campaign deleted successfully", "campaign_id": campaign_id}), 200
+
+
 @api.route('/form-containers/apps/<string:app_ids>/validated', methods=['GET'])
 def get_validated_form_containers(app_ids):
     app_id_list = app_ids.split(',')
