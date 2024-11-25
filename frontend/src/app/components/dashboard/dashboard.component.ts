@@ -12,6 +12,7 @@ import { PollingService } from '../../services/polling.service';
 
 export class DashboardComponent implements OnInit, OnDestroy {
   forms: any[] = [];
+  totalCount: number = 0;
   appOptions: { name: string; token: string }[] = [];
   selectedApps: string[] = [];
   currentView = 'loading';
@@ -58,6 +59,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.loadForms(appIds, this.status);
     } else {
       this.forms = []
+      this.totalCount = 0;
     }
   }
 
@@ -71,6 +73,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   loadForms(appIds:string, status: string): void {
+    this.fetchTotalCount(appIds);
     this.formService.getFormContainersByStatus(appIds, status).subscribe(
       (data) => {
         this.forms = data;
@@ -135,5 +138,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (newData.length !== this.forms.length) {
       this.forms = newData;
     }
+  }
+
+  fetchTotalCount(appIds: string): void {
+    this.formService.getTotalFormsCount(appIds).subscribe({
+      next: (response) => {
+        this.totalCount = response.totalCount;
+      }
+    });
   }
 }

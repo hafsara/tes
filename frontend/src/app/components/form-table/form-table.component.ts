@@ -9,6 +9,7 @@ import { Location } from '@angular/common';
 })
 export class FormTableComponent {
   @Input() forms: any[] = [];
+  @Input() totalCount: number = 0;
   @Output() formSelected = new EventEmitter<string>();
 
   filterDates: Date[] = [];

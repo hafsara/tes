@@ -12,6 +12,7 @@
     <div *ngSwitchCase="'table'">
       <app-form-table
         [forms]="forms"
+        [totalCount]="totalCount"
         (formSelected)="onFormSelected($event)">
       </app-form-table>
     </div>

@@ -94,7 +94,7 @@ def create_form_container():
     )
     db.session.add(timeline_entry)
     db.session.commit()
-    #send_initial_notification_task(form_container.id)
+    # send_initial_notification_task(form_container.id)
     # TODO
     # run_delayed_workflow(container_id=form_container.id)
 
@@ -485,6 +485,19 @@ def get_form_by_id(form_id):
     }
 
     return jsonify(form_data), 201
+
+
+@api.route('/forms/apps/<string:app_ids>/total-count', methods=['GET'])
+def get_total_forms_count(app_ids):
+    """
+    Get the total count of Form entries filtered by app_ids via their FormContainers.
+    """
+    app_ids_list = app_ids.split(',')
+    try:
+        total_count = db.session.query(Form).join(FormContainer).filter(FormContainer.app_id.in_(app_ids_list)).count()
+        return jsonify({"totalCount": total_count}), 200
+    except Exception as e:
+        return error_response(str(e), 500)
 
 
 def generate_token(application):

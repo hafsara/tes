@@ -15,6 +15,9 @@
           <i class="pi pi-search"></i>
           <input pInputText type="text" placeholder="Search keyword" (input)="filterGlobal(dt, $event)"/>
         </span>
+        <span class="total-count" title="Visible forms / Total forms in the system">
+          Total: {{ forms.length }}/{{ totalCount}}
+        </span>
       </div>
     </ng-template>
     <ng-template pTemplate="header">
@@ -66,9 +69,9 @@
           >
             {{ form.title }}
           </a>
-          <div class="card flex gap-2"  style="margin-top: 0.7rem;">
+          <div class="card flex gap-2" style="margin-top: 0.7rem;">
             <p-tag [value]="'APP: ' + form.app_name"></p-tag>
-            <p-tag *ngIf="form.reference" [value]="form.reference" severity="info" ></p-tag>
+            <p-tag *ngIf="form.reference" [value]="form.reference" severity="info"></p-tag>
           </div>
         </td>
         <td>

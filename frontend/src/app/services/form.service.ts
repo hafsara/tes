@@ -79,4 +79,7 @@ export class FormService {
     return this.http.get<any>(`${environment.apiUrl}/forms/${formId}`);
   }
 
+  getTotalFormsCount(appIds: string): Observable<{ totalCount: number }> {
+    return this.http.get<{ totalCount: number }>(`${environment.apiUrl}/forms/apps/${appIds}/total-count`);
+  }
 }
