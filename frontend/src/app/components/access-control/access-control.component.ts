@@ -14,6 +14,7 @@ import { jwtDecode } from 'jwt-decode';
 export class AccessControlComponent implements OnInit {
   tokens: string[] = [];
   validTokens: string[] = [];
+  isLoading: boolean = true;
   isTokenInvalid: boolean = false;
   invalidTokens: Set<string> = new Set();
 
@@ -25,12 +26,13 @@ export class AccessControlComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.tokenService.tokenUpdates.subscribe((tokens) => {
-      if (tokens.length > 0) {
+    this.tokenService.loadingStatus.subscribe((isLoading) => {
+      this.isLoading = isLoading;
+      if (!isLoading && this.tokenService.hasValidTokens()) {
         this.router.navigate(['/dashboard']);
       }
     });
-    }
+  }
 
   onTokenAdd(event: any): void {
     const newToken = event.value;
