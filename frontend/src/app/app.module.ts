@@ -6,6 +6,8 @@ import { AppComponent } from './app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { MarkdownModule } from 'ngx-markdown';
+import { provideHttpClient, withFetch } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
 
 // PrimeNG Modules
 import { DialogModule } from 'primeng/dialog';
@@ -79,6 +81,8 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
   ],
   imports: [
     BrowserModule,
+    BrowserModule.withServerTransition({ appId: 'serverApp' }),
+    RouterModule.forRoot([]),
     TableModule,
     TagModule,
     MultiSelectModule,
@@ -118,7 +122,7 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
     TimelineModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  providers: [MessageService, ConfirmationService],
+  providers: [MessageService, ConfirmationService, provideHttpClient(withFetch())],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
