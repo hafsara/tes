@@ -3,6 +3,7 @@ import { FormService } from '../../services/form.service';
 import { PollingService } from '../../services/polling.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Question, Form, formatQuestions, createForm } from '../../utils/question-formatter';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-form-container-preview',
@@ -30,6 +31,7 @@ export class FormContainerPreviewComponent implements OnInit, OnDestroy {
     private formService: FormService,
     private pollingService: PollingService,
     private messageService: MessageService,
+    private router: Router,
     private confirmationService: ConfirmationService
   ) {}
 
@@ -49,7 +51,8 @@ export class FormContainerPreviewComponent implements OnInit, OnDestroy {
         this.updateFormContainerDetails();
       },
       (error) => {
-        console.error('Error loading form container:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error while charging form', key: 'global-toast'});
+        setTimeout(() => this.router.navigate(['/dashboard']), 500);
       }
     );
   }
