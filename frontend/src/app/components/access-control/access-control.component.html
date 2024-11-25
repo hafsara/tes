@@ -5,6 +5,7 @@
 </div>
 
 <ng-template #accessForm>
+  <app-default-navbar  *ngIf="!isLoading"></app-default-navbar>
   <div class="card-wrapper">
     <p-card class="access-card">
       <h2>Enter Applications ID</h2>

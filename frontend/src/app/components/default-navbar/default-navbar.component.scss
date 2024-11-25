@@ -8,7 +8,7 @@
   align-items: center;
   padding: 10px 20px;
   box-shadow: 0 3px 5px #00000005, 0 0 2px #0000000d, 0 1px 4px #00000014;
-}
+  }
 
 .navbar .logo {
   display: flex;
@@ -25,9 +25,6 @@
   align-items: center;
 }
 
-.navbar .app-selector {
-  margin-right: 15px;
-}
 
 .navbar .logout-button {
   background-color: #e74c3c;
@@ -41,14 +38,6 @@
 
 .navbar .logout-button:hover {
   background-color: #c0392b;
-}
-
-.toggle-sidebar {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  margin-right: 15px;
 }
 
 .logout-button {
