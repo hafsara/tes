@@ -9,7 +9,16 @@ export class TokenService {
   private readonly tokenKey = 'appTokens';
   private readonly localStorageKey = 'selectedApps';
   private tokenSubject = new BehaviorSubject<string[]>(this.safeRetrieveTokens());
+
   tokenUpdates = this.tokenSubject.asObservable();
+  constructor() {
+    this.initializeTokens();
+  }
+
+  private initializeTokens(): void {
+    const tokens = this.safeRetrieveTokens();
+    this.tokenSubject.next(tokens);
+  }
 
   private isBrowser(): boolean {
     return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
@@ -46,12 +55,16 @@ export class TokenService {
     if (!storedData) return [];
 
     try {
-      const { tokens, expirationDate } = JSON.parse(storedData);
-      if (Date.now() > expirationDate) {
+      const parsedData = JSON.parse(storedData);
+      const tokens = parsedData.tokens || [];
+      const expirationDate = parsedData.expirationDate;
+
+      if (expirationDate && Date.now() > expirationDate) {
         this.clearTokens();
         return [];
       }
-      return tokens;
+
+      return Array.isArray(tokens) ? tokens : [];
     } catch (error) {
       console.error('Error parsing tokens from localStorage:', error);
       this.clearTokens();

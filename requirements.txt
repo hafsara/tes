@@ -1,9 +1,7 @@
 Flask
 Flask-SQLAlchemy
-Flask-RESTful
 Flask-Swagger-UI
 Authlib
-SpiffWorkflow
 Celery
 redis
 psycopg2-binary

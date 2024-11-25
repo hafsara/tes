@@ -25,10 +25,12 @@ export class AccessControlComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (this.tokenService.hasValidTokens()) {
-      this.router.navigate(['/dashboard']);
+    this.tokenService.tokenUpdates.subscribe((tokens) => {
+      if (tokens.length > 0) {
+        this.router.navigate(['/dashboard']);
+      }
+    });
     }
-  }
 
   onTokenAdd(event: any): void {
     const newToken = event.value;

@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request, session
 from api.models import FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign
 from datetime import datetime
-from tasks import run_delayed_workflow, send_initial_notification_task
 from extensions import db
 import jwt
 
@@ -95,7 +94,7 @@ def create_form_container():
     )
     db.session.add(timeline_entry)
     db.session.commit()
-    send_initial_notification_task(form_container.id)
+    #send_initial_notification_task(form_container.id)
     # TODO
     # run_delayed_workflow(container_id=form_container.id)
 
