@@ -26,17 +26,17 @@ export class TokenService {
   }
 
   private safeLocalStorageGet(key: string): string | null {
-    return typeof window !== 'undefined' ? localStorage.getItem(key) : null;
+    return this.isBrowser() ? localStorage.getItem(key) : null;
   }
 
   private safeLocalStorageSet(key: string, value: string): void {
-    if (typeof window !== 'undefined') {
+    if (this.isBrowser()) {
       localStorage.setItem(key, value);
     }
   }
 
   private safeLocalStorageRemove(key: string): void {
-    if (typeof window !== 'undefined') {
+    if (this.isBrowser()) {
       localStorage.removeItem(key);
     }
   }
@@ -88,6 +88,10 @@ export class TokenService {
       const decoded = this.decodeToken(token);
       return { name: decoded?.application_name || 'Unknown', token };
     });
+  }
+
+  private isBrowser(): boolean {
+    return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
   }
 
   hasValidTokens(): boolean {
