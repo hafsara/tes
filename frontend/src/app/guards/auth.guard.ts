@@ -12,7 +12,6 @@ export class AuthGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot): boolean {
     if (!this.tokenService.isBrowser()) {
-      console.error('localStorage is not available in the server environment');
       return false;
     }
 
