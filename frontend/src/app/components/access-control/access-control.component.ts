@@ -85,7 +85,6 @@ export class AccessControlComponent implements OnInit {
       this.messageService.add({ severity: 'warn', summary: 'No Tokens', detail: 'Please add at least one valid token.' });
     } else {
       this.tokenService.storeTokens(this.validTokens, 60);
-      this.tokenService.startSessionTimer(60);
       this.router.navigate(['/dashboard']);
     }
   }

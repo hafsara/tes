@@ -19,7 +19,6 @@ export class TokenService {
   }
 
   private initializeTokens(): void {
-    this.loadingSubject.next(true);
     const tokens = this.safeRetrieveTokens();
     this.tokenSubject.next(tokens);
     this.loadingSubject.next(false);
@@ -71,6 +70,7 @@ export class TokenService {
 
   clearTokens(): void {
     this.safeLocalStorageRemove(this.tokenKey);
+    this.safeLocalStorageRemove(this.localStorageKey);
     this.tokenSubject.next([]);
   }
 
@@ -90,7 +90,7 @@ export class TokenService {
     });
   }
 
-  private isBrowser(): boolean {
+  public isBrowser(): boolean {
     return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
   }
 
@@ -101,14 +101,5 @@ export class TokenService {
   logout(): void {
     this.clearTokens();
     window.location.href = '/access-control';
-  }
-
-  startSessionTimer(durationInMinutes: number): void {
-    setTimeout(() => {
-      this.clearTokens();
-      localStorage.removeItem(this.localStorageKey);
-      window.location.href = '/access-control';
-      location.reload();
-    }, durationInMinutes * 60 * 1000);
   }
   }

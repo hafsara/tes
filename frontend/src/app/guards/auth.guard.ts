@@ -10,31 +10,38 @@ import { map, catchError } from 'rxjs/operators';
 export class AuthGuard implements CanActivate {
   constructor(private tokenService: TokenService, private router: Router) {}
 
-  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
-    return this.tokenService.tokenUpdates.pipe(
-      map((tokens) => {
-        if (tokens.length === 0) {
-          this.router.navigate(['/access-control']);
-          return false;
-        }
+  canActivate(route: ActivatedRouteSnapshot): boolean {
+    if (!this.tokenService.isBrowser()) {
+      console.error('localStorage is not available in the server environment');
+      return false;
+    }
 
-        const appName = route.params['appName'];
-        if (appName) {
-          const connectedAppNames = this.tokenService.getAppNames().map((app) => app.name);
-          if (connectedAppNames.includes(appName)) {
-            return true;
-          } else {
-            console.error(`Unauthorized: appName '${appName}' is not in connected apps`);
-            this.router.navigate(['/access-control']);
-            return false;
-          }
-        }
-        return true;
-      }),
-      catchError(() => {
+    const tokenData = localStorage.getItem('appTokens');
+    if (!tokenData) {
+      this.router.navigate(['/access-control']);
+      return false;
+    }
+    const parsedData = JSON.parse(tokenData);
+    const tokens: string[] = parsedData.tokens || [];
+
+    if (tokens.length === 0) {
+      this.router.navigate(['/access-control']);
+      return false;
+    }
+
+    const appName = route.params['appName'];
+    if (appName) {
+      const connectedAppNames = tokens.map((token: string) => {
+        const decoded = this.tokenService.decodeToken(token);
+        return decoded?.application_name || 'Unknown';
+      });
+
+      if (!connectedAppNames.includes(appName)) {
+        console.error(`Unauthorized: appName '${appName}' is not in connected apps`);
         this.router.navigate(['/access-control']);
-        return [false];
-      })
-    );
+        return false;
+      }
+    }
+    return true;
   }
 }
