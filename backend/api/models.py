@@ -55,10 +55,6 @@ class Form(db.Model):
     questions = db.relationship('Question', backref='form', lazy=True, cascade="all, delete-orphan")
     responses = db.relationship('Response', backref='form', lazy=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    # TODO
-    # last_reminder_sent = db.Column(db.DateTime, nullable=True)
-    # reminder_count = db.Column(db.Integer, default=0)
-    # escalated = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return f"<Form {self.id} for Container {self.form_container_id}>"
@@ -79,7 +75,6 @@ class Question(db.Model):
 
 
 class Response(db.Model):
-    # TODO remove this class
     __tablename__ = 'responses'
     id = db.Column(db.Integer, primary_key=True)
     form_id = db.Column(db.Integer, db.ForeignKey('forms.id'), nullable=False)
@@ -96,3 +91,16 @@ class TimelineEntry(db.Model):
     event = db.Column(db.String(255), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     details = db.Column(db.Text, nullable=True)
+
+
+class Workflow(db.Model):
+    __tablename__ = "workflows"
+
+    id = db.Column(db.Integer, primary_key=True)
+    form_id = db.Column(db.Integer, nullable=False)
+    celery_task_id = db.Column(db.String, nullable=True)
+    workflow_type = db.Column(db.String, nullable=False)
+    status = db.Column(db.String, nullable=False, default="pending")
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
