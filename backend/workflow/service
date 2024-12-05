@@ -1,0 +1,46 @@
+[Unit]
+Description=Celery Worker and Flower Service
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/test.dev.com/backend
+ExecStart=/usr/local/bin/celery -A workflow.celery_app worker --loglevel=info & /usr/local/bin/celery -A workflow.celery_app flower --port=5555 --basic_auth=username:password
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+#!/bin/bash
+
+# Charger la configuration sensible
+source /var/www/test.dev.com/celery_config.env
+
+# Start Celery Worker
+/usr/local/bin/celery -A workflow.celery_app worker --loglevel=info &
+
+# Start Celery Flower
+/usr/local/bin/celery -A workflow.celery_app flower --port=5555 --basic_auth=$FLOWER_USER:$FLOWER_PASSWORD &
+
+
+chmod 600 /var/www/test.dev.com/celery_config.env
+
+
+
+[Unit]
+Description=Celery Worker and Flower Service
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/test.dev.com/backend
+ExecStart=/var/www/test.dev.com/start_celery_services.sh
+Restart=always
+EnvironmentFile=/var/www/test.dev.com/celery_config.env
+
+[Install]
+WantedBy=multi-user.target

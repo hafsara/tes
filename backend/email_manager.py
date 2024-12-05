@@ -23,5 +23,3 @@ class MailManager:
             server.sendmail(self.email_form, to, message.as_string())
 
 
-def send_email(to, subject, body, link=None):
-    print(f"to {to}, subject {subject}, body {body}, link {link}")

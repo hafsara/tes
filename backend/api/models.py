@@ -104,3 +104,11 @@ class Workflow(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
+class ConnectionLog(db.Model):
+    __tablename__ = 'connection_logs'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(255), nullable=False)
+    app_name = db.Column(db.String(255), nullable=False)
+    ip_address = db.Column(db.String(50), nullable=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
