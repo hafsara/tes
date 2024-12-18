@@ -1,13 +1,14 @@
-from flask import Blueprint, redirect, session, url_for, jsonify
+from flask import Blueprint, redirect, session, url_for, request, jsonify
 from flask_pyoidc import OIDCAuthentication
 from flask_pyoidc.provider_configuration import ProviderConfiguration
+from authlib.oauth2.rfc6749.errors import InvalidGrantError
 
-# Création du Blueprint pour les routes d'authentification
+# Création du Blueprint pour les routes SSO
 auth_bp = Blueprint('auth', __name__)
 
-# Configuration du fournisseur OAuth2
+# Configuration du fournisseur OAuth2/SSO
 provider_metadata = {
-    "issuer": "https://accounts.google.com",  # URL de ton fournisseur OAuth2 (Google ici)
+    "issuer": "https://accounts.google.com",  # Fournisseur OAuth2 (Google ici)
     "authorization_endpoint": "https://accounts.google.com/o/oauth2/auth",
     "token_endpoint": "https://accounts.google.com/o/oauth2/token",
     "userinfo_endpoint": "https://www.googleapis.com/oauth2/v1/userinfo",
@@ -15,13 +16,13 @@ provider_metadata = {
 
 provider_config = ProviderConfiguration(
     issuer=provider_metadata['issuer'],
-    client_id='YOUR_CLIENT_ID',  # Remplace par ton client_id
-    client_secret='YOUR_CLIENT_SECRET',  # Remplace par ton client_secret
-    redirect_uri='http://localhost:5000/auth/callback',  # Doit correspondre à l'URI configurée côté fournisseur
+    client_id='YOUR_CLIENT_ID',  # Remplace par ton Client ID
+    client_secret='YOUR_CLIENT_SECRET',  # Remplace par ton Client Secret
+    redirect_uri='http://localhost:5000/auth/callback',  # URL de retour configurée
     provider_metadata=provider_metadata
 )
 
-# Initialisation de PyOIDC
+# Initialisation PyOIDC
 auth = OIDCAuthentication({'default': provider_config})
 
 
@@ -30,52 +31,73 @@ auth = OIDCAuthentication({'default': provider_config})
 @auth.oidc_auth('default')
 def login():
     """
-    Cette route démarre le processus d'authentification.
-    PyOIDC redirige automatiquement vers le fournisseur OAuth2.
-    Une fois authentifié, l'utilisateur est redirigé vers la route /auth/callback.
+    Démarre le processus SSO.
+    L'utilisateur est redirigé vers le fournisseur OAuth2.
     """
-    return redirect(url_for('auth.protected'))
+    return redirect(url_for('auth.callback'))
 
 
-# Route de callback après authentification réussie
+# Route callback après authentification
 @auth_bp.route('/callback')
-@auth.oidc_auth('default')
 def callback():
     """
-    Cette route est appelée après que le fournisseur OAuth2 redirige l'utilisateur.
-    PyOIDC gère automatiquement la récupération du code d'autorisation,
-    l'échange contre un Access Token, et le stockage des informations utilisateur.
+    Gère le callback après redirection depuis le fournisseur.
+    Échange le code d'autorisation contre un Access Token.
     """
-    # Récupérer les informations utilisateur depuis la session
-    userinfo = session.get('user')
+    # Récupérer les paramètres depuis l'URL
+    authorization_code = request.args.get('code')  # Le code d'autorisation
+    state = request.args.get('state')  # État de sécurité, validé automatiquement par PyOIDC
 
-    # Sauvegarder les informations utilisateur dans la session (facultatif)
-    session['user_info'] = userinfo
+    if not authorization_code:
+        return "Erreur : Aucun code d'autorisation reçu.", 400
 
-    # Rediriger vers une route protégée ou la page d'accueil
+    # Échanger le code contre un Access Token
+    try:
+        token = auth.clients['default'].fetch_token(
+            provider_metadata['token_endpoint'],
+            grant_type='authorization_code',
+            code=authorization_code,
+            redirect_uri=provider_config.redirect_uri,
+            client_id=provider_config.client_id,
+            client_secret=provider_config.client_secret,
+        )
+    except InvalidGrantError as e:
+        return f"Erreur lors de l'échange du token : {str(e)}", 400
+
+    # Stocker les informations utilisateur dans la session
+    session['access_token'] = token['access_token']
+    session['id_token'] = token.get('id_token')  # Si disponible
+    session['expires_in'] = token['expires_in']
+
+    # Récupérer les informations utilisateur avec le token
+    user_info = auth.clients['default'].userinfo(token['access_token'])
+    session['user_info'] = user_info
+
     return redirect(url_for('auth.protected'))
 
 
-# Route protégée accessible uniquement aux utilisateurs authentifiés
+# Route protégée
 @auth_bp.route('/protected')
-@auth.oidc_auth('default')
 def protected():
     """
-    Exemple de route protégée. Accessible uniquement après authentification.
+    Exemple de route protégée, accessible uniquement après authentification.
     """
-    # Récupérer les informations utilisateur depuis la session
-    user_info = session.get('user')
+    if 'access_token' not in session:
+        return redirect(url_for('auth.login'))
+
+    user_info = session.get('user_info')
     return jsonify({
         "message": "Accès autorisé",
-        "user_info": user_info
+        "user_info": user_info,
+        "access_token": session['access_token']
     })
 
 
-# Route pour déconnexion
+# Route de déconnexion
 @auth_bp.route('/logout')
 def logout():
     """
     Déconnecte l'utilisateur en effaçant la session locale.
     """
-    session.clear()  # Efface la session Flask
-    return redirect(url_for('auth.login'))  # Redirige vers la page de connexion
+    session.clear()
+    return redirect(url_for('auth.login'))
