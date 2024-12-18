@@ -1,14 +1,10 @@
-from flask import Blueprint, redirect, session, url_for, request, jsonify
-from flask_pyoidc import OIDCAuthentication
+import requests
+from flask import Blueprint, request, jsonify, redirect, url_for, session
 from flask_pyoidc.provider_configuration import ProviderConfiguration
-from authlib.oauth2.rfc6749.errors import InvalidGrantError
 
-# Création du Blueprint pour les routes SSO
-auth_bp = Blueprint('auth', __name__)
-
-# Configuration du fournisseur OAuth2/SSO
+# Configuration OAuth2
 provider_metadata = {
-    "issuer": "https://accounts.google.com",  # Fournisseur OAuth2 (Google ici)
+    "issuer": "https://accounts.google.com",  # Fournisseur OAuth2
     "authorization_endpoint": "https://accounts.google.com/o/oauth2/auth",
     "token_endpoint": "https://accounts.google.com/o/oauth2/token",
     "userinfo_endpoint": "https://www.googleapis.com/oauth2/v1/userinfo",
@@ -16,88 +12,93 @@ provider_metadata = {
 
 provider_config = ProviderConfiguration(
     issuer=provider_metadata['issuer'],
-    client_id='YOUR_CLIENT_ID',  # Remplace par ton Client ID
-    client_secret='YOUR_CLIENT_SECRET',  # Remplace par ton Client Secret
-    redirect_uri='http://localhost:5000/auth/callback',  # URL de retour configurée
+    client_id='YOUR_CLIENT_ID',  # Ton client ID
+    client_secret='YOUR_CLIENT_SECRET',  # Ton client secret
+    redirect_uri='http://localhost:5000/auth/callback',  # URL de callback
     provider_metadata=provider_metadata
 )
 
-# Initialisation PyOIDC
-auth = OIDCAuthentication({'default': provider_config})
-
+# Création du Blueprint
+auth_bp = Blueprint('auth', __name__)
 
 # Route pour démarrer l'authentification
 @auth_bp.route('/login')
-@auth.oidc_auth('default')
 def login():
     """
-    Démarre le processus SSO.
-    L'utilisateur est redirigé vers le fournisseur OAuth2.
+    Redirige l'utilisateur vers le fournisseur OAuth2 pour authentification.
     """
-    return redirect(url_for('auth.callback'))
+    auth_url = (
+        f"{provider_metadata['authorization_endpoint']}?"
+        f"response_type=code&"
+        f"client_id={provider_config.client_id}&"
+        f"redirect_uri={provider_config.redirect_uri}&"
+        f"scope=openid email profile&"
+        f"state=xyz"
+    )
+    return redirect(auth_url)
 
 
 # Route callback après authentification
 @auth_bp.route('/callback')
 def callback():
     """
-    Gère le callback après redirection depuis le fournisseur.
-    Échange le code d'autorisation contre un Access Token.
+    Récupère les tokens depuis le fournisseur OAuth2.
     """
-    # Récupérer les paramètres depuis l'URL
-    authorization_code = request.args.get('code')  # Le code d'autorisation
-    state = request.args.get('state')  # État de sécurité, validé automatiquement par PyOIDC
-
+    # Récupérer le code d'autorisation depuis l'URL
+    authorization_code = request.args.get('code')
     if not authorization_code:
-        return "Erreur : Aucun code d'autorisation reçu.", 400
+        return jsonify({"error": "Code d'autorisation manquant"}), 400
 
-    # Échanger le code contre un Access Token
-    try:
-        token = auth.clients['default'].fetch_token(
-            provider_metadata['token_endpoint'],
-            grant_type='authorization_code',
-            code=authorization_code,
-            redirect_uri=provider_config.redirect_uri,
-            client_id=provider_config.client_id,
-            client_secret=provider_config.client_secret,
-        )
-    except InvalidGrantError as e:
-        return f"Erreur lors de l'échange du token : {str(e)}", 400
+    # Échanger le code contre des tokens
+    token_data = exchange_code_for_token(authorization_code)
+    if "error" in token_data:
+        return jsonify(token_data), 400
 
-    # Stocker les informations utilisateur dans la session
-    session['access_token'] = token['access_token']
-    session['id_token'] = token.get('id_token')  # Si disponible
-    session['expires_in'] = token['expires_in']
+    # Récupérer les informations utilisateur depuis le token
+    user_info = get_user_info(token_data['access_token'])
 
-    # Récupérer les informations utilisateur avec le token
-    user_info = auth.clients['default'].userinfo(token['access_token'])
+    # Stocker les informations dans la session (facultatif)
     session['user_info'] = user_info
+    session['access_token'] = token_data['access_token']
 
-    return redirect(url_for('auth.protected'))
-
-
-# Route protégée
-@auth_bp.route('/protected')
-def protected():
-    """
-    Exemple de route protégée, accessible uniquement après authentification.
-    """
-    if 'access_token' not in session:
-        return redirect(url_for('auth.login'))
-
-    user_info = session.get('user_info')
     return jsonify({
-        "message": "Accès autorisé",
+        "message": "Authentification réussie",
         "user_info": user_info,
-        "access_token": session['access_token']
+        "tokens": token_data
     })
 
 
-# Route de déconnexion
-@auth_bp.route('/logout')
-def logout():
+# Fonction pour échanger le code contre des tokens
+def exchange_code_for_token(authorization_code):
     """
-    Déconnecte l'utilisateur en effaçant la session locale.
+    Envoie une requête au token endpoint pour échanger le code contre des tokens.
     """
-    session.clear()
-    return redirect(url_for('auth.login'))
+    token_url = provider_metadata['token_endpoint']
+    data = {
+        "grant_type": "authorization_code",
+        "code": authorization_code,
+        "redirect_uri": provider_config.redirect_uri,
+        "client_id": provider_config.client_id,
+        "client_secret": provider_config.client_secret,
+    }
+    response = requests.post(token_url, data=data)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"error": "Erreur lors de l'échange du code", "details": response.json()}
+
+
+# Fonction pour récupérer les informations utilisateur
+def get_user_info(access_token):
+    """
+    Envoie une requête au userinfo endpoint pour récupérer les informations utilisateur.
+    """
+    userinfo_url = provider_metadata['userinfo_endpoint']
+    headers = {"Authorization": f"Bearer {access_token}"}
+    response = requests.get(userinfo_url, headers=headers)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"error": "Impossible de récupérer les informations utilisateur"}
