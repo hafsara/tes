@@ -15,6 +15,9 @@
         (onChange)="onAppSelectionChange($event)">
       </p-multiSelect>
     </div>
-    <button class="logout-button" (click)="logout()">Logout</button>
+    <p-avatar [label]="userInfo.username.slice(0, 2).toUpperCase()"  styleClass="mr-2" size="large"
+              [style]="{ 'background-color': '#f0fdfa', color: '#00796' }" (click)="menu.toggle($event)" shape="circle">
+    </p-avatar>
+      <p-menu #menu [model]="menuItems" [popup]="true"></p-menu>
   </div>
 </nav>

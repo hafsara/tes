@@ -1,97 +1,27 @@
+<VirtualHost *:8082>
+    ServerName test.dev.com
+    ServerAlias www.test.dev.com
 
-   ```python
-   from models import db
-   from app import app
+    # Frontend (Angular)
+    DocumentRoot /var/www/test.dev.com/frontend
+    <Directory /var/www/test.dev.com/frontend>
+        Options FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
 
-   with app.app_context():
-       db.create_all()
-   ```
+    # Backend (Flask)
+    WSGIScriptAlias /api /var/www/test.dev.com/backend/wsgi.py
+    <Directory /var/www/test.dev.com/backend>
+        Require all granted
+    </Directory>
 
-### 3. **Lancer le serveur Flask**
+    # Flower (Reverse Proxy)
+    ProxyPreserveHost On
+    ProxyPass /flower http://localhost:5555/
+    ProxyPassReverse /flower http://localhost:5555/
 
-   Démarrez le serveur Flask pour que les endpoints de l’API soient accessibles :
-   ```bash
-   flask run
-   ```
-
-# celery -A celery_app.celery worker --loglevel=info
-# celery -A celery_app.celery beat --loglevel=info
-
-### 4. **Tester les Endpoints avec Swagger**
-
-   Accédez à la documentation Swagger à `http://localhost:5000/api/docs` pour :
-   - Voir la liste des endpoints disponibles.
-   - Tester chaque endpoint directement via l'interface Swagger en fournissant les paramètres requis.
-
-### 5. **Tester avec un Client REST (Postman ou cURL)**
-
-   Si vous voulez tester plus en détail ou simuler des cas spécifiques, utilisez un client REST comme **Postman** ou `cURL`. Voici les endpoints principaux à tester :
-
-   - **Création d'un Form Container** :
-     ```
-     POST http://localhost:5000/form-containers
-     Body (JSON):
-     {
-       "title": "Titre du Form Container",
-       "user_id": 1,
-       "escalade_email": "manager@example.com",
-       "reference": "ticket123",
-       "escalate": true
-     }
-     ```
-
-   - **Création d'un Formulaire** :
-     ```
-     POST http://localhost:5000/form-containers/<container_id>/forms
-     Body (JSON):
-     {
-       "questions": {
-         "question1": "Answer1",
-         "question2": "Answer2"
-       }
-     }
-     ```
-
-   - **Soumission d'une Réponse** :
-     ```
-     POST http://localhost:5000/forms/<form_id>/response
-     Body (JSON):
-     {
-       "response": {
-         "question1": "Updated Answer1",
-         "question2": "Updated Answer2"
-       }
-     }
-     ```
-
-### 6. **Tester la Gestion des Tâches Asynchrones (Celery)**
-
-   1. **Démarrer le Worker Celery** :
-      ```bash
-      celery -A tasks.celery worker --loglevel=info
-      ```
-
-   2. **Planification des Rappels avec Celery Beat** :
-      Si vous voulez planifier les rappels automatiquement, installez **Celery Beat** et configurez des tâches récurrentes (optionnel).
-
-### 7. **Vérifier les Logs et Résultats**
-
-   - Assurez-vous que les actions comme l'escalade et les rappels se déclenchent correctement.
-   - Surveillez les logs dans la console pour détecter les erreurs ou les messages de débogage.
-ng add @angular/material
-
-Ces étapes devraient vous permettre de tester toutes les fonctionnalités principales du backend. Une fois les tests réussis, nous pourrons avancer avec le développement des pages frontend.
-
-sudo -u postgres psql -d dbname
-from flask.cli import FlaskGroup
-from app import app, db
-
-cli = FlaskGroup(app)
-
-@cli.command("create_db")
-def create_db():
-    with app.app_context():
-        db.create_all()
-
-if __name__ == "__main__":
-    cli()
+    # Logs
+    ErrorLog ${APACHE_LOG_DIR}/test_dev_com_error.log
+    CustomLog ${APACHE_LOG_DIR}/test_dev_com_access.log combined
+</VirtualHost>

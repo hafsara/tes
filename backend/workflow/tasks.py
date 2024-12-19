@@ -28,6 +28,7 @@ class WorkflowManager:
         """
         Starts a workflow (reminders followed by escalation).
         """
+        send_email()
         tasks = [
             send_reminder_task.s(form_id, i).set(countdown=i * REMINDER_INTERVAL)
             for i in range(1, MAX_REMINDERS + 1)
@@ -36,7 +37,6 @@ class WorkflowManager:
 
         # Create and run the chain
         chain(*tasks).apply_async()
-        cls._send_initial_notification_task(form_id)
 
     @staticmethod
     def stop_workflow(form_id):

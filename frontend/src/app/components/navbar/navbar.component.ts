@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/cor
 import { TokenService } from '../../services/token.service';
 import { Subscription } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
+import { SharedService } from '../../services/shared.service';
 
 @Component({
   selector: 'app-navbar',
@@ -12,15 +13,36 @@ export class NavbarComponent implements OnInit, OnDestroy {
   @Output() appOptionsLoaded = new EventEmitter<{ name: string; token: string }[]>();
   @Output() selectedAppIdsChange = new EventEmitter<string[]>();
 
+  userInfo = {
+    uid: '',
+    username: '',
+    avatar: '',
+  };
+
   appOptions: { name: string; token: string }[] = [];
   selectedApps: string[] = [];
+  menuItems: any[] = [];
 
   private tokenSubscription!: Subscription;
   private readonly localStorageKey = 'selectedApps';
 
-  constructor(private tokenService: TokenService) {}
+  constructor(private tokenService: TokenService, private sharedService: SharedService) {}
 
   ngOnInit(): void {
+    this.menuItems = [
+      {
+        label: 'Logout',
+        icon: 'pi pi-sign-out',
+        command: () => this.logout(),
+      },
+    ];
+    this.sharedService.userInfo$.subscribe((data) => {
+      this.userInfo = {
+        uid: data.uid || '',
+        username: data.username || 'User',
+        avatar: data.avatar || '',
+      };
+    });
     const savedSelection = localStorage.getItem(this.localStorageKey);
     if (savedSelection) {
       this.selectedApps = JSON.parse(savedSelection);

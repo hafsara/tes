@@ -43,6 +43,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MenubarModule } from 'primeng/menubar';
 import { ChipsModule } from 'primeng/chips';
 import { FieldsetModule } from 'primeng/fieldset';
+import { AvatarModule } from 'primeng/avatar';
 
 import { UserViewComponent } from './components/user-view/user-view.component';
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
@@ -96,6 +97,7 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
     MarkdownModule.forRoot(),
     // PrimeNG Modules
     StepsModule,
+    AvatarModule,
     FieldsetModule,
     ChipsModule,
     ToastModule,

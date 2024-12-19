@@ -1,6 +1,8 @@
 <nav class="navbar">
   <div class="logo">
-    <img src="Logo-BNP-Paribas.jpg" alt="Logo" class="logo-img" />
+    <img src="Logo-BNP-Paribas.jpg" alt="Logo" class="logo-img"/>
     <span style="font-weight: bold">Fouras</span>
   </div>
+  <p-avatar [label]="userInfo.username.slice(0, 2).toUpperCase()" styleClass="mr-2" size="large"
+            [style]="{ 'background-color': '#f0fdfa', color: '#00796' }" shape="circle"/>
 </nav>
