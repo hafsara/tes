@@ -14,7 +14,7 @@ const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'create-form', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'dashboard/:appName/load-form/:access_token', component: DashboardComponent, canActivate: [AuthGuard] },
-  { path: 'user-view/:access_token', component: UserViewComponent },
+  { path: 'user-view/:access_token', component: UserViewComponent, canActivate: [sSOGuard] },
   { path: '404', component: PageNotFoundComponent },
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
   { path: '**', redirectTo: '404' },

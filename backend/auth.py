@@ -20,9 +20,7 @@ def login():
 # Route callback après authentification
 @auth_bp.route('/callback')
 def callback():
-    return_url = request.args.get('returnUrl', '/')
-
-    user_info = {"name": "hafsa raii","email": "hafsaraii1@gmail", "sub": "d1234"}
+    user_info = {"name": "Hafsa Rii","email": "hafsaraii1@gmail", "sub": "d1234"}
     token_data = {
         "access_token":"access token",
         "expires_in": 1800,
@@ -30,19 +28,13 @@ def callback():
         "token_type": "Bearer"
     }
     jwt_payload = {
-        "sso_token": "generated_sso_token",  # Exemple de token
-        "sub": user_info['sub'],       # ID unique
+        "sso_token": token_data['access_token'],
+        "sub": user_info['sub'],
         "username": user_info['name'],
-        "avatar": user_info['name'],
-        "exp": datetime.utcnow() + timedelta(seconds=token_data['expires_in']),  # Expiration
-        "iat": datetime.utcnow(),      # Date d'émission
+        "avatar": user_info['name'][:2].upper(),
+        "exp": datetime.utcnow() + timedelta(seconds=token_data['expires_in'])
     }
     jwt_token = jwt.encode(jwt_payload,'your_secret_key', algorithm='HS256')
-
-    user_info = {
-        "sub": "HAFSA",
-        "username": "Hafsa RAII",
-        "avatar": "HR",
-        "sso_token": "generated_sso_token",  # Exemple de token
-    }
-    return jsonify(user_info), 201
+    return jsonify({
+        "token": jwt_token,
+    }), 201

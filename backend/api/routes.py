@@ -4,7 +4,7 @@ from datetime import datetime
 from extensions import db
 import jwt
 
-api = Blueprint('api', __name__, url_prefix='/api')
+api = Blueprint('api', __name__)
 ADMIN_ID = 'd76476'  # todo enlever cette ligne et la remplacer par ADMIN_ID
 
 

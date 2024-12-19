@@ -1,17 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private readonly tokenKey = 'sso_token';
-
+  private authUrl = `${environment.apiUrl}/auth/login`;
   constructor(private http: HttpClient) {}
 
   fetchSSOInfo(): Observable<any> {
-    return this.http.get("http://localhost:5000/auth/login");
+    return this.http.get(this.authUrl);
   }
 
   storeToken(token: string): void {
@@ -33,4 +35,17 @@ export class AuthService {
   private isBrowser(): boolean {
     return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
   }
+
+  decodeToken(token: string): any | null {
+    if (token) {
+      try {
+        return jwtDecode(token);
+      } catch (error) {
+        console.error('Error decoding JWT token:', error);
+        return null;
+      }
+    }
+    return null;
+  }
+
 }

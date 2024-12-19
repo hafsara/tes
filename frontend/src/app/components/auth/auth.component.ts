@@ -23,14 +23,19 @@ export class AuthComponent implements OnInit {
 
       this.authService.fetchSSOInfo().subscribe(
         (userInfo) => {
-          this.authService.storeToken(userInfo.sso_token);
+          this.authService.storeToken(userInfo.token);
+          const decodeToken = this.authService.decodeToken(userInfo.token)
           this.sharedService.setUserInfo({
-            uid: userInfo.sub,
-            username: userInfo.username,
-            avatar: userInfo.username,
+            uid: decodeToken.sub,
+            username: decodeToken.username,
+            avatar: decodeToken.username,
           });
-          // if token else dashboard
-         this.router.navigateByUrl('/dashboard');
+          if (accessToken){
+            this.router.navigate([`/user-view/${accessToken}`]);
+          }else {
+            this.router.navigate(['/dashboard']);
+          }
+
         },
         (error) => {
           console.error('Error during authentication:', error);

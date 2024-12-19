@@ -8,17 +8,15 @@ export const sSOGuard: CanActivateFn = (route, state) => {
   const sharedService = inject(SharedService);
   const router = inject(Router);
 
-  const ssoToken = authService.getToken(); //todo test
+  const ssoToken = authService.getToken();
 
   if (ssoToken) {
-    //todo test
-    console.log('ssoToken');
-              sharedService.setUserInfo({
-            uid: 'hafsa',
-            username: 'hafsa',
-            avatar: "HR",
-          });
-//todo fin
+      const decodedToken = authService.decodeToken(ssoToken);
+      sharedService.setUserInfo({
+        uid: decodedToken.sub,
+        username: decodedToken.username,
+        avatar: decodedToken.avatar,
+      });
     return true;
   } else {
     const accessToken = route.paramMap.get('access_token');
