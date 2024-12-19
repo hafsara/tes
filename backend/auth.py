@@ -38,5 +38,10 @@ def callback():
     }
     jwt_token = jwt.encode(jwt_payload,'your_secret_key', algorithm='HS256')
 
-    frontend_url = f'http://localhost:4200?token={jwt_token}&returnUrl={return_url}'
-    return redirect(frontend_url)
+    user_info = {
+        "sub": "user123",
+        "username": "John Doe",
+        "avatar": "https://example.com/avatar.jpg",
+        "sso_token": "generated_sso_token",  # Exemple de token
+    }
+    return jsonify(user_info), 201

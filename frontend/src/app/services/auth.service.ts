@@ -1,57 +1,38 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import {jwtDecode} from 'jwt-decode';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly tokenKey = 'auth_token';
+  private readonly tokenKey = 'sso_token';
 
-  constructor(private router: Router) {}
+  constructor(private http: HttpClient) {}
 
-  // Vérifie si l'utilisateur est authentifié
-  async isAuthenticated(): Promise<boolean> {
-    const token = localStorage.getItem(this.tokenKey);
+  async fetchSSOInfo(): Promise<any> {
+    const response = await this.http.get('/auth/login').toPromise();
+    return response;
+  }
 
-    if (token) {
-      const decoded = this.decodeToken(token);
-      if (decoded && !this.isTokenExpired(decoded)) {
-        return true;
-      } else {
-        this.logout();
-        return false;
-      }
+  storeToken(token: string): void {
+    if (this.isBrowser()) {
+      localStorage.setItem(this.tokenKey, token);
     } else {
-      return false;
+      console.warn('localStorage non disponible dans cet environnement.');
     }
   }
 
-  // Vérifie si le token est expiré
-  private isTokenExpired(decodedToken: any): boolean {
-    const currentTime = Math.floor(Date.now() / 1000);
-    return decodedToken.exp < currentTime;
+  getToken(): string | null {
+    return this.isBrowser() ? localStorage.getItem(this.tokenKey) : null;
   }
 
-  // Démarre le processus de login avec une URL de retour
-  login(returnUrl: string): void {
-    const encodedReturnUrl = encodeURIComponent(returnUrl);
-    window.location.href = `http://localhost:5000/auth/login?returnUrl=${encodedReturnUrl}`;
-  }
-
-  // Décode un token JWT
-  decodeToken(token: string): any {
-    try {
-      return jwtDecode(token);
-    } catch (error) {
-      console.error('Erreur lors du décodage du token :', error);
-      return null;
+  clearToken(): void {
+    if (this.isBrowser()) {
+      localStorage.removeItem(this.tokenKey);
     }
   }
 
-  // Déconnecte l'utilisateur
-  logout(): void {
-    localStorage.removeItem(this.tokenKey);
-    this.router.navigate(['/']); // Redirige vers la page d'accueil ou de login
+  private isBrowser(): boolean {
+    return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
   }
 }

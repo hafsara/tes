@@ -1,10 +1,11 @@
 from flask import Flask
+
+from auth import (auth_bp)
 from config import Config
 from extensions import db
 from flask_migrate import Migrate
 from api.routes import api
 from flask_swagger_ui import get_swaggerui_blueprint
-from auth import setup_oauth, auth_bp
 from flask_cors import CORS
 
 app = Flask(__name__, static_folder='api/static')
@@ -14,7 +15,6 @@ app.config.from_object(Config)
 
 db.init_app(app)
 migrate = Migrate(app, db)
-setup_oauth(app)
 
 app.register_blueprint(api)
 app.register_blueprint(auth_bp, url_prefix='/auth')

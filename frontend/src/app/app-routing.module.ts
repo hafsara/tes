@@ -5,9 +5,11 @@ import { PageNotFoundComponent } from './components/page-not-found/page-not-foun
 import { AccessControlComponent } from './components/access-control/access-control.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
+import { AuthComponent } from './components/auth/auth.component';
 
 const routes: Routes = [
   { path: 'access-control', component: AccessControlComponent },
+  { path: 'auth', component: AccessControlComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'create-form', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'dashboard/:appName/load-form/:access_token', component: DashboardComponent, canActivate: [AuthGuard] },

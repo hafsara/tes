@@ -60,6 +60,7 @@ import { FormTableComponent } from './components/form-table/form-table.component
 import { RefreshToastComponent } from './components/refresh-toast/refresh-toast.component';
 import { DefaultNavbarComponent } from './components/default-navbar/default-navbar.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { AuthComponent } from './components/auth/auth.component';
 
 @NgModule({
   declarations: [
@@ -78,7 +79,8 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
     FormTableComponent,
     RefreshToastComponent,
     DefaultNavbarComponent,
-    SidebarComponent
+    SidebarComponent,
+    AuthComponent
   ],
   imports: [
     BrowserModule,
