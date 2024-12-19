@@ -25,3 +25,18 @@
     ErrorLog ${APACHE_LOG_DIR}/test_dev_com_error.log
     CustomLog ${APACHE_LOG_DIR}/test_dev_com_access.log combined
 </VirtualHost>
+
+
+
+fetchSSOInfo(): Observable<any> {
+  return this.http.get(this.authUrl, { observe: 'response' }).pipe(
+    map((response) => {
+      console.log('Response Headers:', response.headers);
+      return response.body;
+    }),
+    catchError((error) => {
+      console.error('Error fetching SSO info:', error);
+      return throwError(() => new Error('Failed to fetch SSO info'));
+    })
+  );
+}
