@@ -3,7 +3,6 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { SharedService } from '../../services/shared.service';
 
-
 @Component({
   selector: 'app-auth',
   templateUrl: './auth.component.html',
@@ -19,33 +18,25 @@ export class AuthComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(async (params) => {
+    this.route.queryParams.subscribe((params) => {
       const accessToken = params['accessToken'];
-      const returnUrl = params['returnUrl'] || '/dashboard';
 
-      try {
-        const userInfo = await this.authService.fetchSSOInfo();
-
-        if (userInfo) {
+      this.authService.fetchSSOInfo().subscribe(
+        (userInfo) => {
           this.authService.storeToken(userInfo.sso_token);
-
           this.sharedService.setUserInfo({
             uid: userInfo.sub,
             username: userInfo.username,
-            avatar: userInfo.avatar,
+            avatar: userInfo.username,
           });
-
-          if (accessToken) {
-            const reconstructedUrl = `/user-view/${accessToken}`;
-            this.router.navigateByUrl(reconstructedUrl);
-          } else {
-            this.router.navigateByUrl(returnUrl);
-          }
+          // if token else dashboard
+         this.router.navigateByUrl('/dashboard');
+        },
+        (error) => {
+          console.error('Error during authentication:', error);
+          this.router.navigate(['/dashboard']);
         }
-      } catch (error) {
-        console.error('Erreur lors de la connexion:', error);
-        this.router.navigate(['/dashboard']);
-      }
+      );
     });
   }
 }

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -9,16 +10,13 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  async fetchSSOInfo(): Promise<any> {
-    const response = await this.http.get('/auth/login').toPromise();
-    return response;
+  fetchSSOInfo(): Observable<any> {
+    return this.http.get("http://localhost:5000/auth/login");
   }
 
   storeToken(token: string): void {
     if (this.isBrowser()) {
       localStorage.setItem(this.tokenKey, token);
-    } else {
-      console.warn('localStorage non disponible dans cet environnement.');
     }
   }
 

@@ -22,7 +22,7 @@ def login():
 def callback():
     return_url = request.args.get('returnUrl', '/')
 
-    user_info = {"email": "hafsaraii1@gmail", "sub": "d1234"}
+    user_info = {"name": "hafsa raii","email": "hafsaraii1@gmail", "sub": "d1234"}
     token_data = {
         "access_token":"access token",
         "expires_in": 1800,
@@ -30,6 +30,7 @@ def callback():
         "token_type": "Bearer"
     }
     jwt_payload = {
+        "sso_token": "generated_sso_token",  # Exemple de token
         "sub": user_info['sub'],       # ID unique
         "username": user_info['name'],
         "avatar": user_info['name'],
@@ -39,9 +40,9 @@ def callback():
     jwt_token = jwt.encode(jwt_payload,'your_secret_key', algorithm='HS256')
 
     user_info = {
-        "sub": "user123",
-        "username": "John Doe",
-        "avatar": "https://example.com/avatar.jpg",
+        "sub": "HAFSA",
+        "username": "Hafsa RAII",
+        "avatar": "HR",
         "sso_token": "generated_sso_token",  # Exemple de token
     }
     return jsonify(user_info), 201

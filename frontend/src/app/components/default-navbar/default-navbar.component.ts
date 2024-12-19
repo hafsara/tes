@@ -17,6 +17,7 @@ export class DefaultNavbarComponent implements OnInit  {
 
   ngOnInit(): void {
     this.sharedService.userInfo$.subscribe((data) => {
+      console.log(data);
       this.userInfo = {
         uid: data.uid || '',
         username: data.username || 'User',

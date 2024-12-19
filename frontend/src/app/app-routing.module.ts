@@ -6,10 +6,11 @@ import { AccessControlComponent } from './components/access-control/access-contr
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AuthComponent } from './components/auth/auth.component';
+import { sSOGuard } from './guards/sso.guard';
 
 const routes: Routes = [
   { path: 'access-control', component: AccessControlComponent },
-  { path: 'auth', component: AccessControlComponent },
+  { path: 'auth', component: AuthComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'create-form', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'dashboard/:appName/load-form/:access_token', component: DashboardComponent, canActivate: [AuthGuard] },
