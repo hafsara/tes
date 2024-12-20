@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 
@@ -11,8 +11,16 @@ export class FormService {
 
   constructor(private http: HttpClient) {}
 
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('sso_token');
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+  }
+
   createFormContainer(formContainer: any): Observable<any> {
-    return this.http.post(this.apiUrl, formContainer);
+    const headers = this.getAuthHeaders();
+    return this.http.post(this.apiUrl, formContainer,  { headers });
   }
 
   getFormContainerByAccessToken(accessToken: string): Observable<any> {
@@ -52,8 +60,9 @@ export class FormService {
   }
 
   validateToken(token: string): Observable<{ is_valid: boolean; token: string | null }> {
+    const headers = this.getAuthHeaders();
     const url = `${environment.apiUrl}/validate-token/${token}`;
-    return this.http.get<{ is_valid: boolean; token: string | null }>(url);
+    return this.http.get<{ is_valid: boolean; token: string | null }>(url, { headers });
   }
 
   loadCampaignOptions(appId: string): Observable<any> {

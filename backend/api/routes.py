@@ -3,9 +3,50 @@ from api.models import FormContainer, Form, Question, TimelineEntry, Response, A
 from datetime import datetime
 from extensions import db
 import jwt
+from functools import wraps
+
+from jwt import InvalidSignatureError
 
 api = Blueprint('api', __name__)
 ADMIN_ID = 'd76476'  # todo enlever cette ligne et la remplacer par ADMIN_ID
+
+
+def _authenticate_request():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return jsonify({"error": "Missing Authorization Header"}), 401
+
+    token = auth_header.split(" ")[1] if " " in auth_header else auth_header
+    try:
+        decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
+        request.admin_id = decoded_token.get('sub')  # Extract admin_id from the token
+    except jwt.ExpiredSignatureError:
+        return jsonify({"error": "Token has expired"}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({"error": "Invalid token"}), 401
+
+
+def authenticate_request(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            return jsonify({"error": "Missing Authorization Header"}), 401
+
+        token = auth_header.split(" ")[1] if " " in auth_header else auth_header
+        try:
+            decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
+            request.admin_id = decoded_token.get('sub')
+        except jwt.ExpiredSignatureError:
+            return jsonify({"error": "Token has expired"}), 401
+        except jwt.InvalidSignatureError:
+            return {"error": "Invalid token signature - token was not issued by this backend"}
+        except jwt.InvalidTokenError:
+            return jsonify({"error": "Invalid token"}), 401
+
+        return f(*args, **kwargs)  # Proceed to the route function
+
+    return decorated_function
 
 
 def error_response(message, status_code):
@@ -46,9 +87,13 @@ def create_campaign():
 
 
 @api.route('/form-containers', methods=['POST'])
+@authenticate_request
 def create_form_container():
     data = request.json
-    admin_id = ADMIN_ID
+    admin_id = getattr(request, 'admin_id', None)
+
+    if not admin_id:
+        return error_response("Admin not authenticated", 401)
 
     if not admin_id:
         return error_response("Admin not authenticated", 401)
@@ -248,6 +293,7 @@ def get_form_container_timeline(form_container_id):
 
 
 @api.route('/validate-token/<string:token>', methods=['GET'])
+@authenticate_request
 def validate_token(token):
     application = Application.query.filter_by(id=token).first()
     if application:
