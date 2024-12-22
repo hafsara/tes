@@ -1,49 +1,24 @@
-from flask import Blueprint, jsonify, request, session, redirect, url_for
+from base64 import b64decode
+
+from flask import Blueprint, jsonify, request
 from api.models import FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign, ConnectionLog
 from datetime import datetime
 from extensions import db
 import jwt
-from functools import wraps
 
 api = Blueprint('api', __name__)
-ADMIN_ID = 'd76476'  # todo enlever cette ligne et la remplacer par ADMIN_ID
 
-
-def _authenticate_request():
+@api.before_request
+def authenticate_request():
     auth_header = request.headers.get('Authorization')
     if not auth_header:
-        return jsonify({"error": "Missing Authorization Header"}), 401
-
+        return jsonify({"error": "Missing Authorization Header"})
     token = auth_header.split(" ")[1] if " " in auth_header else auth_header
     try:
         decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
         request.user_id = decoded_token.get('sub')
-    except jwt.ExpiredSignatureError:
-        return jsonify({"error": "Token has expired"}), 401
-    except jwt.InvalidTokenError:
-        return jsonify({"error": "Invalid token"}), 401
-
-
-def authenticate_request(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        auth_header = request.headers.get('Authorization')
-        if not auth_header:
-            return jsonify({"error": "Missing Authorization Header"}), 401
-
-        token = auth_header.split(" ")[1] if " " in auth_header else auth_header
-        try:
-            decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
-            request.user_id = decoded_token.get('sub')
-        except jwt.ExpiredSignatureError:
-            return jsonify({"error": "Token has expired"}), 401
-        except jwt.InvalidSignatureError:
-            return {"error": "Invalid token signature - token was not issued by this backend"}
-        except jwt.InvalidTokenError:
-            return jsonify({"error": "Invalid token"}), 401
-        return f(*args, **kwargs)
-
-    return decorated_function
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+        request.user_id = None
 
 
 def error_response(message, status_code):
@@ -54,6 +29,7 @@ def error_response(message, status_code):
 def create_application():
     data = request.json
     app_name = data.get('name')
+    # Generer ici le app-id et non depuis le date
     app_id = data.get('id')
 
     if not app_name or not app_id:
@@ -71,7 +47,10 @@ def create_campaign():
     data = request.json
     campaign_name = data.get('name')
     app_id = data.get('app_id')
-    created_by = ADMIN_ID
+    created_by = getattr(request, 'user_id', None)
+
+    if not created_by:
+        return error_response("User not authenticated", 401)
 
     if not campaign_name or not app_id:
         return error_response("Campaign name and app ID are required", 400)
@@ -89,10 +68,7 @@ def create_form_container():
     user_id = getattr(request, 'user_id', None)
 
     if not user_id:
-        return error_response("Admin not authenticated", 401)
-
-    if not user_id:
-        return error_response("Admin not authenticated", 401)
+        return error_response("User not authenticated", 401)
 
     form_container = FormContainer(
         title=data['title'],
@@ -148,10 +124,10 @@ def create_form_container():
 
 @api.route('/form-containers/apps/<string:app_ids>', methods=['GET'])
 def get_form_containers(app_ids):
-    user_id = ADMIN_ID
+    user_id = getattr(request, 'user_id', None)
 
     if not user_id:
-        return error_response("Admin not authenticated", 401)
+        return error_response("User not authenticated", 401)
 
     filter_type = request.args.get('filter')
     status = request.args.get('status')
@@ -237,8 +213,11 @@ def get_form_container_by_access_token(access_token):
 
 @api.route('/form-containers/<int:container_id>/forms/<int:form_id>/validate', methods=['POST'])
 def validate_form_container(container_id, form_id):
-    # todo add plus de controle avant de modofier les status
-    user_id = ADMIN_ID
+    user_id = getattr(request, 'user_id', None)
+
+    if not user_id:
+        return error_response("User not authenticated", 401)
+
     form_container = FormContainer.query.get_or_404(container_id)
 
     if not form_container:
@@ -308,7 +287,11 @@ def get_campaigns(app_id):
 
 @api.route('/form-containers/<int:form_container_id>/forms/<int:form_id>/cancel', methods=['POST'])
 def cancel_form(form_container_id, form_id):
-    user_id = ADMIN_ID
+    user_id = getattr(request, 'user_id', None)
+
+    if not user_id:
+        return error_response("User not authenticated", 401)
+
     data = request.get_json()
     comment = data.get('comment', '').strip()
 
@@ -338,9 +321,13 @@ def cancel_form(form_container_id, form_id):
 
 @api.route('/form-containers/<int:container_id>/forms', methods=['POST'])
 def add_form_to_container(container_id):
-    user_id = ADMIN_ID
+    user_id = getattr(request, 'user_id', None)
+
     if not user_id:
-        return error_response("Admin not authenticated", 401)
+        return error_response("User not authenticated", 401)
+
+    if not user_id:
+        return error_response("User not authenticated", 401)
     form_container = FormContainer.query.get_or_404(container_id)
 
     if len(form_container.forms) >= 5:
@@ -385,7 +372,10 @@ def add_form_to_container(container_id):
 @api.route('/form-containers/<string:access_token>/forms/<int:form_id>/submit-response', methods=['POST'])
 def submit_form_response(access_token, form_id):
     data = request.json
-    responder_uid = ADMIN_ID
+    responder_uid = getattr(request, 'user_id', None)
+
+    if not responder_uid:
+        return error_response("User not authenticated", 401)
 
     form_container = FormContainer.query.filter_by(access_token=access_token).first_or_404()
     if form_container.validated:
@@ -453,7 +443,7 @@ def update_application(app_token):
     """
     data = request.json
     new_name = data.get('name')
-    new_token = data.get('new_token')
+    new_token = data.get('new_token') # todo pareil
 
     if not new_name and not new_token:
         return error_response("Name or new token is required to update the application.", 400)

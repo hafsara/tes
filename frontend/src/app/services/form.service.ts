@@ -109,5 +109,4 @@ export class FormService {
     const headers = this.getAuthHeaders();
     return this.http.post(`${this.apiBaseUrl}/log-connection`, payload,  { headers });
   }
-
 }
