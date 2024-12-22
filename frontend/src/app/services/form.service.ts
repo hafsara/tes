@@ -7,7 +7,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class FormService {
-  private apiUrl = `${environment.apiUrl}/form-containers`;
+  private apiBaseUrl = environment.apiUrl;
+  private apiFormContainerUrl = `${environment.apiUrl}/form-containers`;
 
   constructor(private http: HttpClient) {}
 
@@ -20,75 +21,93 @@ export class FormService {
 
   createFormContainer(formContainer: any): Observable<any> {
     const headers = this.getAuthHeaders();
-    return this.http.post(this.apiUrl, formContainer,  { headers });
+    return this.http.post(this.apiFormContainerUrl, formContainer,  { headers });
   }
 
   getFormContainerByAccessToken(accessToken: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${accessToken}`);
+    const headers = this.getAuthHeaders();
+    return this.http.get(`${this.apiFormContainerUrl}/${accessToken}`, { headers });
   }
 
   submitUserForm(access_token: string, formData: any): Observable<any> {
+    const headers = this.getAuthHeaders();
     return this.http.post(
-      `${this.apiUrl}/${access_token}/forms/${formData.form_id}/submit-response`,
+      `${this.apiFormContainerUrl}/${access_token}/forms/${formData.form_id}/submit-response`,
       {
         questions: formData.questions.map((q: any) => ({
           id: q.id,
           response: q.response
         }))
-      }
+      }, { headers }
     );
   }
 
   getFormContainerTimeline(formContainerId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${formContainerId}/timeline`);
+    const headers = this.getAuthHeaders();
+    return this.http.get(`${this.apiFormContainerUrl}/${formContainerId}/timeline`, { headers });
   }
 
   getFormContainersByStatus(appIds: string, status: string) : Observable<any> {
-      const url = `${this.apiUrl}/apps/${appIds}?filter=status&status=${status}`;
-      return this.http.get<any[]>(url);
+    const headers = this.getAuthHeaders();
+    const url = `${this.apiFormContainerUrl}/apps/${appIds}?filter=status&status=${status}`;
+    return this.http.get<any[]>(url, { headers });
   }
 
 
   validateFormContainer(formContainerId: number, formId: number): Observable<any> {
-    const url = `${this.apiUrl}/${formContainerId}/forms/${formId}/validate`;
-    return this.http.post(url, {});
+    const headers = this.getAuthHeaders();
+    const url = `${this.apiFormContainerUrl}/${formContainerId}/forms/${formId}/validate`;
+    return this.http.post(url, {}, { headers });
   }
 
   addFormToContainer(containerId: number, formData: any): Observable<any> {
-    const url = `${this.apiUrl}/${containerId}/forms`;
-    return this.http.post(url, formData);
+    const headers = this.getAuthHeaders();
+    const url = `${this.apiFormContainerUrl}/${containerId}/forms`;
+    return this.http.post(url, formData, { headers });
   }
 
   validateToken(token: string): Observable<{ is_valid: boolean; token: string | null }> {
     const headers = this.getAuthHeaders();
-    const url = `${environment.apiUrl}/validate-token/${token}`;
+    const url = `${this.apiBaseUrl}/validate-token/${token}`;
     return this.http.get<{ is_valid: boolean; token: string | null }>(url, { headers });
   }
 
   loadCampaignOptions(appId: string): Observable<any> {
-    const url = `${environment.apiUrl}/campaigns/${appId}`;
-    return this.http.get<any[]>(url);
+    const headers = this.getAuthHeaders();
+    const url = `${this.apiBaseUrl}/campaigns/${appId}`;
+    return this.http.get<any[]>(url, { headers });
   }
 
   createCampaign(campaign: any): Observable<any> {
-    const url = `${environment.apiUrl}/campaigns`;
-    return this.http.post(url, campaign);
+    const headers = this.getAuthHeaders();
+    const url = `${this.apiBaseUrl}/campaigns`;
+    return this.http.post(url, campaign, { headers });
   }
 
   cancelForm(formContainerId: string, formId: number, comment: string): Observable<any> {
-    const url = `${this.apiUrl}/${formContainerId}/forms/${formId}/cancel`;
-    return this.http.post(url, { comment });
+    const headers = this.getAuthHeaders();
+    const url = `${this.apiFormContainerUrl}/${formContainerId}/forms/${formId}/cancel`;
+    return this.http.post(url, { comment }, { headers });
   }
 
   getValidatedFormContainers(appIds: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/apps/${appIds}/validated`);
+    const headers = this.getAuthHeaders();
+    return this.http.get<any[]>(`${this.apiFormContainerUrl}/apps/${appIds}/validated`, { headers });
   }
 
   getFormById(formId: number): Observable<any> {
-    return this.http.get<any>(`${environment.apiUrl}/forms/${formId}`);
+    const headers = this.getAuthHeaders();
+    return this.http.get<any>(`${this.apiBaseUrl}/forms/${formId}`, { headers });
   }
 
   getTotalFormsCount(appIds: string): Observable<{ totalCount: number }> {
-    return this.http.get<{ totalCount: number }>(`${environment.apiUrl}/forms/apps/${appIds}/total-count`);
+    const headers = this.getAuthHeaders();
+    return this.http.get<{ totalCount: number }>(`${this.apiBaseUrl}/forms/apps/${appIds}/total-count`, { headers });
   }
+
+  logConnection(payload: any): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.post(`${this.apiBaseUrl}/log-connection`, payload,  { headers });
+  }
+
 }

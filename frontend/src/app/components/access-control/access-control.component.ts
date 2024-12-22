@@ -85,6 +85,14 @@ export class AccessControlComponent implements OnInit {
       this.messageService.add({ severity: 'warn', summary: 'No Tokens', detail: 'Please add at least one valid token.' });
     } else {
       this.tokenService.storeTokens(this.validTokens, 60);
+      const payload = {
+        app_ids: this.validTokens,
+      };
+
+      this.formService.logConnection(payload).subscribe(
+        () => console.log('Connection log added successfully'),
+        (error) => console.error('Error logging connection:', error)
+      );
       this.router.navigate(['/dashboard']);
     }
   }

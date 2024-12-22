@@ -1,11 +1,9 @@
-from flask import Blueprint, jsonify, request, session
-from api.models import FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign
+from flask import Blueprint, jsonify, request, session, redirect, url_for
+from api.models import FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign, ConnectionLog
 from datetime import datetime
 from extensions import db
 import jwt
 from functools import wraps
-
-from jwt import InvalidSignatureError
 
 api = Blueprint('api', __name__)
 ADMIN_ID = 'd76476'  # todo enlever cette ligne et la remplacer par ADMIN_ID
@@ -19,7 +17,7 @@ def _authenticate_request():
     token = auth_header.split(" ")[1] if " " in auth_header else auth_header
     try:
         decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
-        request.admin_id = decoded_token.get('sub')  # Extract admin_id from the token
+        request.user_id = decoded_token.get('sub')
     except jwt.ExpiredSignatureError:
         return jsonify({"error": "Token has expired"}), 401
     except jwt.InvalidTokenError:
@@ -36,15 +34,14 @@ def authenticate_request(f):
         token = auth_header.split(" ")[1] if " " in auth_header else auth_header
         try:
             decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
-            request.admin_id = decoded_token.get('sub')
+            request.user_id = decoded_token.get('sub')
         except jwt.ExpiredSignatureError:
             return jsonify({"error": "Token has expired"}), 401
         except jwt.InvalidSignatureError:
             return {"error": "Invalid token signature - token was not issued by this backend"}
         except jwt.InvalidTokenError:
             return jsonify({"error": "Invalid token"}), 401
-
-        return f(*args, **kwargs)  # Proceed to the route function
+        return f(*args, **kwargs)
 
     return decorated_function
 
@@ -87,15 +84,14 @@ def create_campaign():
 
 
 @api.route('/form-containers', methods=['POST'])
-@authenticate_request
 def create_form_container():
     data = request.json
-    admin_id = getattr(request, 'admin_id', None)
+    user_id = getattr(request, 'user_id', None)
 
-    if not admin_id:
+    if not user_id:
         return error_response("Admin not authenticated", 401)
 
-    if not admin_id:
+    if not user_id:
         return error_response("Admin not authenticated", 401)
 
     form_container = FormContainer(
@@ -105,7 +101,7 @@ def create_form_container():
         escalade_email=data['escalade_email'],
         reference=data.get('reference'),
         escalate=data.get('escalate', False),
-        initiated_by=admin_id,
+        initiated_by=user_id,
         reminder_delay=data.get('reminder_delay_day'),
         cc_emails=data.get('cc_emails'),
         app_id=data.get('app_id'),
@@ -134,7 +130,7 @@ def create_form_container():
         form_container_id=form_container.id,
         form_id=form.id,
         event='FormContainer created',
-        details=f'Form container created with title {form_container.title} by {admin_id}',
+        details=f'Form container created with title {form_container.title} by {user_id}',
         timestamp=datetime.utcnow()
     )
     db.session.add(timeline_entry)
@@ -152,9 +148,9 @@ def create_form_container():
 
 @api.route('/form-containers/apps/<string:app_ids>', methods=['GET'])
 def get_form_containers(app_ids):
-    admin_id = ADMIN_ID
+    user_id = ADMIN_ID
 
-    if not admin_id:
+    if not user_id:
         return error_response("Admin not authenticated", 401)
 
     filter_type = request.args.get('filter')
@@ -242,7 +238,7 @@ def get_form_container_by_access_token(access_token):
 @api.route('/form-containers/<int:container_id>/forms/<int:form_id>/validate', methods=['POST'])
 def validate_form_container(container_id, form_id):
     # todo add plus de controle avant de modofier les status
-    admin_id = ADMIN_ID
+    user_id = ADMIN_ID
     form_container = FormContainer.query.get_or_404(container_id)
 
     if not form_container:
@@ -263,7 +259,7 @@ def validate_form_container(container_id, form_id):
         form_container_id=form_container.id,
         form_id=form.id,
         event='FormContainer validated',
-        details=f'Form container validated by {admin_id}',
+        details=f'Form container validated by {user_id}',
         timestamp=datetime.utcnow()
     )
     db.session.add(timeline_entry)
@@ -293,7 +289,6 @@ def get_form_container_timeline(form_container_id):
 
 
 @api.route('/validate-token/<string:token>', methods=['GET'])
-@authenticate_request
 def validate_token(token):
     application = Application.query.filter_by(id=token).first()
     if application:
@@ -313,7 +308,7 @@ def get_campaigns(app_id):
 
 @api.route('/form-containers/<int:form_container_id>/forms/<int:form_id>/cancel', methods=['POST'])
 def cancel_form(form_container_id, form_id):
-    admin_id = ADMIN_ID
+    user_id = ADMIN_ID
     data = request.get_json()
     comment = data.get('comment', '').strip()
 
@@ -332,7 +327,7 @@ def cancel_form(form_container_id, form_id):
         form_container_id=form_container_id,
         form_id=form.id,
         event='FormContainer canceled',
-        details=f'Form canceled by {admin_id} with comment: {comment}',
+        details=f'Form canceled by {user_id} with comment: {comment}',
         timestamp=datetime.utcnow()
     )
     db.session.add(timeline_entry)
@@ -343,8 +338,8 @@ def cancel_form(form_container_id, form_id):
 
 @api.route('/form-containers/<int:container_id>/forms', methods=['POST'])
 def add_form_to_container(container_id):
-    admin_id = ADMIN_ID
-    if not admin_id:
+    user_id = ADMIN_ID
+    if not user_id:
         return error_response("Admin not authenticated", 401)
     form_container = FormContainer.query.get_or_404(container_id)
 
@@ -375,7 +370,7 @@ def add_form_to_container(container_id):
         form_container_id=form_container.id,
         form_id=new_form.id,
         event='Unsubstantial response',
-        details=f'Response marked as unsubstantial by {admin_id}',
+        details=f'Response marked as unsubstantial by {user_id}',
         timestamp=datetime.utcnow()
     )
     try:
@@ -429,8 +424,6 @@ def submit_form_response(access_token, form_id):
     )
     db.session.add(timeline_entry)
     db.session.commit()
-    # form_workflow = FormWorkflowManager(container_id=form_container.id)
-    # form_workflow.stop_workflow()
     return jsonify({"message": "Response submitted successfully"}), 200
 
 
@@ -546,8 +539,23 @@ def get_total_forms_count(app_ids):
         return error_response(str(e), 500)
 
 
+@api.route('/log-connection', methods=['POST'])
+def log_connection():
+
+    data = request.json
+    user_id = getattr(request, 'user_id', None)
+    app_ids = data.get('app_ids')
+    if not user_id or not app_ids:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Create and save the connection log
+    connection_log = ConnectionLog(user_id=user_id, app_ids=app_ids)
+    db.session.add(connection_log)
+    db.session.commit()
+
+    return jsonify({"message": "Connection log added successfully"}), 201
+
 def generate_token(application):
     payload = {'application_name': application.name, 'app_id': application.id}
-    # todo
     token = jwt.encode(payload, 'your_secret_key', algorithm='HS256')
     return token

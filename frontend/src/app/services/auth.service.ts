@@ -32,7 +32,24 @@ export class AuthService {
     }
   }
 
-  private isBrowser(): boolean {
+  isTokenValid(): boolean {
+    if (this.isBrowser()) {
+      const token = localStorage.getItem(this.tokenKey);
+      if (!token) return false;
+
+      try {
+        const decoded: any = jwtDecode(token);
+        const currentTime = Math.floor(Date.now() / 1000);
+        return decoded.exp > currentTime;
+      } catch (error) {
+        console.error('Failed to decode token:', error);
+        return false;
+      }
+    }
+    return false;
+  }
+
+  public isBrowser(): boolean {
     return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
   }
 
