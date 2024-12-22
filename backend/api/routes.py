@@ -1,12 +1,14 @@
 from base64 import b64decode
 
 from flask import Blueprint, jsonify, request
-from api.models import FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign, ConnectionLog
-from datetime import datetime
+from api.models import FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign, ConnectionLog, \
+    APIToken
+from datetime import datetime, timedelta
 from extensions import db
 import jwt
 
 api = Blueprint('api', __name__)
+
 
 @api.before_request
 def authenticate_request():
@@ -16,7 +18,14 @@ def authenticate_request():
     token = auth_header.split(" ")[1] if " " in auth_header else auth_header
     try:
         decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
-        request.user_id = decoded_token.get('sub')
+        if "app_names" in decoded_token:  # API Token
+            request.app_names = decoded_token["app_names"]
+            request.user_id = None  # todo ajouter compte name
+        elif "sub" in decoded_token:  # SSO Token
+            request.user_id = decoded_token["sub"]
+            request.app_names = None
+        else:
+            raise jwt.InvalidTokenError("Invalid token structure")
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         request.user_id = None
 
@@ -443,7 +452,7 @@ def update_application(app_token):
     """
     data = request.json
     new_name = data.get('name')
-    new_token = data.get('new_token') # todo pareil
+    new_token = data.get('new_token')  # todo pareil
 
     if not new_name and not new_token:
         return error_response("Name or new token is required to update the application.", 400)
@@ -531,7 +540,6 @@ def get_total_forms_count(app_ids):
 
 @api.route('/log-connection', methods=['POST'])
 def log_connection():
-
     data = request.json
     user_id = getattr(request, 'user_id', None)
     app_ids = data.get('app_ids')
@@ -544,6 +552,58 @@ def log_connection():
     db.session.commit()
 
     return jsonify({"message": "Connection log added successfully"}), 201
+
+@api.route('/generate-api-token', methods=['POST'])
+def generate_api_token():
+    data = request.json
+    user_id = getattr(request, 'user_id', None)  # Admin ID from SSO token
+
+    if not user_id:
+        return jsonify({"error": "User not authenticated"}), 401
+
+    app_names = data.get('app_names')
+    if not app_names or not isinstance(app_names, list):
+        return jsonify({"error": "app_names must be a list"}), 400
+
+    expiration = datetime.utcnow() + timedelta(days=7)  # Token valid for 7 days
+    payload = {
+        "app_names": app_names,
+        "exp": expiration,
+        "iat": datetime.utcnow()
+    }
+    api_token = jwt.encode(payload, 'your_secret_key', algorithm='HS256')
+
+    # Save the token to the database
+    token_entry = APIToken(
+        token=api_token,
+        app_names=app_names,
+        created_by=user_id,
+        expiration=expiration
+    )
+    db.session.add(token_entry)
+    db.session.commit()
+
+    return jsonify({"api_token": api_token}), 201
+
+
+@api.route('/revoke-api-token', methods=['DELETE'])
+def revoke_api_token():
+    data = request.json
+    token = data.get('token')
+    user_id = getattr(request, 'user_id', None)
+
+    if not user_id:
+        return jsonify({"error": "User not authenticated"}), 401
+
+    token_entry = APIToken.query.filter_by(token=token).first()
+    if not token_entry:
+        return jsonify({"error": "Token not found"}), 404
+
+    db.session.delete(token_entry)
+    db.session.commit()
+
+    return jsonify({"message": "Token revoked successfully"}), 200
+
 
 def generate_token(application):
     payload = {'application_name': application.name, 'app_id': application.id}

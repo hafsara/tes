@@ -61,6 +61,7 @@ import { RefreshToastComponent } from './components/refresh-toast/refresh-toast.
 import { DefaultNavbarComponent } from './components/default-navbar/default-navbar.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { AuthComponent } from './components/auth/auth.component';
+import { AdminTokensComponent } from './components/admin-tokens/admin-tokens.component';
 
 @NgModule({
   declarations: [
@@ -80,7 +81,8 @@ import { AuthComponent } from './components/auth/auth.component';
     RefreshToastComponent,
     DefaultNavbarComponent,
     SidebarComponent,
-    AuthComponent
+    AuthComponent,
+    AdminTokensComponent
   ],
   imports: [
     BrowserModule,

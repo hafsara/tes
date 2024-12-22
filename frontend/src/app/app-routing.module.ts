@@ -4,6 +4,7 @@ import { UserViewComponent } from './components/user-view/user-view.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { AccessControlComponent } from './components/access-control/access-control.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { AdminTokensComponent } from './components/admin-tokens/admin-tokens.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AuthComponent } from './components/auth/auth.component';
 import { sSOGuard } from './guards/sso.guard';
@@ -15,6 +16,7 @@ const routes: Routes = [
   { path: 'create-form', component: DashboardComponent, canActivate: [sSOGuard, AuthGuard] },
   { path: 'dashboard/:appName/load-form/:access_token', component: DashboardComponent, canActivate: [sSOGuard, AuthGuard] },
   { path: 'user-view/:access_token', component: UserViewComponent, canActivate: [sSOGuard] },
+  { path: 'admin/tokens', component: AdminTokensComponent, canActivate: [sSOGuard] },
   { path: '404', component: PageNotFoundComponent },
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
   { path: '**', redirectTo: '404' },

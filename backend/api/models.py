@@ -113,3 +113,13 @@ class ConnectionLog(db.Model):
     user_id = db.Column(db.String(50), nullable=False)
     app_ids = db.Column(db.JSON, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+class APIToken(db.Model):
+    __tablename__ = 'api_tokens'
+
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String, nullable=False, unique=True)
+    app_names = db.Column(db.JSON, nullable=False)
+    created_by = db.Column(db.String, nullable=False)
+    expiration = db.Column(db.DateTime, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
