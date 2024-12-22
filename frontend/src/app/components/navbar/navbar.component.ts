@@ -3,6 +3,8 @@ import { TokenService } from '../../services/token.service';
 import { Subscription } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { SharedService } from '../../services/shared.service';
+import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-navbar',
@@ -26,15 +28,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private tokenSubscription!: Subscription;
   private readonly localStorageKey = 'selectedApps';
 
-  constructor(private tokenService: TokenService, private sharedService: SharedService) {}
+  constructor(private tokenService: TokenService, private sharedService: SharedService, private router: Router) {}
 
   ngOnInit(): void {
     this.menuItems = [
       {
+        label: 'Admin Settings',
+        icon: 'pi pi-cog',
+        command: () => this.navigateToAdminPanel()
+      },
+      {
         label: 'Logout',
         icon: 'pi pi-sign-out',
         command: () => this.logout(),
-      },
+      }
     ];
     this.sharedService.userInfo$.subscribe((data) => {
       this.userInfo = {
@@ -108,5 +115,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   logout() {
     this.tokenService.logout();
     localStorage.removeItem(this.localStorageKey);
+  }
+
+  navigateToAdminPanel(): void {
+    this.router.navigate(['/admin/settings']);
   }
 }

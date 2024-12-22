@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AdminTokensComponent } from './admin-tokens.component';
+import { AdminPanelComponent } from './admin-panel.component';
 
-describe('AdminTokensComponent', () => {
-  let component: AdminTokensComponent;
-  let fixture: ComponentFixture<AdminTokensComponent>;
+describe('AdminPanelComponent', () => {
+  let component: AdminPanelComponent;
+  let fixture: ComponentFixture<AdminPanelComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [AdminTokensComponent]
+      declarations: [AdminPanelComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(AdminTokensComponent);
+    fixture = TestBed.createComponent(AdminPanelComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

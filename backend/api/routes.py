@@ -553,6 +553,7 @@ def log_connection():
 
     return jsonify({"message": "Connection log added successfully"}), 201
 
+
 @api.route('/generate-api-token', methods=['POST'])
 def generate_api_token():
     data = request.json
@@ -603,6 +604,26 @@ def revoke_api_token():
     db.session.commit()
 
     return jsonify({"message": "Token revoked successfully"}), 200
+
+
+@api.route('/api-tokens', methods=['GET'])
+def get_api_tokens():
+    user_id = getattr(request, 'user_id', None)
+
+    if not user_id:
+        return jsonify({"error": "User not authenticated"}), 401
+
+    tokens = APIToken.query.all()
+    result = [
+        {
+            "token": token.token,
+            "app_names": token.app_names,
+            "expiration": token.expiration,
+            "revoked": token.revoked
+        }
+        for token in tokens
+    ]
+    return jsonify(result), 200
 
 
 def generate_token(application):

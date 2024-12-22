@@ -44,7 +44,8 @@ class Application(db.Model):
     __tablename__ = 'application'
     id = db.Column(db.String(36), unique=True, nullable=False, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
-    # expiration_date
+#    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+#    created_by = db.Column(db.String(255), nullable=False)
 
 
 class Form(db.Model):
@@ -113,6 +114,7 @@ class ConnectionLog(db.Model):
     user_id = db.Column(db.String(50), nullable=False)
     app_ids = db.Column(db.JSON, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 class APIToken(db.Model):
     __tablename__ = 'api_tokens'
