@@ -4,8 +4,9 @@
 
   .sidebar {
     width: 200px;
-    background-color: #f4f4f4;
+    background-color: #f9fafb;
     padding: 20px;
+    padding-top: 60px;
     display: flex;
     flex-direction: column;
 
@@ -21,7 +22,8 @@
       &.active {
         font-weight: bold;
         color: white;
-        background-color: #007bff;
+        background-color: #00796b;
+        border-radius: 8px;
       }
     }
   }
