@@ -8,19 +8,24 @@ import { MessageService } from 'primeng/api';
   styleUrls: ['./admin-tokens.component.scss'],
   providers: [MessageService],
 })
+
 export class AdminTokensComponent implements OnInit {
   @Input() appOptions: { name: string; token: string }[] = [];
   tokens: any[] = [];
   displayCreateTokenDialog = false;
 
+  selectedApps: string[] = [];
+
   newToken = {
     token_name: '',
     app_names: [],
+    expiration: 30
   };
 
   constructor(private adminService: AdminService, private messageService: MessageService) {}
 
   ngOnInit(): void {
+    console.log('Received appOptions:', this.appOptions);
     this.loadTokens();
   }
 
@@ -42,19 +47,19 @@ export class AdminTokensComponent implements OnInit {
 
   hideCreateTokenDialog(): void {
     this.displayCreateTokenDialog = false;
-    this.newToken = { token_name: '', app_names: [] };
+    this.newToken = { token_name: '', app_names: [], expiration: 30 };
   }
 
   createToken(): void {
-    if (!this.newToken.token_name || this.newToken.app_names.length === 0) {
+    if (!this.newToken.token_name || this.newToken.app_names.length === 0 || this.newToken.expiration <= 0) {
       this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Please fill in all fields.' });
       return;
     }
 
     const tokenData = {
-      expiration: 60,
       token_name: this.newToken.token_name,
       app_names: this.newToken.app_names.map((app: any) => app.name),
+      expiration: this.newToken.expiration,
     };
 
     this.adminService.generateToken(tokenData).subscribe({
@@ -81,5 +86,15 @@ export class AdminTokensComponent implements OnInit {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to revoke token.' });
       },
     });
+  }
+  copyToClipboard(token: string): void {
+      navigator.clipboard.writeText(token).then(
+        () => {
+                this.messageService.add({ severity: 'contrast', detail: 'Token copied to clipboard!', life: 1000, key: "br"});
+        },
+        (err) => {
+            this.messageService.add({ severity: 'error', detail: 'Failed to copy token. Please try again.', life: 1000, key: "br"});
+        }
+      );
   }
 }

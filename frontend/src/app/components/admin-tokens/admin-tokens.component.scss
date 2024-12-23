@@ -13,3 +13,21 @@
 .p-dialog .p-fluid .field {
   margin-bottom: 1rem;
 }
+
+.app-selector {
+  margin-right: 15px;
+}
+
+.action-icons {
+  display: flex;
+  gap: 15px;
+}
+
+.action-icons i {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.action-icons i:hover {
+  transform: scale(1.2);
+}

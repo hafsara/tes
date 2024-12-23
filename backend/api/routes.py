@@ -557,14 +557,12 @@ def log_connection():
 @api.route('/generate-api-token', methods=['POST'])
 def generate_api_token():
     data = request.json
-    print("Received data:", data)
-
     user_id = getattr(request, 'user_id', None)
 
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401
 
-    app_names = data.get('applications')
+    app_names = data.get('app_names')
     token_name = data.get('token_name')
     expiration_days = data.get('expiration', 7)
 
@@ -628,7 +626,8 @@ def get_api_tokens():
             "token": token.token,
             "app_names": token.app_names,
             "expiration": token.expiration,
-            "token_name": token.token_name
+            "token_name": token.token_name,
+            "created_at": token.created_at
     }
         for token in tokens
     ]
