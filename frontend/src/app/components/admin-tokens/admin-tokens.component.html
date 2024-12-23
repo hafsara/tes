@@ -19,7 +19,11 @@
     <ng-template pTemplate="body" let-token>
         <tr>
             <td>{{ token.token_name }}</td>
-            <td>{{ token.app_names.join(', ') }}</td>
+            <td>
+                <ng-container *ngFor="let appName of token.app_names" severity="contrast">
+                    <p-tag [value]="appName" styleClass="mr-1"></p-tag>
+                </ng-container>
+            </td>
             <td>{{ token.expiration | date }}</td>
             <td>{{ token.created_at | date }}</td>
             <td>
