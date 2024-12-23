@@ -1,0 +1,48 @@
+<div class="admin-panel">
+  <h2>API Tokens</h2>
+  <p-table [value]="tokens" [paginator]="true" [rows]="5" [responsiveLayout]="'scroll'">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Name</th>
+        <th>Application</th>
+        <th>Expires</th>
+        <th>Created</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-token>
+      <tr>
+        <td>{{ token.name }}</td>
+        <td>{{ token.application }}</td>
+        <td>{{ token.expires }}</td>
+        <td>{{ token.createdAt | date }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <h3>Create New Token</h3>
+  <form [formGroup]="tokenForm" (ngSubmit)="createToken()">
+    <div class="form-group">
+      <label for="tokenName">Token Name</label>
+      <input id="tokenName" type="text" pInputText formControlName="tokenName" />
+    </div>
+    <div class="form-group">
+      <label for="application">Application</label>
+      <p-dropdown
+        [options]="applications"
+        formControlName="application"
+        placeholder="Select Application"
+      ></p-dropdown>
+    </div>
+    <div class="form-group">
+      <label for="expirationDays">Expiration (days)</label>
+      <input
+        id="expirationDays"
+        type="number"
+        pInputText
+        formControlName="expirationDays"
+        min="1"
+      />
+    </div>
+    <button pButton type="submit" label="Create" icon="pi pi-plus"></button>
+  </form>
+</div>

@@ -62,6 +62,7 @@ import { DefaultNavbarComponent } from './components/default-navbar/default-navb
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { AuthComponent } from './components/auth/auth.component';
 import { AdminPanelComponent } from './components/admin-panel/admin-panel.component';
+import { AdminTokensComponent } from './components/admin-tokens/admin-tokens.component';
 
 @NgModule({
   declarations: [
@@ -82,7 +83,8 @@ import { AdminPanelComponent } from './components/admin-panel/admin-panel.compon
     DefaultNavbarComponent,
     SidebarComponent,
     AuthComponent,
-    AdminPanelComponent
+    AdminPanelComponent,
+    AdminTokensComponent
   ],
   imports: [
     BrowserModule,

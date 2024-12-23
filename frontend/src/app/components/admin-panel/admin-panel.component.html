@@ -1,7 +1,50 @@
 <app-navbar></app-navbar>
 
-<div class="card flex justify-center">
-    <p-toast />
-    <p-panelmenu [model]="items" styleClass="w-full md:w-80" />
-</div>
+<div class="admin-panel">
+  <div class="sidebar">
+    <button (click)="selectedTab = 'api-tokens'" [class.active]="selectedTab === 'api-tokens'">API Tokens</button>
+    <button (click)="selectedTab = 'applications'" [class.active]="selectedTab === 'applications'">Applications</button>
+    <button (click)="selectedTab = 'campaigns'" [class.active]="selectedTab === 'campaigns'">Campaigns</button>
+  </div>
 
+  <div class="content">
+    <!-- API Tokens Section -->
+    <div *ngIf="selectedTab === 'api-tokens'">
+      <app-admin-tokens></app-admin-tokens>
+    </div>
+
+    <!-- Applications Section -->
+    <div *ngIf="selectedTab === 'applications'">
+      <div class="header">
+        <h2>Applications</h2>
+      </div>
+      <form [formGroup]="createAppForm" (ngSubmit)="createApplication()">
+        <label for="appName">Application Name</label>
+        <input id="appName" formControlName="name" />
+        <button type="submit" pButton label="Create Application"></button>
+      </form>
+      <ul>
+        <li *ngFor="let app of applications">{{ app.name }}</li>
+      </ul>
+    </div>
+
+    <!-- Campaigns Section -->
+    <div *ngIf="selectedTab === 'campaigns'">
+      <div class="header">
+        <h2>Campaigns</h2>
+      </div>
+      <form [formGroup]="createCampaignForm" (ngSubmit)="createCampaign()">
+        <label for="campaignName">Campaign Name</label>
+        <input id="campaignName" formControlName="name" />
+        <label for="applicationId">Application ID</label>
+        <select id="applicationId" formControlName="applicationId">
+          <option *ngFor="let app of applications" [value]="app.id">{{ app.name }}</option>
+        </select>
+        <button type="submit" pButton label="Create Campaign"></button>
+      </form>
+      <ul>
+        <li *ngFor="let campaign of campaigns">{{ campaign.name }}</li>
+      </ul>
+    </div>
+  </div>
+</div>
