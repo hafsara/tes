@@ -1,4 +1,4 @@
-<app-navbar></app-navbar>
+<app-navbar (appOptionsLoaded)="onAppOptionsLoaded($event)"></app-navbar>
 
 <div class="admin-panel">
   <div class="sidebar">
@@ -10,7 +10,7 @@
   <div class="content">
     <!-- API Tokens Section -->
     <div *ngIf="selectedTab === 'api-tokens'">
-      <app-admin-tokens></app-admin-tokens>
+      <app-admin-tokens  [appOptions]="appOptions"></app-admin-tokens>
     </div>
 
     <!-- Applications Section -->

@@ -13,7 +13,6 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     if (!this.authService.isTokenValid()) {
-      console.warn('Token is expired or invalid. Redirecting to login.');
       this.authService.clearToken();
       this.router.navigate(['/auth']);
     }

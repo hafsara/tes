@@ -10,6 +10,7 @@ import { MessageService } from 'primeng/api';
   providers: [MessageService]
 })
 export class AdminPanelComponent implements OnInit {
+  appOptions: { name: string; token: string }[] = [];
   apiTokens: any[] = [];
   applications: any[] = [];
   campaigns: any[] = [];
@@ -100,8 +101,10 @@ export class AdminPanelComponent implements OnInit {
       );
     }
   }
+  onAppOptionsLoaded(options: { name: string; token: string }[]): void {
+    this.appOptions = options;
+  }
 
-  // Create Campaign
   createCampaign(): void {
     if (this.createCampaignForm.valid) {
       this.http.post('/campaigns', this.createCampaignForm.value).subscribe(

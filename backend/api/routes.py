@@ -20,7 +20,7 @@ def authenticate_request():
         decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
         if "app_names" in decoded_token:  # API Token
             request.app_names = decoded_token["app_names"]
-            request.user_id = None  # todo ajouter compte name
+            request.user_id = decoded_token["token_name"]
         elif "sub" in decoded_token:  # SSO Token
             request.user_id = decoded_token["sub"]
             request.app_names = None

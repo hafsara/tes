@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, Input, OnInit } from '@angular/core';
 import { AdminService } from '../../services/admin.service';
 import { MessageService } from 'primeng/api';
 
@@ -10,44 +9,19 @@ import { MessageService } from 'primeng/api';
   providers: [MessageService],
 })
 export class AdminTokensComponent implements OnInit {
-  applications: any[] = [];
+  @Input() appOptions: { name: string; token: string }[] = [];
   tokens: any[] = [];
-  tokenForm: FormGroup;
+  displayCreateTokenDialog = false;
 
-  constructor(
-    private adminService: AdminService,
-    private fb: FormBuilder,
-    private messageService: MessageService
-  ) {
-    this.tokenForm = this.fb.group({
-      tokenName: ['', Validators.required],
-      application: ['', Validators.required],
-      expirationDays: [30, [Validators.required, Validators.min(1)]],
-    });
-  }
+  newToken = {
+    token_name: '',
+    app_names: [],
+  };
+
+  constructor(private adminService: AdminService, private messageService: MessageService) {}
 
   ngOnInit(): void {
-    this.loadApplications();
     this.loadTokens();
-  }
-
-  loadApplications(): void {
-    this.adminService.getApplications().subscribe({
-      next: (apps) => {
-        this.applications = apps.map((app: any) => ({
-          label: app.name,
-          value: app.id,
-        }));
-      },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load applications',
-        });
-        console.error(err);
-      },
-    });
   }
 
   loadTokens(): void {
@@ -56,45 +30,55 @@ export class AdminTokensComponent implements OnInit {
         this.tokens = tokens;
       },
       error: (err) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load tokens',
-        });
-        console.error(err);
+        console.error('Failed to load tokens:', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load tokens.' });
       },
     });
   }
 
+  showCreateTokenDialog(): void {
+    this.displayCreateTokenDialog = true;
+  }
+
+  hideCreateTokenDialog(): void {
+    this.displayCreateTokenDialog = false;
+    this.newToken = { token_name: '', app_names: [] };
+  }
+
   createToken(): void {
-    if (this.tokenForm.invalid) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Invalid Input',
-        detail: 'Please fill all required fields',
-      });
+    if (!this.newToken.token_name || this.newToken.app_names.length === 0) {
+      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Please fill in all fields.' });
       return;
     }
 
-    const formData = this.tokenForm.value;
-    this.adminService.createToken(formData).subscribe({
+    const tokenData = {
+      expiration: 60,
+      token_name: this.newToken.token_name,
+      app_names: this.newToken.app_names.map((app: any) => app.name),
+    };
+
+    this.adminService.generateToken(tokenData).subscribe({
       next: (response) => {
         this.tokens.push(response);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Token created successfully',
-        });
-        this.tokenForm.reset();
-        this.tokenForm.get('expirationDays')?.setValue(30);
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Token created successfully.' });
+        this.hideCreateTokenDialog();
       },
       error: (err) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to create token',
-        });
-        console.error(err);
+        console.error('Failed to create token:', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create token.' });
+      },
+    });
+  }
+
+  revokeToken(token: string): void {
+    this.adminService.revokeToken(token).subscribe({
+      next: () => {
+        this.tokens = this.tokens.filter((t) => t.token !== token);
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Token revoked successfully.' });
+      },
+      error: (err) => {
+        console.error('Failed to revoke token:', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to revoke token.' });
       },
     });
   }
