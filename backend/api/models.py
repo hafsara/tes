@@ -95,18 +95,6 @@ class TimelineEntry(db.Model):
     details = db.Column(db.Text, nullable=True)
 
 
-class Workflow(db.Model):
-    __tablename__ = "workflows"
-
-    id = db.Column(db.Integer, primary_key=True)
-    form_id = db.Column(db.Integer, nullable=False)
-    celery_task_id = db.Column(db.String, nullable=True)
-    workflow_type = db.Column(db.String, nullable=False)
-    status = db.Column(db.String, nullable=False, default="pending")
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
-
-
 class ConnectionLog(db.Model):
     __tablename__ = 'connection_logs'
 
@@ -120,6 +108,7 @@ class APIToken(db.Model):
     __tablename__ = 'api_tokens'
 
     id = db.Column(db.Integer, primary_key=True)
+    token_name = db.Column(db.String(50), nullable=False, unique=True)
     token = db.Column(db.String, nullable=False, unique=True)
     app_names = db.Column(db.JSON, nullable=False)
     created_by = db.Column(db.String, nullable=False)

@@ -557,27 +557,35 @@ def log_connection():
 @api.route('/generate-api-token', methods=['POST'])
 def generate_api_token():
     data = request.json
-    user_id = getattr(request, 'user_id', None)  # Admin ID from SSO token
+    print("Received data:", data)
+
+    user_id = getattr(request, 'user_id', None)
 
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401
 
-    app_names = data.get('app_names')
-    if not app_names or not isinstance(app_names, list):
-        return jsonify({"error": "app_names must be a list"}), 400
+    app_names = data.get('applications')
+    token_name = data.get('token_name')
+    expiration_days = data.get('expiration', 7)
 
-    expiration = datetime.utcnow() + timedelta(days=7)  # Token valid for 7 days
+    if not app_names or not isinstance(app_names, list):
+        return jsonify({"error": "applications must be a list"}), 400
+    if not token_name:
+        return jsonify({"error": "token_name is required"}), 400
+
+    expiration = datetime.utcnow() + timedelta(days=expiration_days)
     payload = {
         "app_names": app_names,
+        "token_name": token_name,
         "exp": expiration,
-        "iat": datetime.utcnow()
+        "iat": datetime.utcnow(),
     }
     api_token = jwt.encode(payload, 'your_secret_key', algorithm='HS256')
 
-    # Save the token to the database
     token_entry = APIToken(
         token=api_token,
         app_names=app_names,
+        token_name=token_name,
         created_by=user_id,
         expiration=expiration
     )
@@ -589,6 +597,7 @@ def generate_api_token():
 
 @api.route('/revoke-api-token', methods=['DELETE'])
 def revoke_api_token():
+    # todo
     data = request.json
     token = data.get('token')
     user_id = getattr(request, 'user_id', None)
@@ -619,8 +628,8 @@ def get_api_tokens():
             "token": token.token,
             "app_names": token.app_names,
             "expiration": token.expiration,
-            "revoked": token.revoked
-        }
+            "token_name": token.token_name
+    }
         for token in tokens
     ]
     return jsonify(result), 200
