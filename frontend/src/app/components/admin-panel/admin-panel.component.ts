@@ -44,9 +44,9 @@ export class AdminPanelComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadApiTokens();
-    this.loadApplications();
-    this.loadCampaigns();
+    //this.loadApiTokens();
+    //this.loadApplications();
+    //this.loadCampaigns();
   }
 
   // Load API Tokens

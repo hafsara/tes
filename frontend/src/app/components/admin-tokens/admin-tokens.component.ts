@@ -20,7 +20,6 @@ export class AdminTokensComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    console.log('Received appOptions:', this.appOptions);
     this.loadTokens();
   }
 

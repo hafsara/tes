@@ -623,7 +623,8 @@ def get_api_tokens():
             "app_names": token.app_names,
             "expiration": token.expiration,
             "token_name": token.token_name,
-            "created_at": token.created_at
+            "created_at": token.created_at,
+            "created_by": token.created_by
     }
         for token in tokens
     ]

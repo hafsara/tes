@@ -13,6 +13,7 @@
             <th>Applications</th>
             <th>Expires at</th>
             <th>Created at</th>
+            <th>Created by</th>
             <th style="width: 7rem"></th>
         </tr>
     </ng-template>
@@ -20,12 +21,13 @@
         <tr>
             <td>{{ token.token_name }}</td>
             <td>
-                <ng-container *ngFor="let appName of token.app_names" severity="contrast">
+                <ng-container *ngFor="let appName of token.app_names">
                     <p-tag [value]="appName" styleClass="mr-1"></p-tag>
                 </ng-container>
             </td>
             <td>{{ token.expiration | date }}</td>
             <td>{{ token.created_at | date }}</td>
+            <td>{{ token.created_by }}</td>
             <td>
                 <div class="action-icons">
                     <i class="pi pi-clone" style="color: #708090; font-size: 1.3rem;"
