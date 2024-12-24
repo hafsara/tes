@@ -11,10 +11,12 @@ import { jwtDecode } from 'jwt-decode';
 export class AdminCampaignComponent implements OnInit {
   @Input() appOptions: { name: string; token: string }[] = [];
   campaignOptions: { id: string; name: string; applicationName: string; createdAt: Date; createdBy: string }[] = [];
+  loading: boolean = true;
   constructor(private formService: FormService, private messageService: MessageService) {}
 
   ngOnInit(): void {
     this.loadAllCampaigns();
+    this.loading = false;
   }
 
   decodeToken(token: string): any {

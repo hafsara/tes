@@ -118,10 +118,7 @@ export class AdminTokensComponent implements OnInit {
       accept: () => {
         this.revokeToken(token);
         setTimeout(() => window.location.reload(), 1000);
-      },
-      reject: () => {
-        this.messageService.add({ severity: 'info', summary: 'Cancelled', detail: 'Token not revoked' });
-      },
+      }
     });
  }
 
