@@ -55,10 +55,10 @@
                     [options]="appOptions"
                     [(ngModel)]="newToken.app_names"
                     optionLabel="name"
-                    optionValue="token"
+                    optionValue="name"
                     display="chip"
                     placeholder="Select Applications"
-                    [filter]="false">
+                    [filter]="false" [style]="{ 'width': '100%', 'margin-bottom': '10px' }">
             </p-multiSelect>
         </div>
         <div class="field">

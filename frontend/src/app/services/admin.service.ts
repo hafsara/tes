@@ -52,7 +52,10 @@ export class AdminService {
    * @returns Confirmation de suppression
    */
   revokeToken(token: string): Observable<any> {
-    // const headers = this.getAuthHeaders();
-    return this.http.delete<any>(`${this.baseUrl}/revoke-api-token`, {body: { token }});
+    const headers = this.getAuthHeaders();
+    return this.http.delete<any>(`${this.baseUrl}/revoke-api-token`, {
+      headers,
+      body: { token },
+    });
   }
 }

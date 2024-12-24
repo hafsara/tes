@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AdminService } from '../../services/admin.service';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-admin-tokens',
@@ -24,7 +24,7 @@ export class AdminTokensComponent implements OnInit {
     this.loadTokens();
   }
 
-  constructor(private adminService: AdminService, private messageService: MessageService) {}
+  constructor(private adminService: AdminService, private messageService: MessageService, private confirmationService: ConfirmationService) {}
 
 
   loadTokens(): void {
@@ -56,7 +56,7 @@ export class AdminTokensComponent implements OnInit {
 
     const tokenData = {
       token_name: this.newToken.token_name,
-      app_names: this.newToken.app_names.map((app: any) => app.name),
+      app_names: this.newToken.app_names,
       expiration: this.newToken.expiration,
     };
 

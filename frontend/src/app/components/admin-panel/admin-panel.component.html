@@ -1,5 +1,8 @@
 <app-navbar (appOptionsLoaded)="onAppOptionsLoaded($event)"></app-navbar>
 
+<p-toast/>
+<p-confirmDialog/>
+
 <div class="admin-panel">
   <div class="sidebar">
     <button (click)="selectedTab = 'api-tokens'" [class.active]="selectedTab === 'api-tokens'">API Tokens</button>

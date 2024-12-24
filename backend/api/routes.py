@@ -592,7 +592,6 @@ def generate_api_token():
 
 @api.route('/revoke-api-token', methods=['DELETE'])
 def revoke_api_token():
-    # todo
     data = request.json
     token = data.get('token')
     user_id = getattr(request, 'user_id', None)

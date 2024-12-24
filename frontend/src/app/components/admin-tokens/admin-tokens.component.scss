@@ -31,3 +31,14 @@
 .action-icons i:hover {
   transform: scale(1.2);
 }
+
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.p-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
