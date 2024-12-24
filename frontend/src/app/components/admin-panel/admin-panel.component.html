@@ -33,21 +33,7 @@
 
     <!-- Campaigns Section -->
     <div *ngIf="selectedTab === 'campaigns'">
-      <div class="header">
-        <h2>Campaigns</h2>
-      </div>
-      <form [formGroup]="createCampaignForm" (ngSubmit)="createCampaign()">
-        <label for="campaignName">Campaign Name</label>
-        <input id="campaignName" formControlName="name" />
-        <label for="applicationId">Application ID</label>
-        <select id="applicationId" formControlName="applicationId">
-          <option *ngFor="let app of applications" [value]="app.id">{{ app.name }}</option>
-        </select>
-        <button type="submit" pButton label="Create Campaign"></button>
-      </form>
-      <ul>
-        <li *ngFor="let campaign of campaigns">{{ campaign.name }}</li>
-      </ul>
+      <app-admin-campaign  [appOptions]="appOptions"></app-admin-campaign>
     </div>
   </div>
 </div>

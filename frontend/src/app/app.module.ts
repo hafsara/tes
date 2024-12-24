@@ -63,6 +63,7 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { AuthComponent } from './components/auth/auth.component';
 import { AdminPanelComponent } from './components/admin-panel/admin-panel.component';
 import { AdminTokensComponent } from './components/admin-tokens/admin-tokens.component';
+import { AdminCampaignComponent } from './components/admin-campaign/admin-campaign.component';
 
 @NgModule({
   declarations: [
@@ -84,7 +85,8 @@ import { AdminTokensComponent } from './components/admin-tokens/admin-tokens.com
     SidebarComponent,
     AuthComponent,
     AdminPanelComponent,
-    AdminTokensComponent
+    AdminTokensComponent,
+    AdminCampaignComponent
   ],
   imports: [
     BrowserModule,
