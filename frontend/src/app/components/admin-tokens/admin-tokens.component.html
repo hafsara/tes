@@ -30,12 +30,9 @@
             <td>{{ token.created_by }}</td>
             <td>
                 <div class="action-icons">
-                    <i class="pi pi-clone" style="color: #708090; font-size: 1.3rem;"
-                       (click)="copyToClipboard(token.token)" title="Copy"></i>
-                    <i class="pi pi-pencil" style="color: #708090; font-size: 1.3rem;"
-                       (click)="confirmRotateToken(token.token)" title="Edit"></i>
-                    <i class="pi pi-ban" style="color: #708090; font-size: 1.3rem;"
-                       (click)="confirmRevokeToken(token.token)"
+                    <i class="pi pi-clone" (click)="copyToClipboard(token.token)" title="Copy"></i>
+                    <i class="pi pi-pencil" (click)="confirmRotateToken(token.token)" title="Edit"></i>
+                    <i class="pi pi-ban" (click)="confirmRevokeToken(token.token)"
                        title="Revoke"></i>
                 </div>
             </td>
