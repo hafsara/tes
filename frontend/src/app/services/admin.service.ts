@@ -18,9 +18,9 @@ export class AdminService {
   }
 
   /**
-   * Créer une nouvelle application
-   * @param appData Données de l'application
-   * @returns L'application créée
+   * Create a new application
+   * @param appData Application data
+   * @returns The application created
    */
   createApplication(appData: { name: string }): Observable<any> {
     const headers = this.getAuthHeaders();
@@ -28,8 +28,8 @@ export class AdminService {
   }
 
   /**
-   * Récupérer tous les tokens API
-   * @returns Liste des tokens API
+   * Retrieve all API tokens
+   * @returns List of API tokens
    */
   getTokens(): Observable<any[]> {
     const headers = this.getAuthHeaders();
@@ -37,9 +37,9 @@ export class AdminService {
   }
 
   /**
-   * Générer un nouveau token API
-   * @param tokenData Données pour le token
-   * @returns Token généré
+   * Generate a new API token
+   * @param tokenData Data for the token
+   * @returns Generated Token
    */
   generateToken(tokenData: { app_names: string[]; token_name: string, expiration: number }): Observable<any> {
     const headers = this.getAuthHeaders();
@@ -47,9 +47,9 @@ export class AdminService {
   }
 
   /**
-   * Supprimer un token API
-   * @param token Token à révoquer
-   * @returns Confirmation de suppression
+   * Delete an API token
+   * @param token Token to revoke
+   * @returns Confirmation of deletion
    */
   revokeToken(token: string): Observable<any> {
     const headers = this.getAuthHeaders();
@@ -57,5 +57,15 @@ export class AdminService {
       headers,
       body: { token },
     });
+  }
+
+  /**
+   * Regenerate an API token
+   * @param oldToken Token to regenerate
+   * @returns Rotation confirmation
+   */
+  rotateToken(oldToken: string): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.put<any>(`${this.baseUrl}/rotate-api-token`, { oldToken }, { headers });
   }
 }
