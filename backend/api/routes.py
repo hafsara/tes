@@ -18,10 +18,10 @@ def authenticate_request():
     token = auth_header.split(" ")[1] if " " in auth_header else auth_header
     try:
         decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
-        if "app_names" in decoded_token:  # API Token
+        if "app_names" in decoded_token:
             request.app_names = decoded_token["app_names"]
             request.user_id = decoded_token["token_name"]
-        elif "sub" in decoded_token:  # SSO Token
+        elif "sub" in decoded_token:
             request.user_id = decoded_token["sub"]
             request.app_names = None
         else:
@@ -449,7 +449,7 @@ def update_application(app_token):
     """
     data = request.json
     new_name = data.get('name')
-    new_token = data.get('new_token')  # todo pareil
+    new_token = data.get('new_token')
 
     if not new_name and not new_token:
         return error_response("Name or new token is required to update the application.", 400)
