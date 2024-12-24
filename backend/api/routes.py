@@ -288,10 +288,7 @@ def validate_token(token):
 def get_campaigns(app_id):
     campaigns = Campaign.query.filter_by(app_id=app_id).all()
     campaign_data = [{"name": campaign.name, "id": campaign.id} for campaign in campaigns]
-    if campaign_data:
-        return jsonify(campaign_data), 200
-
-    return error_response("Failed to fetch campaigns", 404)
+    return jsonify(campaign_data), 200
 
 
 @api.route('/form-containers/<int:form_container_id>/forms/<int:form_id>/cancel', methods=['POST'])
