@@ -287,7 +287,12 @@ def validate_token(token):
 @api.route('/campaigns/<string:app_id>', methods=['GET'])
 def get_campaigns(app_id):
     campaigns = Campaign.query.filter_by(app_id=app_id).all()
-    campaign_data = [{"name": campaign.name, "id": campaign.id} for campaign in campaigns]
+    campaign_data = [{
+        "name": campaign.name,
+        "id": campaign.id,
+        "created_at": campaign.created_at,
+        "created_by": campaign.created_by
+    } for campaign in campaigns ]
     return jsonify(campaign_data), 200
 
 
@@ -625,10 +630,11 @@ def get_api_tokens():
             "token_name": token.token_name,
             "created_at": token.created_at,
             "created_by": token.created_by
-    }
+        }
         for token in tokens
     ]
     return jsonify(result), 200
+
 
 @api.route('/rotate-api-token', methods=['PUT'])
 def rotate_api_token():
