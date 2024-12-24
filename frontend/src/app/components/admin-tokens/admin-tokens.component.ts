@@ -63,8 +63,8 @@ export class AdminTokensComponent implements OnInit {
     this.adminService.generateToken(tokenData).subscribe({
       next: (response) => {
         this.tokens.push(response);
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Token created successfully.' });
         this.hideCreateTokenDialog();
+        setTimeout(() => window.location.reload(), 1000);
       },
       error: (err) => {
         console.error('Failed to create token:', err);
@@ -85,6 +85,7 @@ export class AdminTokensComponent implements OnInit {
       },
     });
   }
+
   copyToClipboard(token: string): void {
       navigator.clipboard.writeText(token).then(
         () => {
@@ -95,4 +96,18 @@ export class AdminTokensComponent implements OnInit {
         }
       );
   }
+  confirmRevokeToken(token: string): void {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to revoke this token?',
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.revokeToken(token);
+        setTimeout(() => window.location.reload(), 1000);
+      },
+      reject: () => {
+        this.messageService.add({ severity: 'info', summary: 'Cancelled', detail: 'Token not revoked' });
+      },
+    });
+ }
 }

@@ -32,7 +32,7 @@
                        (click)="copyToClipboard(token.token)" title="Copy"></i>
                     <i class="pi pi-pencil" style="color: #708090; font-size: 1.3rem;"
                        (click)="revokeToken(token.token)" title="Edit"></i>
-                    <i class="pi pi-ban" style="color: #708090; font-size: 1.3rem;" (click)="revokeToken(token.token)"
+                    <i class="pi pi-ban" style="color: #708090; font-size: 1.3rem;" (click)="confirmRevokeToken(token.token)"
                        title="Revoke"></i>
                 </div>
             </td>
@@ -58,7 +58,7 @@
                     optionValue="name"
                     display="chip"
                     placeholder="Select Applications"
-                    [filter]="false" [style]="{ 'width': '100%', 'margin-bottom': '10px' }">
+                    [filter]="false" [style]="{ 'width': '104%', 'margin-bottom': '10px' }">
             </p-multiSelect>
         </div>
         <div class="field">
