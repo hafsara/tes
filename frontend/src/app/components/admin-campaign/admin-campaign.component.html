@@ -88,16 +88,35 @@
   </p-table>
 </div>
 
-<p-dialog *ngIf="selectedCampaign" header="Edit Campaign" [(visible)]="editDialogVisible" [modal]="true"
-          [closable]="false" [style]="{ width: '30vw' }">
-  <div class="p-fluid">
-    <div class="p-field">
-      <label for="campaignName">Campaign Name</label>
-      <input pInputText id="campaignName" [(ngModel)]="selectedCampaign.name"/>
-    </div>
-    <div class="p-field">
-      <button pButton label="Cancel" (click)="editDialogVisible = false" class="p-button-secondary"></button>
-      <button pButton label="Save" (click)="updateCampaign()" class="p-button-primary"></button>
-    </div>
+<p-dialog
+  header="Edit Campaign"
+  [(visible)]="editDialogVisible"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '30vw' }"
+  class="p-fluid"
+>
+  <div class="field">
+    <label for="campaignName" class="block mb-2 font-bold">Campaign Name</label>
+    <input
+      pInputText
+      id="campaignName"
+      [(ngModel)]="selectedCampaign.name"
+      class="w-full p-2 border rounded-md"
+    />
+  </div>
+  <div class="flex justify-content-end mt-4 gap-3">
+    <p-button
+      label="Cancel"
+      icon="pi pi-times"
+      (click)="editDialogVisible = false"
+      class="p-button-secondary"
+    ></p-button>
+    <p-button
+      label="Save"
+      icon="pi pi-check"
+      (click)="confirmUpdate()"
+      class="p-button-primary"
+    ></p-button>
   </div>
 </p-dialog>

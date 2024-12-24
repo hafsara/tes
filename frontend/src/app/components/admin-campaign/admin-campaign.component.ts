@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormService } from '../../services/form.service';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { jwtDecode } from 'jwt-decode';
 
 @Component({
@@ -15,7 +15,7 @@ export class AdminCampaignComponent implements OnInit {
   selectedCampaign: { id: number; name: string } = { id: 0, name: '' };
   editDialogVisible = false;
 
-  constructor(private formService: FormService, private messageService: MessageService) {}
+  constructor(private formService: FormService, private messageService: MessageService, private confirmationService: ConfirmationService) {}
 
   ngOnInit(): void {
     this.loadAllCampaigns();
@@ -62,6 +62,17 @@ export class AdminCampaignComponent implements OnInit {
       } else {
         console.error('Invalid token or missing app_id in decoded token:', app.token);
       }
+    });
+  }
+
+  confirmUpdate() {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to update the campaign name?',
+      header: 'Confirm Update',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.updateCampaign();
+      },
     });
   }
 
