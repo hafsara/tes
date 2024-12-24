@@ -6,7 +6,6 @@ import { MessageService } from 'primeng/api';
   selector: 'app-admin-tokens',
   templateUrl: './admin-tokens.component.html',
   styleUrls: ['./admin-tokens.component.scss'],
-  providers: [MessageService],
 })
 
 export class AdminTokensComponent implements OnInit {
@@ -22,12 +21,13 @@ export class AdminTokensComponent implements OnInit {
     expiration: 30
   };
 
-  constructor(private adminService: AdminService, private messageService: MessageService) {}
-
   ngOnInit(): void {
     console.log('Received appOptions:', this.appOptions);
     this.loadTokens();
   }
+
+  constructor(private adminService: AdminService, private messageService: MessageService) {}
+
 
   loadTokens(): void {
     this.adminService.getTokens().subscribe({
