@@ -292,7 +292,7 @@ def get_campaigns(app_id):
         "id": campaign.id,
         "created_at": campaign.created_at,
         "created_by": campaign.created_by
-    } for campaign in campaigns ]
+    } for campaign in campaigns]
     return jsonify(campaign_data), 200
 
 
@@ -469,18 +469,6 @@ def update_application(app_token):
     db.session.commit()
 
     return jsonify({"message": "Application updated successfully", "app_token": application.token}), 200
-
-
-@api.route('/campaigns/<int:campaign_id>', methods=['DELETE'])
-def delete_campaign(campaign_id):
-    """
-    Delete a Campaign
-    """
-    campaign = Campaign.query.get_or_404(campaign_id)
-    db.session.delete(campaign)
-    db.session.commit()
-
-    return jsonify({"message": "Campaign deleted successfully", "campaign_id": campaign_id}), 200
 
 
 @api.route('/form-containers/apps/<string:app_ids>/validated', methods=['GET'])

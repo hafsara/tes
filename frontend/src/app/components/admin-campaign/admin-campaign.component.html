@@ -75,12 +75,7 @@
           <i
             class="pi pi-pencil"
             style="cursor: pointer; margin-right: 10px"
-            (click)="editCampaign(campaign)"
-          ></i>
-          <i
-            class="pi pi-trash"
-            style="cursor: pointer"
-            (click)="deleteCampaign(campaign.id)"
+            (click)="openEditDialog(campaign)"
           ></i>
         </td>
       </tr>
@@ -92,3 +87,17 @@
     </ng-template>
   </p-table>
 </div>
+
+<p-dialog *ngIf="selectedCampaign" header="Edit Campaign" [(visible)]="editDialogVisible" [modal]="true"
+          [closable]="false" [style]="{ width: '30vw' }">
+  <div class="p-fluid">
+    <div class="p-field">
+      <label for="campaignName">Campaign Name</label>
+      <input pInputText id="campaignName" [(ngModel)]="selectedCampaign.name"/>
+    </div>
+    <div class="p-field">
+      <button pButton label="Cancel" (click)="editDialogVisible = false" class="p-button-secondary"></button>
+      <button pButton label="Save" (click)="updateCampaign()" class="p-button-primary"></button>
+    </div>
+  </div>
+</p-dialog>

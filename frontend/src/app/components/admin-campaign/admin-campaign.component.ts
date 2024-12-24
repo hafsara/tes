@@ -10,8 +10,11 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class AdminCampaignComponent implements OnInit {
   @Input() appOptions: { name: string; token: string }[] = [];
-  campaignOptions: { id: string; name: string; applicationName: string; createdAt: Date; createdBy: string }[] = [];
+  campaignOptions: { id: number; name: string; applicationName: string; createdAt: Date; createdBy: string }[] = [];
   loading: boolean = true;
+  selectedCampaign: { id: number; name: string } = { id: 0, name: '' };
+  editDialogVisible = false;
+
   constructor(private formService: FormService, private messageService: MessageService) {}
 
   ngOnInit(): void {
@@ -21,7 +24,7 @@ export class AdminCampaignComponent implements OnInit {
 
   decodeToken(token: string): any {
     try {
-        return jwtDecode(token);
+      return jwtDecode(token);
     } catch (error) {
       console.error('Failed to decode token:', error);
       return null;
@@ -62,15 +65,26 @@ export class AdminCampaignComponent implements OnInit {
     });
   }
 
-  editCampaign(campaign: any): void {
-    // Logic to edit the campaign
-    this.messageService.add({ severity: 'info', summary: 'Edit', detail: `Editing campaign ${campaign.name}` });
+  openEditDialog(campaign: any) {
+    this.selectedCampaign = { id: campaign.id, name: campaign.name };
+    this.editDialogVisible = true;
   }
 
-  deleteCampaign(campaignId: string): void {
-    if (confirm('Are you sure you want to delete this campaign?')) {
-      // Logic to delete the campaign
-      this.messageService.add({ severity: 'success', summary: 'Deleted', detail: `Campaign deleted` });
+  updateCampaign() {
+    if (this.selectedCampaign) {
+      this.formService.updateCampaign(this.selectedCampaign.id, { name: this.selectedCampaign.name }).subscribe({
+        next: () => {
+          const index = this.campaignOptions.findIndex((c) => c.id === this.selectedCampaign.id);
+          if (index > -1) {
+            this.campaignOptions[index].name = this.selectedCampaign.name;
+          }
+          this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Campaign updated successfully' });
+          this.editDialogVisible = false;
+        },
+        error: () => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update campaign' });
+        },
+      });
     }
   }
 }

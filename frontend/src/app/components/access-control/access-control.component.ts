@@ -90,7 +90,6 @@ export class AccessControlComponent implements OnInit {
       };
 
       this.formService.logConnection(payload).subscribe(
-        () => console.log('Connection log added successfully'),
         (error) => console.error('Error logging connection:', error)
       );
       this.router.navigate(['/dashboard']);

@@ -109,4 +109,9 @@ export class FormService {
     const headers = this.getAuthHeaders();
     return this.http.post(`${this.apiBaseUrl}/log-connection`, payload,  { headers });
   }
+
+  updateCampaign(campaignId: number, data: { name: string }): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.put(`${this.apiBaseUrl}/campaigns/${campaignId}`, data, { headers });
+  }
 }
