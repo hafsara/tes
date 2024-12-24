@@ -13,8 +13,6 @@ export class AdminTokensComponent implements OnInit {
   tokens: any[] = [];
   displayCreateTokenDialog = false;
 
-  selectedApps: string[] = [];
-
   newToken = {
     token_name: '',
     app_names: [],

@@ -51,14 +51,15 @@
             <input pInputText id="token_name" [(ngModel)]="newToken.token_name" placeholder="Enter token name"/>
         </div>
         <div class="app-selector">
-            <p-multiselect
+            <p-multiSelect
                     [options]="appOptions"
+                    [(ngModel)]="newToken.app_names"
                     optionLabel="name"
                     optionValue="token"
                     display="chip"
                     placeholder="Select Applications"
-                    [filter]="false"
-            ></p-multiselect>
+                    [filter]="false">
+            </p-multiSelect>
         </div>
         <div class="field">
             <label for="expiration">Expiration (Days)</label>
