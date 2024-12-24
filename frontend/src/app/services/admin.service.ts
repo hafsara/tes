@@ -61,11 +61,11 @@ export class AdminService {
 
   /**
    * Regenerate an API token
-   * @param oldToken Token to regenerate
+   * @param old_token Token to regenerate
    * @returns Rotation confirmation
    */
-  rotateToken(oldToken: string): Observable<any> {
+  rotateToken(old_token: string): Observable<any> {
     const headers = this.getAuthHeaders();
-    return this.http.put<any>(`${this.baseUrl}/rotate-api-token`, { oldToken }, { headers });
+    return this.http.put<any>(`${this.baseUrl}/rotate-api-token`, { old_token }, { headers });
   }
 }

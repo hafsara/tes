@@ -19,6 +19,9 @@ export class AdminTokensComponent implements OnInit {
     expiration: 30
   };
 
+  newTokenJwt: string | null = null;
+  displayTokenDialog: boolean = false;
+
   ngOnInit(): void {
     this.loadTokens();
   }
@@ -88,13 +91,25 @@ export class AdminTokensComponent implements OnInit {
   copyToClipboard(token: string): void {
       navigator.clipboard.writeText(token).then(
         () => {
-                this.messageService.add({ severity: 'contrast', detail: 'Token copied to clipboard!', life: 1000, key: "br"});
+            this.messageService.add({ severity: 'contrast', detail: 'Token copied to clipboard!', life: 1000, key: "br"});
         },
         (err) => {
             this.messageService.add({ severity: 'error', detail: 'Failed to copy token. Please try again.', life: 1000, key: "br"});
         }
       );
   }
+
+  confirmRotateToken(oldToken: string): void {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to rotate this token?',
+      header: 'Confirm Rotation',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.rotateToken(oldToken);
+      },
+    });
+  }
+
   confirmRevokeToken(token: string): void {
     this.confirmationService.confirm({
       message: 'Are you sure you want to revoke this token?',
@@ -108,5 +123,25 @@ export class AdminTokensComponent implements OnInit {
         this.messageService.add({ severity: 'info', summary: 'Cancelled', detail: 'Token not revoked' });
       },
     });
+ }
+
+ rotateToken(oldToken: string): void {
+   this.adminService.rotateToken(oldToken).subscribe({
+        next: (response) => {
+          this.newTokenJwt = response.newToken;
+          this.displayTokenDialog = true;
+
+          const tokenIndex = this.tokens.findIndex((token) => token.token === oldToken);
+          if (tokenIndex !== -1) {
+            this.tokens[tokenIndex] = {
+              ...this.tokens[tokenIndex],
+              token: response.newToken
+            };
+          }
+        },
+        error: () => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to rotate the token.' });
+        },
+   });
  }
 }

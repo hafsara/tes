@@ -33,8 +33,9 @@
                     <i class="pi pi-clone" style="color: #708090; font-size: 1.3rem;"
                        (click)="copyToClipboard(token.token)" title="Copy"></i>
                     <i class="pi pi-pencil" style="color: #708090; font-size: 1.3rem;"
-                       (click)="revokeToken(token.token)" title="Edit"></i>
-                    <i class="pi pi-ban" style="color: #708090; font-size: 1.3rem;" (click)="confirmRevokeToken(token.token)"
+                       (click)="confirmRotateToken(token.token)" title="Edit"></i>
+                    <i class="pi pi-ban" style="color: #708090; font-size: 1.3rem;"
+                       (click)="confirmRevokeToken(token.token)"
                        title="Revoke"></i>
                 </div>
             </td>
@@ -78,5 +79,14 @@
         <button pButton label="Cancel" icon="pi pi-times" class="p-button-text"
                 (click)="hideCreateTokenDialog()"></button>
         <button pButton label="Create" icon="pi pi-check" class="p-button-primary" (click)="createToken()"></button>
+    </div>
+</p-dialog>
+
+<p-dialog header="New Token Generated" [(visible)]="displayTokenDialog" [modal]="true" [closable]="false">
+    <div>
+        <p>Your new token is:</p>
+        <p style="font-weight: bold; word-break: break-word;">{{ newTokenJwt }}</p>
+        <button pButton label="Copy" icon="pi pi-copy" (click)="copyToClipboard(newTokenJwt!)"></button>
+        <button pButton label="Close" icon="pi pi-times" (click)="displayTokenDialog = false"></button>
     </div>
 </p-dialog>

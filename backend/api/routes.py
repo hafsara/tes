@@ -630,6 +630,32 @@ def get_api_tokens():
     ]
     return jsonify(result), 200
 
+@api.route('/rotate-api-token', methods=['PUT'])
+def rotate_api_token():
+    data = request.json
+    old_token = data.get('old_token')
+
+    token_entry = APIToken.query.filter_by(token=old_token).first()
+    if not token_entry:
+        return jsonify({"error": "Token not found"}), 404
+
+    expiration = datetime.utcnow() + timedelta(days=30)
+
+    payload = {
+        "app_names": token_entry.app_names,
+        "token_name": token_entry.token_name,
+        "exp": expiration,
+        "iat": datetime.utcnow(),
+    }
+
+    new_token = jwt.encode(payload, 'your_secret_key', algorithm='HS256')
+
+    token_entry.token = new_token
+    token_entry.expiration = expiration
+    db.session.commit()
+
+    return jsonify({"newToken": new_token}), 200
+
 
 def generate_token(application):
     payload = {'application_name': application.name, 'app_id': application.id}
