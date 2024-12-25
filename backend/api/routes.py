@@ -643,7 +643,8 @@ def rotate_api_token():
     if not token_entry:
         return jsonify({"error": "Token not found"}), 404
 
-    expiration = datetime.utcnow() + timedelta(days=30)
+    validity_duration = (token_entry.expiration - token_entry.created_at).days
+    expiration = datetime.utcnow() + timedelta(days=validity_duration)
 
     payload = {
         "app_names": token_entry.app_names,
