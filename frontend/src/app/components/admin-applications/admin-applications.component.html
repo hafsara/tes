@@ -34,25 +34,28 @@
     <p>You have no application created yet.</p>
 </div>
 
-<p-dialog [(visible)]="displayCreateAppDialog" header="Create New Token" [modal]="true" [style]="{ width: '400px' }">
+<p-dialog [(visible)]="displayCreateAppDialog" header="Create New application" [modal]="true" [style]="{ width: '400px' }">
     <div class="p-fluid">
         <div class="field">
             <label for="application_name">Application Name</label>
-            <input pInputText id="application_name" [(ngModel)]="newToken.token_name" placeholder="Enter token name"/>
+            <input pInputText id="application_name" [(ngModel)]="newAppName" placeholder="Enter application name"/>
         </div>
     </div>
     <div class="p-dialog-footer">
         <button pButton label="Cancel" icon="pi pi-times" class="p-button-text"
                 (click)="hideCreateTokenDialog()"></button>
-        <button pButton label="Create" icon="pi pi-check" class="p-button-primary" (click)="createToken()"></button>
+        <button pButton label="Create" icon="pi pi-check" class="p-button-primary" (click)="confirmCreateToken()"></button>
     </div>
 </p-dialog>
 
-<p-dialog header="New Token Generated" [(visible)]="displayTokenDialog" [modal]="true" [closable]="false">
-    <div>
-        <p>Your new token is:</p>
-        <p style="font-weight: bold; word-break: break-word;">{{ newTokenJwt }}</p>
-        <button pButton label="Copy" icon="pi pi-copy" (click)="copyToClipboard(newTokenJwt!)"></button>
-        <button pButton label="Close" icon="pi pi-times" (click)="displayTokenDialog = false"></button>
+
+<p-dialog [(visible)]="displayShowDialog" header="New application created" [closable]="true" [dismissableMask]="true" [modal]="true" [style]="{ width: '500px' }">
+  <div class="token-modal-content" style="text-align: center; position: relative;">
+    <i class="pi pi-copy token-copy"
+       (click)="copyToClipboard(newId!)"></i>
+    <p>Your new application ID:</p>
+    <div class="token-span">
+      <span>{{ newId }}</span>
     </div>
+  </div>
 </p-dialog>

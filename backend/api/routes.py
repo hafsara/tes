@@ -547,7 +547,6 @@ def log_connection():
     if not user_id or not app_ids:
         return jsonify({"error": "Missing required fields"}), 400
 
-    # Create and save the connection log
     connection_log = ConnectionLog(user_id=user_id, app_ids=app_ids)
     db.session.add(connection_log)
     db.session.commit()

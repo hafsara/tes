@@ -89,9 +89,7 @@ export class AccessControlComponent implements OnInit {
         app_ids: this.validTokens,
       };
 
-      this.formService.logConnection(payload).subscribe(
-        (error) => console.error('Error logging connection:', error)
-      );
+      this.formService.logConnection(payload);
       this.router.navigate(['/dashboard']);
     }
   }

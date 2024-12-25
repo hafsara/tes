@@ -51,8 +51,12 @@ export class AdminTokensComponent implements OnInit {
   }
 
   createToken(): void {
-    if (!this.newToken.token_name || this.newToken.app_names.length === 0 || this.newToken.expiration <= 0) {
+    if (!this.newToken.token_name || this.newToken.app_names.length === 0 || this.newToken.expiration <= 0 ) {
       this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Please fill in all fields.' });
+      return;
+    }
+    if (this.tokens.some(token => token.token_name === this.newToken.token_name)  ) {
+      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: `${this.newToken.token_name} already exists`});
       return;
     }
 
@@ -64,9 +68,9 @@ export class AdminTokensComponent implements OnInit {
 
     this.adminService.generateToken(tokenData).subscribe({
       next: (response) => {
-        this.tokens.push(response);
-        this.hideCreateTokenDialog();
-        setTimeout(() => window.location.reload(), 1000);
+          this.newTokenJwt = response.api_token;
+          this.displayTokenDialog = true;
+          this.loadTokens();
       },
       error: (err) => {
         console.error('Failed to create token:', err);
@@ -117,7 +121,7 @@ export class AdminTokensComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.revokeToken(token);
-        setTimeout(() => window.location.reload(), 1000);
+        this.loadTokens()
       }
     });
  }

@@ -12,16 +12,10 @@ export class AdminApplicationsComponent {
   @Input() appOptions: { name: string; token: string }[] = [];
   applications: any[] = [];
   displayCreateAppDialog = false;
-
-  newToken = {
-    token_name: '',
-    app_names: [],
-    expiration: 30
-  };
-
+  newAppName: string = '';
+  newId: string = '';
+  displayShowDialog = false
   newTokenJwt: string | null = null;
-
-  displayTokenDialog: boolean = false;
 
   ngOnInit(): void {
     this.loadApplications();
@@ -48,11 +42,49 @@ export class AdminApplicationsComponent {
 
   hideCreateTokenDialog(): void {
     this.displayCreateAppDialog = false;
-    this.newToken = { token_name: '', app_names: [], expiration: 30 };
+    this.newAppName = "";
   }
 
-  createToken(): void {
+  confirmCreateToken(): void {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to create <b>${this.newAppName}</b> application?`,
+      header: 'Confirm update',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.createApplication();
+      },
+    });
   }
+
+  createApplication() {
+    if (!this.newAppName.trim()) {
+      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Application name cannot be empty' });
+      return;
+    }
+
+    if (this.applications.some(app => app.name === this.newAppName)  ) {
+      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: `<b>${this.newAppName}</b> already exists`});
+      return;
+    }
+
+    const newApp = {
+      name: this.newAppName,
+    };
+
+    this.adminService.createApplication(newApp).subscribe(
+      (response) => {
+        this.newId = response.app_id;
+        this.displayShowDialog = true;
+        this.displayCreateAppDialog = false;
+        this.newAppName = '';
+        this.loadApplications();
+      },
+      (error) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: `Failed to create application ${error}` });
+      }
+    );
+  }
+
 
   copyToClipboard(id: string): void {
       navigator.clipboard.writeText(id).then(

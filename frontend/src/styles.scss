@@ -157,3 +157,18 @@ input:focus, textarea:focus, .p-dropdown:focus, .p-inputnumber:focus {
     padding: 5px;
 }
 
+.token-span{
+    background-color: black;
+    color: white;
+    padding: 10px;
+    margin-top: 10px;
+    word-break: break-all;
+    border-radius: 8px;
+}
+
+.token-copy{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+}
