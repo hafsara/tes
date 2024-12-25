@@ -43,7 +43,7 @@ class Campaign(db.Model):
 class Application(db.Model):
     __tablename__ = 'application'
     id = db.Column(db.String(36), unique=True, nullable=False, primary_key=True)
-    name = db.Column(db.String(255), nullable=False)
+    name = db.Column(db.String(255), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     created_by = db.Column(db.String(255), nullable=False)
 
