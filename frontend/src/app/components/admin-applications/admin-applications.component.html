@@ -23,7 +23,7 @@
             <td>
                 <div class="action-icons">
                     <i class="pi pi-clone" (click)="copyToClipboard(application.id)" title="Copy"></i>
-                    <i class="pi pi-pencil" (click)="confirmEditToken(application.id)" title="edit"></i>
+                    <i class="pi pi-pencil" (click)="confirmRotateAppId(application.name)" title="rotate"></i>
                 </div>
             </td>
         </tr>
@@ -44,10 +44,9 @@
     <div class="p-dialog-footer">
         <button pButton label="Cancel" icon="pi pi-times" class="p-button-text"
                 (click)="hideCreateTokenDialog()"></button>
-        <button pButton label="Create" icon="pi pi-check" class="p-button-primary" (click)="confirmCreateToken()"></button>
+        <button pButton label="Create" icon="pi pi-check" class="p-button-primary" (click)="confirmCreateApp()"></button>
     </div>
 </p-dialog>
-
 
 <p-dialog [(visible)]="displayShowDialog" header="New application created" [closable]="true" [dismissableMask]="true" [modal]="true" [style]="{ width: '500px' }">
   <div class="token-modal-content" style="text-align: center; position: relative;">

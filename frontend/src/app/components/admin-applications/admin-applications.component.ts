@@ -12,10 +12,10 @@ export class AdminApplicationsComponent {
   @Input() appOptions: { name: string; token: string }[] = [];
   applications: any[] = [];
   displayCreateAppDialog = false;
+  displayUpdateAppDialog = false;
   newAppName: string = '';
   newId: string = '';
   displayShowDialog = false
-  newTokenJwt: string | null = null;
 
   ngOnInit(): void {
     this.loadApplications();
@@ -45,10 +45,21 @@ export class AdminApplicationsComponent {
     this.newAppName = "";
   }
 
-  confirmCreateToken(): void {
+  confirmRotateAppId(name: string): void {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to update <b>${name}</b> id application?`,
+      header: 'Confirm update',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        console.log("rotate application");
+      },
+    });
+  }
+
+  confirmCreateApp(): void {
     this.confirmationService.confirm({
       message: `Are you sure you want to create <b>${this.newAppName}</b> application?`,
-      header: 'Confirm update',
+      header: 'Confirm creation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.createApplication();
