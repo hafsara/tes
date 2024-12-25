@@ -45,17 +45,6 @@ export class AdminApplicationsComponent {
     this.newAppName = "";
   }
 
-  confirmRotateAppId(name: string): void {
-    this.confirmationService.confirm({
-      message: `Are you sure you want to update <b>${name}</b> id application?`,
-      header: 'Confirm update',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        console.log("rotate application");
-      },
-    });
-  }
-
   confirmCreateApp(): void {
     this.confirmationService.confirm({
       message: `Are you sure you want to create <b>${this.newAppName}</b> application?`,
