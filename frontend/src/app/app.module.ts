@@ -64,6 +64,7 @@ import { AuthComponent } from './components/auth/auth.component';
 import { AdminPanelComponent } from './components/admin-panel/admin-panel.component';
 import { AdminTokensComponent } from './components/admin-tokens/admin-tokens.component';
 import { AdminCampaignComponent } from './components/admin-campaign/admin-campaign.component';
+import { AdminApplicationsComponent } from './components/admin-applications/admin-applications.component';
 
 @NgModule({
   declarations: [
@@ -86,7 +87,8 @@ import { AdminCampaignComponent } from './components/admin-campaign/admin-campai
     AuthComponent,
     AdminPanelComponent,
     AdminTokensComponent,
-    AdminCampaignComponent
+    AdminCampaignComponent,
+    AdminApplicationsComponent
   ],
   imports: [
     BrowserModule,

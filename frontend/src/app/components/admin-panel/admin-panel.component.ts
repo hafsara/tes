@@ -44,19 +44,6 @@ export class AdminPanelComponent {
     });
   }
 
-  createApplication(): void {
-    if (this.createAppForm.valid) {
-      this.http.post('/applications', this.createAppForm.value).subscribe(
-        (response: any) => {
-          this.applications.push(response);
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Application created successfully' });
-          this.createAppForm.reset();
-        },
-        (error) => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create application' })
-      );
-    }
-  }
-
   onAppOptionsLoaded(options: { name: string; token: string }[]): void {
     this.appOptions = options;
   }
