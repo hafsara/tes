@@ -1,4 +1,4 @@
-from base64 import b64decode
+import uuid
 
 from flask import Blueprint, jsonify, request
 from api.models import FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign, ConnectionLog, \
@@ -38,17 +38,32 @@ def error_response(message, status_code):
 def create_application():
     data = request.json
     app_name = data.get('name')
-    # Generer ici le app-id et non depuis le date
-    app_id = data.get('id')
+    app_id = str(uuid.uuid4())
 
-    if not app_name or not app_id:
+    if not app_name:
         return error_response("Application name and ID are required", 400)
 
-    application = Application(id=app_id, name=app_name)
+    created_by = getattr(request, 'user_id', None)
+    application = Application(id=app_id, name=app_name, created_by=created_by)
     db.session.add(application)
     db.session.commit()
 
     return jsonify({"message": "Application created successfully", "app_id": app_id}), 201
+
+
+@api.route('/applications', methods=['GET'])
+def get_applications():
+    applications = Application.query.all()
+    result = [
+        {
+            "id": app.id,
+            "name": app.name,
+            "created_at": app.created_at,
+            "created_by": app.created_by
+        }
+        for app in applications
+    ]
+    return jsonify(result), 200
 
 
 @api.route('/campaigns', methods=['POST'])
@@ -120,9 +135,6 @@ def create_form_container():
     )
     db.session.add(timeline_entry)
     db.session.commit()
-    # send_initial_notification_task(form_container.id)
-    # TODO
-    # run_delayed_workflow(container_id=form_container.id)
 
     return jsonify({
         "container_id": form_container.id,
@@ -326,7 +338,6 @@ def cancel_form(form_container_id, form_id):
     )
     db.session.add(timeline_entry)
     db.session.commit()
-    # todo add pause to the workflow
     return jsonify({"message": "Form canceled successfully", "form_id": form_id, "comment": comment}), 200
 
 

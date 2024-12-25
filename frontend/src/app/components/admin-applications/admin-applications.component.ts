@@ -10,8 +10,8 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 export class AdminApplicationsComponent {
 
   @Input() appOptions: { name: string; token: string }[] = [];
-  tokens: any[] = [];
-  displayCreateTokenDialog = false;
+  applications: any[] = [];
+  displayCreateAppDialog = false;
 
   newToken = {
     token_name: '',
@@ -20,126 +20,60 @@ export class AdminApplicationsComponent {
   };
 
   newTokenJwt: string | null = null;
+
   displayTokenDialog: boolean = false;
 
   ngOnInit(): void {
-    this.loadTokens();
+    this.loadApplications();
   }
 
   constructor(private adminService: AdminService, private messageService: MessageService, private confirmationService: ConfirmationService) {}
 
 
-  loadTokens(): void {
-    this.adminService.getTokens().subscribe({
-      next: (tokens) => {
-        this.tokens = tokens;
+  loadApplications(): void {
+    this.adminService.getApplications().subscribe({
+      next: (applications) => {
+        this.applications = applications;
       },
       error: (err) => {
-        console.error('Failed to load tokens:', err);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load tokens.' });
+        console.error('Failed to load applications:', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load applications.' });
       },
     });
   }
 
   showCreateTokenDialog(): void {
-    this.displayCreateTokenDialog = true;
+    this.displayCreateAppDialog = true;
   }
 
   hideCreateTokenDialog(): void {
-    this.displayCreateTokenDialog = false;
+    this.displayCreateAppDialog = false;
     this.newToken = { token_name: '', app_names: [], expiration: 30 };
   }
 
   createToken(): void {
-    if (!this.newToken.token_name || this.newToken.app_names.length === 0 || this.newToken.expiration <= 0) {
-      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Please fill in all fields.' });
-      return;
-    }
-
-    const tokenData = {
-      token_name: this.newToken.token_name,
-      app_names: this.newToken.app_names,
-      expiration: this.newToken.expiration,
-    };
-
-    this.adminService.generateToken(tokenData).subscribe({
-      next: (response) => {
-        this.tokens.push(response);
-        this.hideCreateTokenDialog();
-        setTimeout(() => window.location.reload(), 1000);
-      },
-      error: (err) => {
-        console.error('Failed to create token:', err);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create token.' });
-      },
-    });
   }
 
-  revokeToken(token: string): void {
-    this.adminService.revokeToken(token).subscribe({
-      next: () => {
-        this.tokens = this.tokens.filter((t) => t.token !== token);
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Token revoked successfully.' });
-      },
-      error: (err) => {
-        console.error('Failed to revoke token:', err);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to revoke token.' });
-      },
-    });
-  }
-
-  copyToClipboard(token: string): void {
-      navigator.clipboard.writeText(token).then(
+  copyToClipboard(id: string): void {
+      navigator.clipboard.writeText(id).then(
         () => {
-            this.messageService.add({ severity: 'contrast', detail: 'Token copied to clipboard!', life: 1000, key: "br"});
+            this.messageService.add({ severity: 'contrast', detail: 'Application ID copied to clipboard!', life: 1000, key: "br"});
         },
         (err) => {
-            this.messageService.add({ severity: 'error', detail: 'Failed to copy token. Please try again.', life: 1000, key: "br"});
+            this.messageService.add({ severity: 'error', detail: 'Failed to copy application ID. Please try again.', life: 1000, key: "br"});
         }
       );
   }
 
-  confirmRotateToken(oldToken: string): void {
+  confirmEditToken(oldToken: string): void {
     this.confirmationService.confirm({
-      message: 'Are you sure you want to rotate this token?',
-      header: 'Confirm Rotation',
+      message: 'Are you sure you want to edit this application?',
+      header: 'Confirm update',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.rotateToken(oldToken);
+        console.log('');
       },
     });
   }
-
-  confirmRevokeToken(token: string): void {
-    this.confirmationService.confirm({
-      message: 'Are you sure you want to revoke this token?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.revokeToken(token);
-        setTimeout(() => window.location.reload(), 1000);
-      }
-    });
- }
-
- rotateToken(oldToken: string): void {
-   this.adminService.rotateToken(oldToken).subscribe({
-        next: (response) => {
-          this.newTokenJwt = response.newToken;
-          this.displayTokenDialog = true;
-
-          const tokenIndex = this.tokens.findIndex((token) => token.token === oldToken);
-          if (tokenIndex !== -1) {
-            this.tokens[tokenIndex] = {
-              ...this.tokens[tokenIndex],
-              token: response.newToken
-            };
-          }
-        },
-        error: () => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to rotate the token.' });
-        },
-   });
- }
 }
 

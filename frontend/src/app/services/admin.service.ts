@@ -37,6 +37,15 @@ export class AdminService {
   }
 
   /**
+   * Retrieve all API tokens
+   * @returns List of API tokens
+   */
+  getApplications(): Observable<any[]> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<any[]>(`${this.baseUrl}/applications`, { headers });
+  }
+
+  /**
    * Generate a new API token
    * @param tokenData Data for the token
    * @returns Generated Token
