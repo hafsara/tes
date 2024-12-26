@@ -14,9 +14,24 @@ api = Blueprint('api', __name__)
 def authenticate_request():
     auth_header = request.headers.get('Authorization')
     if not auth_header:
-        return jsonify({"error": "Missing Authorization Header"})
-    token = auth_header.split(" ")[1] if " " in auth_header else auth_header
+        return jsonify({"error": "Missing Authorization Header"}), 401
+
+    if auth_header.startswith("Basic "):
+        import base64
+        try:
+            credentials = base64.b64decode(auth_header.split(" ")[1]).decode("utf-8")
+            username, password = credentials.split(":")
+            if username == "admin" and password == "admin":
+                if not Application.query.first():
+                    request.user_id = username
+                else:
+                    return jsonify({"error": "Applications already exist. Access denied."}), 403
+            else:
+                return jsonify({"error": "Invalid admin credentials."}), 401
+        except Exception as e:
+            return jsonify({"error": f"Invalid Authorization Header format: {str(e)}"}), 400
     try:
+        token = auth_header.split(" ")[1] if " " in auth_header else auth_header
         decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
         if "app_names" in decoded_token:
             request.app_names = decoded_token["app_names"]
@@ -27,7 +42,7 @@ def authenticate_request():
         else:
             raise jwt.InvalidTokenError("Invalid token structure")
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
-        request.user_id = None
+        return jsonify({"error": "Invalid or expired token."}), 401
 
 
 def error_response(message, status_code):
