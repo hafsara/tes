@@ -1,42 +1,24 @@
 <VirtualHost *:8082>
-    ServerName test.dev.com
-    ServerAlias www.test.dev.com
+    ServerName https://fouras-emea.dev.echonet
+    ServerAdmin emea.cib.itrap@bnpparibas.com
+    DocumentRoot /var/www/fouras-emea.dev.echonet/frontend
 
-    # Frontend (Angular)
-    DocumentRoot /var/www/test.dev.com/frontend
-    <Directory /var/www/test.dev.com/frontend>
-        Options FollowSymLinks
-        AllowOverride All
+    <Directory /var/www/fouras-emea.dev.echonet/frontend>
+        AllowOverride all
         Require all granted
     </Directory>
 
-    # Backend (Flask)
-    WSGIScriptAlias /api /var/www/test.dev.com/backend/wsgi.py
-    <Directory /var/www/test.dev.com/backend>
+    WSGIScriptAlias /api /var/www/fouras-emea.dev.echonet/backend/app-wsgi
+
+    <Directory /var/www/fouras-emea.dev.echonet/backend>
+        AllowOverride all
         Require all granted
+        # Autoriser le header Authorization
+        <IfModule mod_headers.c>
+            Header always set Access-Control-Allow-Headers "Authorization, Content-Type"
+        </IfModule>
     </Directory>
 
-    # Flower (Reverse Proxy)
-    ProxyPreserveHost On
-    ProxyPass /flower http://localhost:5555/
-    ProxyPassReverse /flower http://localhost:5555/
-
-    # Logs
-    ErrorLog ${APACHE_LOG_DIR}/test_dev_com_error.log
-    CustomLog ${APACHE_LOG_DIR}/test_dev_com_access.log combined
+    ErrorLog logs/fouras-emea.dev.echonet_error.log
+    CustomLog logs/fouras-emea.dev.echonet_access.log combined
 </VirtualHost>
-
-
-
-fetchSSOInfo(): Observable<any> {
-  return this.http.get(this.authUrl, { observe: 'response' }).pipe(
-    map((response) => {
-      console.log('Response Headers:', response.headers);
-      return response.body;
-    }),
-    catchError((error) => {
-      console.error('Error fetching SSO info:', error);
-      return throwError(() => new Error('Failed to fetch SSO info'));
-    })
-  );
-}
