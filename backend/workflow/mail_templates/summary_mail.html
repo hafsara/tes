@@ -41,6 +41,16 @@
         .response ul li {
             padding: 5px 0;
         }
+        .checkbox,
+        .radio {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .checkbox input,
+        .radio input {
+            margin-right: 10px;
+        }
         .button {
             display: block;
             margin: 20px auto;
@@ -69,9 +79,13 @@
             <h5>{{ question.label }}</h5>
             <div class="response">
                 {% if question.type == 'checkbox' %}
+                    <!-- Display checkboxes -->
                     <ul>
-                        {% for option in question.response %}
-                        <li>{{ option }}</li>
+                        {% for option in question.formattedOptions %}
+                        <li class="checkbox">
+                            <input type="checkbox" disabled {% if option in question.response %}checked{% endif %}>
+                            {{ option }}
+                        </li>
                         {% endfor %}
                     </ul>
                 {% else %}
