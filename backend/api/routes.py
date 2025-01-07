@@ -14,22 +14,8 @@ api = Blueprint('api', __name__)
 def authenticate_request():
     auth_header = request.headers.get('Authorization')
     if not auth_header:
-        return jsonify({"error": "Missing Authorization Header"}), 401
+        return jsonify({"error": "Missing Authorization Header"})
 
-    if auth_header.startswith("Basic "):
-        import base64
-        try:
-            credentials = base64.b64decode(auth_header.split(" ")[1]).decode("utf-8")
-            username, password = credentials.split(":")
-            if username == "admin" and password == "admin":
-                if not Application.query.first():
-                    request.user_id = username
-                else:
-                    return jsonify({"error": "Applications already exist. Access denied."}), 403
-            else:
-                return jsonify({"error": "Invalid admin credentials."}), 401
-        except Exception as e:
-            return jsonify({"error": f"Invalid Authorization Header format: {str(e)}"}), 400
     try:
         token = auth_header.split(" ")[1] if " " in auth_header else auth_header
         decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
@@ -44,6 +30,47 @@ def authenticate_request():
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         return jsonify({"error": "Invalid or expired token."}), 401
 
+
+from functools import wraps
+from flask import request, jsonify
+
+def require_valid_app_ids(param_name=None, allow_multiple=True, source="kwargs"):
+    """
+    Décorateur pour valider que les app_ids dans la requête correspondent aux app_names autorisés.
+    :param param_name: Nom du paramètre contenant l'app_id(s) (ex.: 'app_id' ou 'app_ids')
+    :param allow_multiple: Indique si plusieurs app_ids sont acceptés
+    :param source: Source des app_ids ('kwargs', 'args', ou 'json')
+    """
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            app_names = getattr(request, 'app_names', None)
+            if app_names:
+                if source == "kwargs":
+                    app_ids = kwargs.get(param_name)
+                elif source == "args":
+                    app_ids = request.args.get(param_name)
+                elif source == "json":
+                    data = request.json or {}
+                    app_ids = data.get(param_name)
+                else:
+                    return jsonify({"error": f"Invalid source: {source}"}), 400
+
+                if not app_ids:
+                    return jsonify({"error": f"{param_name} is required"}), 400
+
+                app_id_list = app_ids.split(',') if allow_multiple and isinstance(app_ids, str) else [app_ids]
+
+                # Récupérer les app_ids valides à partir des app_names autorisés
+                valid_app_ids = [app.id for app in Application.query.filter(Application.name.in_(app_names)).all()]
+                invalid_app_ids = [app_id for app_id in app_id_list if app_id not in valid_app_ids]
+
+                if invalid_app_ids:
+                    return jsonify({"error": f"Unauthorized access to app_ids: {', '.join(invalid_app_ids)}"}), 403
+
+            return f(*args, **kwargs)
+        return wrapper
+    return decorator
 
 def error_response(message, status_code):
     return jsonify({"error": message}), status_code
@@ -102,6 +129,7 @@ def create_campaign():
 
 
 @api.route('/form-containers', methods=['POST'])
+@require_valid_app_ids(param_name='app_id', source="json", allow_multiple=False)
 def create_form_container():
     data = request.json
     user_id = getattr(request, 'user_id', None)

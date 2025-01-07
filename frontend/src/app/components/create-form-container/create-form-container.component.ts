@@ -4,6 +4,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { FormContainer, Form, Question } from '../../utils/question-formatter';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-create-form-container',
@@ -44,6 +45,7 @@ export class CreateFormContainerComponent {
   selectedCampaign: string | undefined;
   selectedApp: string | undefined;
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  emailKeywords = environment.emailKeywords;
   campaignOptions: { name: string, id: string }[] = [];
 
   constructor(
@@ -80,14 +82,37 @@ export class CreateFormContainerComponent {
     );
   }
 
-  validateCcEmails(): boolean {
-    return (this.formContainer.ccEmails || []).every(email => this.emailPattern.test(email));
+  isManagerEmailValid(): boolean {
+    const email = this.formContainer.escaladeEmail || '';
+    return this.emailPattern.test(email) || this.emailKeywords.includes(email.toUpperCase());
   }
+
+  validateCcEmails(): boolean {
+    return (this.formContainer.ccEmails || []).every(email =>
+      this.emailPattern.test(email) || this.emailKeywords.includes(email.toUpperCase())
+    );
+  }
+
+  onCcEmailAdd(event: any): void {
+    const newEmail = event.value || '';
+    if (
+      !this.emailPattern.test(newEmail) &&
+      !this.emailKeywords.includes(newEmail.toUpperCase())
+    ) {
+      this.showErrors = true;
+    } else {
+      this.showErrors = false;
+    }
+  }
+
+  onCcEmailRemove(event: any): void {
+    this.showErrors = false;
+  }
+
 
   validateCurrentStep(): boolean {
     if (this.currentStep === 0) {
       const isEmailValid = this.emailPattern.test(this.formContainer.userEmail || '');
-      const isManagerEmailValid = !this.formContainer.escalate || (this.formContainer.escaladeEmail ? this.emailPattern.test(this.formContainer.escaladeEmail) : false);
 
       return (
         this.formContainer.appId !== '' &&
@@ -95,7 +120,7 @@ export class CreateFormContainerComponent {
         this.formContainer.title.trim() !== '' &&
         this.formContainer.description.trim() !== '' &&
         isEmailValid &&
-        isManagerEmailValid &&
+        this.isManagerEmailValid() &&
         this.validateCcEmails()
       );
     } else if (this.currentStep === 1) {

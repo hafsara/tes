@@ -92,25 +92,24 @@
                 <label for="managerMail">Escalade Email</label>
               </p-floatLabel>
               <small
-                *ngIf="showErrors && (!formContainer.escaladeEmail || !emailPattern.test(formContainer.escaladeEmail || ''))"
+                *ngIf="showErrors && !isManagerEmailValid()"
                 class="p-error">Invalid escalade email</small>
             </div>
 
-            <div class="centered-container ">
+            <div class="centered-container">
               <p-floatLabel>
-                <p-chips id="ccEmails" [(ngModel)]="formContainer.ccEmails">
-                  <ng-template let-item pTemplate="item">
-                    {{ item }} <i class="pi pi-at ml-2"></i>
-                  </ng-template>
-                  <small *ngIf="showErrors"
-                         class="p-error">Invalid CC emails</small>
+                <p-chips
+                  id="ccEmails"
+                  [(ngModel)]="formContainer.ccEmails"
+                  (onAdd)="onCcEmailAdd($event)"
+                  (onRemove)="onCcEmailRemove($event)"
+                  separator=","
+                >
                 </p-chips>
                 <label for="ccEmails">Carbon Copy Emails</label>
               </p-floatLabel>
               <small *ngIf="showErrors && !validateCcEmails()" class="p-error">Invalid CC emails</small>
-
             </div>
-
             <div class="centered-container flex align-items-center">
               <label for="reminder" class="full-width-input mr-2">Configure reminder delay day</label>
               <p-inputNumber [(ngModel)]="formContainer.reminderDelayDay" [step]="1" [showButtons]="true"

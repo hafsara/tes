@@ -44,6 +44,7 @@ import { MenubarModule } from 'primeng/menubar';
 import { ChipsModule } from 'primeng/chips';
 import { FieldsetModule } from 'primeng/fieldset';
 import { AvatarModule } from 'primeng/avatar';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 
 import { UserViewComponent } from './components/user-view/user-view.component';
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
@@ -108,6 +109,7 @@ import { AdminApplicationsComponent } from './components/admin-applications/admi
     // PrimeNG Modules
     StepsModule,
     AvatarModule,
+    AutoCompleteModule,
     FieldsetModule,
     ChipsModule,
     ToastModule,
