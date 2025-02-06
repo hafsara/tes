@@ -137,6 +137,13 @@ def create_form_container():
     if not user_id:
         return error_response("User not authenticated", 401)
 
+    # verify campaign_id ↔ app_id
+    campaign_id = data.get('campaign_id')
+    app_id = data.get('app_id')
+
+    if campaign_id and not Campaign.query.filter_by(id=campaign_id, app_id=app_id).first():
+        return error_response("The provided campaign_id is not linked to the given app_id", 400)
+
     form_container = FormContainer(
         title=data['title'],
         description=data['description'],
@@ -147,8 +154,8 @@ def create_form_container():
         initiated_by=user_id,
         reminder_delay=data.get('reminder_delay_day'),
         cc_emails=data.get('cc_emails'),
-        app_id=data.get('app_id'),
-        campaign_id=data.get('campaign_id')
+        app_id=app_id,
+        campaign_id=campaign_id
     )
     db.session.add(form_container)
     db.session.commit()
