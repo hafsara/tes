@@ -2,7 +2,8 @@ from datetime import datetime
 from backend.api.models import FormContainer, TimelineEntry
 from backend.email_manager import send_email
 from backend.extensions import db
-from celery import shared_task, chain, chord
+from celery import chain
+from .celery_app import celery as app
 
 MAX_REMINDERS = 3
 REMINDER_INTERVAL = 86400  # 1 day in seconds
@@ -12,17 +13,6 @@ class WorkflowManager:
     A class to handle form related workflows.
     """
 
-    @staticmethod
-    def _send_initial_notification_task(container_id):
-        form_container = FormContainer.query.get(container_id)
-        if form_container:
-            send_email(
-                to=form_container.user_email,
-                subject="New Form Notification",
-                body=f"A new form has been created with the title: {form_container.title}.",
-                link=form_container.access_token
-            )
-
     @classmethod
     def start_workflow(cls, form_id):
         """
@@ -30,7 +20,7 @@ class WorkflowManager:
         """
         send_email()
         tasks = [
-            send_reminder_task.s(form_id, i).set(countdown=i * REMINDER_INTERVAL)
+            send_reminder_task.si(form_id, i).set(countdown=i * REMINDER_INTERVAL)
             for i in range(1, MAX_REMINDERS + 1)
         ]
         tasks.append(escalate_task.s(form_id).set(countdown=(MAX_REMINDERS + 1) * REMINDER_INTERVAL))
@@ -38,17 +28,8 @@ class WorkflowManager:
         # Create and run the chain
         chain(*tasks).apply_async()
 
-    @staticmethod
-    def stop_workflow(form_id):
-        """
-        Stop a workflow by updating its status.
-        """
-        form_container = FormContainer.query.get(form_id)
-        if form_container:
-            form_container.status = 'stopped'
-            db.session.commit()
 
-@shared_task(bind=True)
+@app.task(bind=True)
 def send_reminder_task(self, container_id, reminder_count):
     """
     Task to send a reminder.
@@ -57,7 +38,7 @@ def send_reminder_task(self, container_id, reminder_count):
     if not form_container:
         return "FormContainer introuvable."
 
-    if form_container.status == 'stopped':
+    if form_container.status != 'open':
         self.request.chain = None  # Break the chain if the workflow is stopped
         return "Workflow stopped."
 
@@ -80,7 +61,7 @@ def send_reminder_task(self, container_id, reminder_count):
 
     return "No reminder needed - form is no longer open."
 
-@shared_task(bind=True)
+@app.task(bind=True)
 def escalate_task(self, container_id):
     """
     Task to send an escalation email.
