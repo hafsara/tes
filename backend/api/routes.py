@@ -194,6 +194,7 @@ def create_form_container():
 
 
 @api.route('/form-containers/apps/<string:app_ids>', methods=['GET'])
+@require_valid_app_ids(param_name='app_ids', source="args", allow_multiple=True)
 def get_form_containers(app_ids):
     user_id = getattr(request, 'user_id', None)
 
