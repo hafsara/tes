@@ -32,8 +32,6 @@ export class AuthGuard implements CanActivate {
       return decoded?.application_name || 'Unknown';
     });
 
-
-
     const isAdmin = tokens.some((token: string) => {
       const decoded = this.tokenService.decodeToken(token);
       return decoded?.application_name === 'admin';
@@ -46,6 +44,14 @@ export class AuthGuard implements CanActivate {
 
       if (currentRoute !== 'admin/settings') {
         this.router.navigate(['/admin/settings']);
+        return false;
+      }
+    }
+
+    const appName = route.params['appName'];
+    if (appName) {
+      if (!connectedAppNames.includes(appName)) {
+        this.router.navigate(['/access-control']);
         return false;
       }
     }
