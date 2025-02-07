@@ -7,7 +7,7 @@
   <div class="sidebar">
     <button (click)="selectedTab = 'api-tokens'" [class.active]="selectedTab === 'api-tokens'">API Tokens</button>
     <button (click)="selectedTab = 'campaigns'" [class.active]="selectedTab === 'campaigns'">Campaigns</button>
-    <button (click)="selectedTab = 'applications'" [class.active]="selectedTab === 'applications'">Applications</button>
+    <button *ngIf="isAuthorized()" (click)="selectedTab = 'applications'" [class.active]="selectedTab === 'applications'">Applications</button>
   </div>
 
   <div class="content">

@@ -1,7 +1,4 @@
 <h2>Campaign Manager</h2>
-          <p *ngFor="let option of campaignOptions | keyvalueFilter: 'createdBy'">
-  {{ option.createdBy }}
-</p>
 
 <div class="card">
   <p-table
@@ -48,24 +45,7 @@
             </ng-template>
           </p-columnFilter>
         </th>
-        <th>
-          <p-columnFilter field="createdBy" matchMode="in" [showMenu]="false">
-            <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-              <p-multiSelect
-                [ngModel]="value"
-                [options]="campaignOptions | keyvalueFilter: 'createdBy'"
-                placeholder="Select user"
-                (onChange)="filter($event.value)"
-                optionLabel="createdBy"
-                optionValue="createdBy"
-                [filter]="false"
-                display="chip"
-              >
-              </p-multiSelect>
-            </ng-template>
-          </p-columnFilter>
-
-        </th>
+        <th></th>
         <th></th>
         <th></th>
       </tr>
