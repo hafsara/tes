@@ -11,6 +11,7 @@ import { environment } from '../../../environments/environment'
 export class AdminPanelComponent {
   appOptions: { name: string; token: string }[] = [];
   selectedTab: string = 'api-tokens';
+  swaggerUrl: string = `${environment.apiUrl}/api/docs`;
 
   constructor(private sharedService: SharedService) {
   }

@@ -10,7 +10,7 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from flask_cors import CORS
 
 def create_app(class_config=Config):
-    app = Flask(__name__, static_folder='api/static')
+    app = Flask(__name__)
     CORS(app)
 
     app.config.from_object(Config)

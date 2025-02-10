@@ -9,3 +9,4 @@ flask-cors
 Flask-Migrate
 requests
 PyJWT
+flasgger

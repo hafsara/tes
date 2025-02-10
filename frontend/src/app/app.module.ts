@@ -66,6 +66,7 @@ import { AdminPanelComponent } from './components/admin-panel/admin-panel.compon
 import { AdminTokensComponent } from './components/admin-tokens/admin-tokens.component';
 import { AdminCampaignComponent } from './components/admin-campaign/admin-campaign.component';
 import { AdminApplicationsComponent } from './components/admin-applications/admin-applications.component';
+import { SafeUrlPipe } from './pipes/safe-url.pipe';
 
 @NgModule({
   declarations: [
@@ -89,7 +90,8 @@ import { AdminApplicationsComponent } from './components/admin-applications/admi
     AdminPanelComponent,
     AdminTokensComponent,
     AdminCampaignComponent,
-    AdminApplicationsComponent
+    AdminApplicationsComponent,
+    SafeUrlPipe
   ],
   imports: [
     BrowserModule,

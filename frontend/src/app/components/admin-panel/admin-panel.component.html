@@ -7,13 +7,16 @@
   <div class="sidebar">
     <button (click)="selectedTab = 'api-tokens'" [class.active]="selectedTab === 'api-tokens'">API Tokens</button>
     <button (click)="selectedTab = 'campaigns'" [class.active]="selectedTab === 'campaigns'">Campaigns</button>
-    <button *ngIf="isAuthorized()" (click)="selectedTab = 'applications'" [class.active]="selectedTab === 'applications'">Applications</button>
+    <button *ngIf="isAuthorized()" (click)="selectedTab = 'applications'"
+            [class.active]="selectedTab === 'applications'">Applications
+    </button>
+    <button (click)="selectedTab = 'apiDoc'" [class.active]="selectedTab === 'apiDoc'">API Swagger</button>
   </div>
 
   <div class="content">
     <!-- API Tokens Section -->
     <div *ngIf="selectedTab === 'api-tokens'">
-      <app-admin-tokens  [appOptions]="appOptions"></app-admin-tokens>
+      <app-admin-tokens [appOptions]="appOptions"></app-admin-tokens>
     </div>
 
     <!-- Applications Section -->
@@ -25,6 +28,15 @@
     <div *ngIf="selectedTab === 'campaigns'">
 
       <app-admin-campaign [appOptions]="appOptions"></app-admin-campaign>
+    </div>
+    <div *ngIf="selectedTab === 'apiDoc'" class="swagger-container">
+      <iframe
+        [src]="swaggerUrl | safeUrl"
+        width="100%"
+        height="100%"
+        frameborder="0"
+        style="border: none;"
+      ></iframe>
     </div>
   </div>
 </div>
