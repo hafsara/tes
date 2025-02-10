@@ -1,0 +1,36 @@
+# tests/test_applications.tavern.yaml
+variables:
+  host: "http://localhost:5000"  # Remplacez par l'URL de votre API
+  api_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBfbmFtZXMiOlsidGVzdCJdLCJ0b2tlbl9uYW1lIjoiVEVTVCIsImV4cCI6MTczNzcyMzI0NCwiaWF0IjoxNzM1MTMxMjQ0fQ.XR3r1Wtm8bA9-T_3iTOdMjOC-kGmZFk_eEsql4OJWXA"  # Remplacez par l'URL de votre API
+
+test_name: Create application
+marks:
+  - applications
+stages:
+  - name: Get auth token
+    request:
+      url: "{host}/generate-api-token"
+      method: POST
+      json:
+        app_names: ["admin-app"]
+        token_name: "test-token"
+    response:
+      status_code: 201
+      save:
+        body:
+          api_token: api_token
+
+  - name: Create application
+    request:
+      url: "{host}/applications"
+      method: POST
+      headers:
+        Authorization: "Bearer {api_token}"
+      json:
+        name: "Test Application"
+    response:
+      status_code: 201
+      body:
+        message: "Application created successfully"
+        app_id:
+          any: true

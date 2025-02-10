@@ -1,0 +1,46 @@
+openapi: 3.0.0
+info:
+  title: Form Management API
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000/api
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Application:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+paths:
+  /applications:
+    post:
+      tags: [Applications]
+      summary: Create new application
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        201:
+          description: Application created
+          content:
+            application/json:
+              example:
+                message: "Application created successfully"
+                app_id: "550e8400-e29b-41d4-a716-446655440000"

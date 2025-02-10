@@ -10,3 +10,8 @@ Flask-Migrate
 requests
 PyJWT
 flasgger
+grpcio
+grpcio-tools
+ grpcio-reflection
+  tavern-grpc
+  tavern

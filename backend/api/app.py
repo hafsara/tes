@@ -23,7 +23,7 @@ def create_app(class_config=Config):
 
     # Swagger setup
     SWAGGER_URL = Config.SWAGGER_URL
-    API_URL = '/static/swagger.json'
+    API_URL = '/static/swaggerr.yml'
     swaggerui_blueprint = get_swaggerui_blueprint(SWAGGER_URL, API_URL)
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
