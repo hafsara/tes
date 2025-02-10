@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request
 from api.models import FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign, ConnectionLog, \
     APIToken
 from datetime import datetime, timedelta
-from extensions import db
+from .extensions import db
 import jwt
 
 api = Blueprint('api', __name__)

@@ -1,7 +1,7 @@
 from datetime import datetime
 from backend.api.models import FormContainer, TimelineEntry
-from backend.email_manager import send_email
-from backend.extensions import db
+from backend.workflow.email_manager import send_email
+from backend.api.extensions import db
 from celery import chain
 from .celery_app import celery as app
 
