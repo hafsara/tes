@@ -43,3 +43,49 @@
   gap: 1rem;
 }
 
+.custom-dialog {
+  .p-dialog-content {
+    padding: 20px !important;
+  }
+
+  .p-field {
+    margin-bottom: 15px;
+  }
+
+  label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: block;
+    color: #333;
+  }
+
+  .p-inputtext {
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  .p-button {
+    border-radius: 6px;
+    font-weight: bold;
+  }
+
+  .p-button-outlined {
+    border: 2px solid #ccc;
+    color: #666;
+    background: transparent;
+    transition: all 0.3s ease;
+  }
+
+  .p-button-outlined:hover {
+    background: #ccc;
+    color: #fff;
+  }
+
+  .p-togglebutton {
+    border-radius: 6px;
+    font-weight: bold;
+    text-align: center;
+  }
+}
+

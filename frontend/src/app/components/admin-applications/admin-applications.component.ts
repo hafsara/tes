@@ -117,7 +117,7 @@ export class AdminApplicationsComponent {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.updateApplication(appData, rotateToken);
-        this.loadApplications();
+        setTimeout(() => window.location.reload(), 1000);
       },
     });
   }

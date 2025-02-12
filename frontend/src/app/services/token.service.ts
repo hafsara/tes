@@ -106,27 +106,24 @@ export class TokenService {
   updateStoredToken(oldName: string, newName: string, newId?: string): void {
     const storedTokens = this.safeLocalStorageGet(this.tokenKey);
     const storedSelectedApps = this.safeLocalStorageGet(this.localStorageKey);
-    console.log(storedTokens);
-    let updatedTokens = [];
-    let updatedSelectedApps = [];
-
     if (storedTokens) {
       try {
-        let parsedData = JSON.parse(storedTokens);
-        let { tokens, expirationDate } = parsedData;
-
-        updatedTokens = tokens.map((token: string) => {
-          let decoded = this.decodeToken(token);
+        const parsedData = JSON.parse(storedTokens);
+        const { tokens, expirationDate } = parsedData;
+        const updatedTokens = tokens.map((token: string) => {
+        const decoded = this.decodeToken(token);
 
           if (decoded && decoded.application_name === oldName) {
             decoded.application_name = newName;
+
             if (newId) {
               decoded.app_id = newId;
             }
+              return this.encodeToken(decoded);
           }
           return token;
         });
-        console.log(updatedTokens);
+
         this.storeTokens(updatedTokens);
       } catch (error) {
         console.error("Error updating stored token:", error);
@@ -135,9 +132,9 @@ export class TokenService {
 
     if (storedSelectedApps) {
       try {
-        let selectedApps = JSON.parse(storedSelectedApps);
-        console.log(selectedApps)
-        updatedSelectedApps = selectedApps.map((app: string) =>
+        const selectedApps = JSON.parse(storedSelectedApps);
+
+        const updatedSelectedApps = selectedApps.map((app: string) =>
           app === oldName ? newName : app
         );
 
@@ -146,5 +143,11 @@ export class TokenService {
         console.error("Error updating selectedApps:", error);
       }
     }
+  }
+  encodeToken(payload: any): string {
+    const header = { alg: "HS256", typ: "JWT" };
+    const encodedHeader = btoa(JSON.stringify(header));
+    const encodedPayload = btoa(JSON.stringify(payload));
+    return `${encodedHeader}.${encodedPayload}`;
   }
 }

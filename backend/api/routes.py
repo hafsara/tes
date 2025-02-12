@@ -480,7 +480,7 @@ def update_campaign(campaign_id):
 @api.route('/applications/<string:app_id>', methods=['PUT'])
 def update_application(app_id):
     """
-    Update Application Name or Token
+    Update Application Name, Token and propagate changes to related models.
     """
     data = request.json
     new_name = data.get('name')
@@ -489,16 +489,24 @@ def update_application(app_id):
 
     application = Application.query.filter_by(id=app_id).first_or_404()
 
+    old_app_id = application.id
+    new_app_id = str(uuid.uuid4()) if generate_new_id else old_app_id
+
     if new_name and application.name != new_name:
         application.name = new_name
 
     if generate_new_id:
-        application.id = str(uuid.uuid4())
+        application.id = new_app_id
 
     if new_mail_sender and application.mail_sender != new_mail_sender:
         application.mail_sender = new_mail_sender
 
     db.session.commit()
+
+    if generate_new_id:
+        db.session.query(FormContainer).filter(FormContainer.app_id == old_app_id).update({"app_id": new_app_id})
+        db.session.query(Campaign).filter(Campaign.app_id == old_app_id).update({"app_id": new_app_id})
+        db.session.commit()
 
     return jsonify({"message": "Application updated successfully", "app_token": application.id}), 200
 

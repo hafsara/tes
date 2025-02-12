@@ -76,35 +76,48 @@
   [(visible)]="editDialogVisible"
   [modal]="true"
   [closable]="false"
-  [style]="{ width: '30vw' }"
-  class="p-fluid"
+  [style]="{ width: '35vw' }"
+  class="p-fluid custom-dialog"
 >
-  <div class="field">
+  <div class="p-field">
+    <label for="appName">Application Name</label>
     <input
+      id="appName"
       pInputText
       [(ngModel)]="selectedApplication.name"
-      class="w-full p-2 border rounded-md"
-      placeholder="Application Name"
-    />
-    <input
-      pInputText
-      [(ngModel)]="selectedApplication.mail_sender"
-      class="w-full p-2 border rounded-md"
-      placeholder="Email Sender"
-    />
-    <p-toggleButton
-      [(ngModel)]="generate_new_id"
-      onLabel="Rotate token On"
-      offLabel="Rotate token Off"
+      class="w-full p-inputtext p-mb-2"
+      placeholder="Enter application name"
     />
   </div>
+
+  <div class="p-field">
+    <label for="appMailSender">Mail Sender</label>
+    <input
+      id="appMailSender"
+      pInputText
+      [(ngModel)]="selectedApplication.mail_sender"
+      class="w-full p-inputtext"
+      placeholder="Enter sender email"
+    />
+  </div>
+
+  <div class="p-field flex align-items-center">
+    <p-toggleButton
+      [(ngModel)]="generate_new_id"
+      onLabel="Rotate Token On"
+      offLabel="Rotate Token Off"
+      class="p-button-success p-button-rounded w-full"
+    />
+  </div>
+
   <div class="flex justify-content-end mt-4 gap-3">
     <p-button
       label="Cancel"
       icon="pi pi-times"
       (click)="editDialogVisible = false"
-      class="p-button-secondary"
+      class="p-button-outlined p-button-secondary"
     ></p-button>
+
     <p-button
       label="Save"
       icon="pi pi-check"
@@ -113,3 +126,4 @@
     ></p-button>
   </div>
 </p-dialog>
+
