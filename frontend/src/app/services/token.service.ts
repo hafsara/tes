@@ -102,4 +102,49 @@ export class TokenService {
     this.clearTokens();
     window.location.href = '/access-control';
   }
+
+  updateStoredToken(oldName: string, newName: string, newId?: string): void {
+    const storedTokens = this.safeLocalStorageGet(this.tokenKey);
+    const storedSelectedApps = this.safeLocalStorageGet(this.localStorageKey);
+    console.log(storedTokens);
+    let updatedTokens = [];
+    let updatedSelectedApps = [];
+
+    if (storedTokens) {
+      try {
+        let parsedData = JSON.parse(storedTokens);
+        let { tokens, expirationDate } = parsedData;
+
+        updatedTokens = tokens.map((token: string) => {
+          let decoded = this.decodeToken(token);
+
+          if (decoded && decoded.application_name === oldName) {
+            decoded.application_name = newName;
+            if (newId) {
+              decoded.app_id = newId;
+            }
+          }
+          return token;
+        });
+        console.log(updatedTokens);
+        this.storeTokens(updatedTokens);
+      } catch (error) {
+        console.error("Error updating stored token:", error);
+      }
+    }
+
+    if (storedSelectedApps) {
+      try {
+        let selectedApps = JSON.parse(storedSelectedApps);
+        console.log(selectedApps)
+        updatedSelectedApps = selectedApps.map((app: string) =>
+          app === oldName ? newName : app
+        );
+
+        this.safeLocalStorageSet(this.localStorageKey, JSON.stringify(updatedSelectedApps));
+      } catch (error) {
+        console.error("Error updating selectedApps:", error);
+      }
+    }
   }
+}

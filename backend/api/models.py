@@ -46,6 +46,7 @@ class Application(db.Model):
     name = db.Column(db.String(255), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     created_by = db.Column(db.String(255), nullable=False)
+    mail_sender = db.Column(db.String(500), nullable=True, default='hafsaraii@gmail.com')
 
 
 class Form(db.Model):

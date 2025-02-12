@@ -1,6 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AdminService } from '../../services/admin.service';
+import { TokenService } from '../../services/token.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { jwtDecode } from 'jwt-decode';
+
 
 @Component({
   selector: 'app-admin-applications',
@@ -13,15 +16,19 @@ export class AdminApplicationsComponent {
   applications: any[] = [];
   displayCreateAppDialog = false;
   displayUpdateAppDialog = false;
+  generate_new_id = false;
   newAppName: string = '';
   newId: string = '';
   displayShowDialog = false
+  selectedApplication: any = {};
+  oldApp: any = {};
+  editDialogVisible = false;
 
   ngOnInit(): void {
     this.loadApplications();
   }
 
-  constructor(private adminService: AdminService, private messageService: MessageService, private confirmationService: ConfirmationService) {}
+  constructor(private adminService: AdminService, private tokenService: TokenService, private messageService: MessageService, private confirmationService: ConfirmationService) {}
 
 
   loadApplications(): void {
@@ -97,15 +104,86 @@ export class AdminApplicationsComponent {
       );
   }
 
-  confirmEditToken(oldToken: string): void {
+  openEditDialog(application: any) {
+    this.selectedApplication = { ...application };
+    this.oldApp = { ...application };
+    this.editDialogVisible = true;
+  }
+
+  confirmEditApplication(appData: any, rotateToken: boolean): void {
     this.confirmationService.confirm({
       message: 'Are you sure you want to edit this application?',
       header: 'Confirm update',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        console.log('');
+        this.updateApplication(appData, rotateToken);
+        this.loadApplications();
       },
     });
   }
-}
 
+  updateApplication(appData: any, rotateToken: boolean) {
+    const oldName = this.oldApp.name;
+    if (
+      this.applications.some(
+        (app) => app.name.toLowerCase() === appData.name.toLowerCase() && app.id !== appData.id
+      )
+    ) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Application name already exists',
+      });
+      return;
+    }
+
+    if (!this.isValidEmail(appData.mail_sender)) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Invalid email format',
+      });
+      return;
+    }
+
+    const updatedData = {
+      name: appData.name,
+      generate_new_id: rotateToken,
+      new_mail_sender: appData.mail_sender,
+    };
+
+    this.adminService.updateApplication(appData.id, updatedData).subscribe(
+      (response) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Application updated successfully',
+        });
+
+        this.tokenService.updateStoredToken(
+          oldName,
+          updatedData.name,
+          rotateToken ? response.app_token : undefined
+        );
+
+        this.editDialogVisible = false;
+      },
+      (error) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to update application',
+        });
+      }
+    );
+  }
+
+  isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  updateLocalStorage(oldApp: any, updatedData: any) {
+    // mettre à jour le localstorage
+  }
+}

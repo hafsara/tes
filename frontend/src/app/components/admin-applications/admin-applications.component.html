@@ -1,53 +1,66 @@
 <p-toast position="bottom-right" key="br"/>
 
 <div class="tokens-header">
-    <h2>Application Manager</h2>
-    <button pButton label="New application" icon="pi pi-plus" class="p-button-rounded p-button-primary"
-            (click)="showCreateTokenDialog()"></button>
+  <h2>Application Manager</h2>
+  <button pButton label="New application" icon="pi pi-plus" class="p-button-rounded p-button-primary"
+          (click)="showCreateTokenDialog()"></button>
 </div>
 
 <p-table [value]="applications" *ngIf="applications && applications.length > 0">
-    <ng-template pTemplate="header">
-        <tr>
-            <th>Name</th>
-            <th>Created at</th>
-            <th>Created by</th>
-            <th style="width: 7rem"></th>
-        </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-application>
-        <tr>
-            <td>{{ application.name }}</td>
-            <td>{{ application.created_at | date }}</td>
-            <td>{{ application.created_by }}</td>
-            <td>
-                <div class="action-icons">
-                    <i class="pi pi-clone" (click)="copyToClipboard(application.id)" title="Copy"></i>
-                </div>
-            </td>
-        </tr>
-    </ng-template>
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Name</th>
+      <th>Created at</th>
+      <th>Created by</th>
+      <th>Mail sender</th>
+      <th style="width: 7rem"></th>
+      <th style="width: 7rem"></th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-application>
+    <tr>
+      <td>{{ application.name }}</td>
+      <td>{{ application.created_at | date }}</td>
+      <td>{{ application.created_by }}</td>
+      <td>{{ application.mail_sender }}</td>
+      <td>
+        <div class="action-icons">
+          <i class="pi pi-clone" (click)="copyToClipboard(application.id)" title="Copy"></i>
+        </div>
+      </td>
+      <td>
+        <i
+          class="pi pi-pencil"
+          style="cursor: pointer; margin-right: 10px"
+          (click)="openEditDialog(application)"
+        ></i>
+      </td>
+
+    </tr>
+  </ng-template>
 </p-table>
 
 <div *ngIf="!applications || applications.length === 0" class="empty-state">
-    <p>You have no application created yet.</p>
+  <p>You have no application created yet.</p>
 </div>
 
-<p-dialog [(visible)]="displayCreateAppDialog" header="Create New application" [modal]="true" [style]="{ width: '400px' }">
-    <div class="p-fluid">
-        <div class="field">
-            <label for="application_name">Application Name</label>
-            <input pInputText id="application_name" [(ngModel)]="newAppName" placeholder="Enter application name"/>
-        </div>
+<p-dialog [(visible)]="displayCreateAppDialog" header="Create New application" [modal]="true"
+          [style]="{ width: '400px' }">
+  <div class="p-fluid">
+    <div class="field">
+      <label for="application_name">Application Name</label>
+      <input pInputText id="application_name" [(ngModel)]="newAppName" placeholder="Enter application name"/>
     </div>
-    <div class="p-dialog-footer">
-        <button pButton label="Cancel" icon="pi pi-times" class="p-button-text"
-                (click)="hideCreateTokenDialog()"></button>
-        <button pButton label="Create" icon="pi pi-check" class="p-button-primary" (click)="confirmCreateApp()"></button>
-    </div>
+  </div>
+  <div class="p-dialog-footer">
+    <button pButton label="Cancel" icon="pi pi-times" class="p-button-text"
+            (click)="hideCreateTokenDialog()"></button>
+    <button pButton label="Create" icon="pi pi-check" class="p-button-primary" (click)="confirmCreateApp()"></button>
+  </div>
 </p-dialog>
 
-<p-dialog [(visible)]="displayShowDialog" header="New application created" [closable]="true" [dismissableMask]="true" [modal]="true" [style]="{ width: '500px' }">
+<p-dialog [(visible)]="displayShowDialog" header="New application created" [closable]="true" [dismissableMask]="true"
+          [modal]="true" [style]="{ width: '500px' }">
   <div class="token-modal-content" style="text-align: center; position: relative;">
     <i class="pi pi-copy token-copy"
        (click)="copyToClipboard(newId!)"></i>
@@ -55,5 +68,48 @@
     <div class="token-span">
       <span>{{ newId }}</span>
     </div>
+  </div>
+</p-dialog>
+
+<p-dialog
+  header="Edit application"
+  [(visible)]="editDialogVisible"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '30vw' }"
+  class="p-fluid"
+>
+  <div class="field">
+    <input
+      pInputText
+      [(ngModel)]="selectedApplication.name"
+      class="w-full p-2 border rounded-md"
+      placeholder="Application Name"
+    />
+    <input
+      pInputText
+      [(ngModel)]="selectedApplication.mail_sender"
+      class="w-full p-2 border rounded-md"
+      placeholder="Email Sender"
+    />
+    <p-toggleButton
+      [(ngModel)]="generate_new_id"
+      onLabel="Rotate token On"
+      offLabel="Rotate token Off"
+    />
+  </div>
+  <div class="flex justify-content-end mt-4 gap-3">
+    <p-button
+      label="Cancel"
+      icon="pi pi-times"
+      (click)="editDialogVisible = false"
+      class="p-button-secondary"
+    ></p-button>
+    <p-button
+      label="Save"
+      icon="pi pi-check"
+      (click)="confirmEditApplication(selectedApplication, generate_new_id)"
+      class="p-button-primary"
+    ></p-button>
   </div>
 </p-dialog>

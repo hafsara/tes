@@ -80,13 +80,14 @@ def error_response(message, status_code):
 def create_application():
     data = request.json
     app_name = data.get('name')
+    mail_sender = data.get('mail_sender')
     app_id = str(uuid.uuid4())
 
     if not app_name:
         return error_response("Application name and ID are required", 400)
 
     created_by = getattr(request, 'user_id', None)
-    application = Application(id=app_id, name=app_name, created_by=created_by)
+    application = Application(id=app_id, name=app_name, created_by=created_by, mail_sender=mail_sender)
     db.session.add(application)
     db.session.commit()
 
@@ -101,7 +102,8 @@ def get_applications():
             "id": app.id,
             "name": app.name,
             "created_at": app.created_at,
-            "created_by": app.created_by
+            "created_by": app.created_by,
+            "mail_sender": app.mail_sender
         }
         for app in applications
     ]
@@ -176,14 +178,8 @@ def create_form_container():
     db.session.add(form)
     db.session.commit()
 
-    timeline_entry = TimelineEntry(
-        form_container_id=form_container.id,
-        form_id=form.id,
-        event='FormContainer created',
-        details=f'Form container created with title {form_container.title} by {user_id}',
-        timestamp=datetime.utcnow()
-    )
-    db.session.add(timeline_entry)
+    log_timeline_event(form_container.id, form.id, 'FormContainer created',
+                       f'Form container created with title {form_container.title} by {user_id}')
     db.session.commit()
 
     return jsonify({
@@ -305,16 +301,8 @@ def validate_form_container(container_id, form_id):
 
     form_container.validated = True
     form.status = 'validated'
-
-    timeline_entry = TimelineEntry(
-        form_container_id=form_container.id,
-        form_id=form.id,
-        event='FormContainer validated',
-        details=f'Form container validated by {user_id}',
-        timestamp=datetime.utcnow()
-    )
-    db.session.add(timeline_entry)
-
+    log_timeline_event(form_container.id, form.id, 'FormContainer validated',
+                       f'Form container validated by {user_id}')
     db.session.commit()
 
     return jsonify({"message": "Form successfully validated."}), 200
@@ -379,15 +367,8 @@ def cancel_form(form_container_id, form_id):
 
     form.status = 'canceled'
     form.cancel_comment = comment
-
-    timeline_entry = TimelineEntry(
-        form_container_id=form_container_id,
-        form_id=form.id,
-        event='FormContainer canceled',
-        details=f'Form canceled by {user_id} with comment: {comment}',
-        timestamp=datetime.utcnow()
-    )
-    db.session.add(timeline_entry)
+    log_timeline_event(form_container_id, form.id, 'FormContainer canceled',
+                       f'Form canceled by {user_id} with comment: {comment}')
     db.session.commit()
     return jsonify({"message": "Form canceled successfully", "form_id": form_id, "comment": comment}), 200
 
@@ -426,15 +407,9 @@ def add_form_to_container(container_id):
         db.session.rollback()
         return error_response("An error occurred while adding the form", 500)
 
-    timeline_entry = TimelineEntry(
-        form_container_id=form_container.id,
-        form_id=new_form.id,
-        event='Unsubstantial response',
-        details=f'Response marked as unsubstantial by {user_id}',
-        timestamp=datetime.utcnow()
-    )
     try:
-        db.session.add(timeline_entry)
+        log_timeline_event(form_container.id, new_form.id, 'Unsubstantial response',
+                           f'Response marked as unsubstantial by {user_id}')
         db.session.commit()
         return jsonify({"form_id": new_form.id}), 201
     except Exception as e:
@@ -477,15 +452,8 @@ def submit_form_response(access_token, form_id):
 
     form.responses.append(response_record)
     form.status = 'answered'
-
-    timeline_entry = TimelineEntry(
-        form_container_id=form_container.id,
-        form_id=form.id,
-        event='Response submitted',
-        details=f'Response submitted for form ID {form_id} by {responder_uid}',
-        timestamp=datetime.utcnow()
-    )
-    db.session.add(timeline_entry)
+    log_timeline_event(form_container.id, form.id, 'Response submitted',
+                       f'Response submitted for form ID {form_id} by {responder_uid}')
     db.session.commit()
     return jsonify({"message": "Response submitted successfully"}), 200
 
@@ -509,28 +477,30 @@ def update_campaign(campaign_id):
     return jsonify({"message": "Campaign updated successfully", "campaign_id": campaign_id}), 200
 
 
-@api.route('/applications/<string:app_token>', methods=['PUT'])
-def update_application(app_token):
+@api.route('/applications/<string:app_id>', methods=['PUT'])
+def update_application(app_id):
     """
     Update Application Name or Token
     """
     data = request.json
     new_name = data.get('name')
-    new_token = data.get('new_token')
+    generate_new_id = data.get('generate_new_id')
+    new_mail_sender = data.get('new_mail_sender')
 
-    if not new_name and not new_token:
-        return error_response("Name or new token is required to update the application.", 400)
+    application = Application.query.filter_by(id=app_id).first_or_404()
 
-    application = Application.query.filter_by(token=app_token).first_or_404()
-
-    if new_name:
+    if new_name and application.name != new_name:
         application.name = new_name
-    if new_token:
-        application.token = new_token
+
+    if generate_new_id:
+        application.id = str(uuid.uuid4())
+
+    if new_mail_sender and application.mail_sender != new_mail_sender:
+        application.mail_sender = new_mail_sender
 
     db.session.commit()
 
-    return jsonify({"message": "Application updated successfully", "app_token": application.token}), 200
+    return jsonify({"message": "Application updated successfully", "app_token": application.id}), 200
 
 
 @api.route('/form-containers/apps/<string:app_ids>/validated', methods=['GET'])
@@ -717,3 +687,14 @@ def generate_token(application):
     payload = {'application_name': application.name, 'app_id': application.id}
     token = jwt.encode(payload, 'your_secret_key', algorithm='HS256')
     return token
+
+def log_timeline_event(form_container_id, form_id, event, details):
+    timeline_entry = TimelineEntry(
+        form_container_id=form_container_id,
+        form_id=form_id,
+        event=event,
+        details=details,
+        timestamp=datetime.utcnow()
+    )
+    db.session.add(timeline_entry)
+

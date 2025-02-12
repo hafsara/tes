@@ -77,4 +77,14 @@ export class AdminService {
     const headers = this.getAuthHeaders();
     return this.http.put<any>(`${this.baseUrl}/rotate-api-token`, { old_token }, { headers });
   }
+
+  /**
+   * Update a existing application
+   * @param appData Application data
+   * @returns Update confirmation
+   */
+  updateApplication(appId: string, updatedData: any): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.put(`${this.baseUrl}/applications/${appId}`, updatedData, { headers });
+  }
 }

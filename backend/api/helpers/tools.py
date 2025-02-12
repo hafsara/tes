@@ -1,4 +1,5 @@
 import logging
+import re
 
 # Configuration du logger
 logging.basicConfig(level=logging.INFO)
@@ -69,3 +70,8 @@ def ensure_admin_application_exists():
         db.session.add(new_admin_app)
         db.session.commit()
         print("✅ Application Admin créée avec succès")
+
+def is_valid_email(email):
+    """ Vérifier si l'email est valide """
+    email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    return re.match(email_regex, email)
