@@ -1,51 +1,84 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <title>Important Action Required</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            text-align: center;
-            padding: 20px;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
         }
         .container {
             max-width: 600px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: left;
         }
-        .button {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: #fff;
-            background: #28a745;
-            text-decoration: none;
-            border-radius: 5px;
+        .header {
+            text-align: center;
+            background-color: #1E4D2B;
+            padding: 10px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
         }
-        .button:hover {
-            background: #218838;
-        }
-        .image-container img {
+        .header img {
             max-width: 100%;
             height: auto;
-            border-radius: 10px;
+            display: block;
+            margin: auto;
+        }
+        .content {
+            padding: 20px;
+        }
+        h1 {
+            color: #1E4D2B;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .button {
+            background-color: #1E4D2B;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        .footer {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            padding-top: 15px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Thank you for responding to our form</h1>
-        <p>Hello,</p>
-        <p>We need your feedback to finalize our process. Please complete the form by clicking the link below:</p>
-        <a href="{{ form_url }}">Answer the form</a>
-        <p>Thank you for your cooperation !</p>
-        <p>Regards,</p>
-        <p>This message is sent by the PSIRT team, no password or sensitive information should be entered or requested. </p>
+        <div class="header">
+            <img src="https://images.ladepeche.fr/api/v1/images/view/5c33b9af8fe56f6903559b21/large/image.jpg" alt="Company Logo">
+        </div>
+        <div class="content">
+            <h1>Important Action Required</h1>
+            <p>Hello,</p>
+            <p>We need your feedback to finalize our process. Please complete the form by clicking the button below:</p>
+            <div class="button-container">
+                <a href="{{ form_url }}" class="button">Complete the Form</a>
+            </div>
+            <p>Thank you for your cooperation!</p>
+            <p>Regards,</p>
+        </div>
+        <div class="footer">
+            This message is sent by the PSIRT team. No password or sensitive information should be entered or requested.
+        </div>
     </div>
 </body>
 </html>

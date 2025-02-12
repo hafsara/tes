@@ -31,11 +31,9 @@ def create_app(class_config=Config):
         # Vérifier si l'application Admin existe déjà
         admin_app = Application.query.filter_by(id='admin-test').first()
         if not admin_app:
-            print("🚀 Première installation : création de l'application Admin")
             new_admin_app = Application(id='admin-test', name="admin", created_by="system")
             db.session.add(new_admin_app)
             db.session.commit()
-            print("✅ Application Admin créée avec succès")
     return app
 
 
