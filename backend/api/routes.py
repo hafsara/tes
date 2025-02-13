@@ -13,7 +13,7 @@ from flask import request, jsonify
 
 import jwt
 
-from .helpers.tools import get_eq_emails, generate_token
+from .helpers.tools import get_eq_emails, generate_token, error_response
 from workflow.email_manager import MailManager
 
 api = Blueprint('api', __name__)
@@ -24,7 +24,7 @@ def authenticate_request():
     try:
 
         auth_header = request.headers.get('Authorization')
-        if  auth_header:
+        if auth_header:
             token = auth_header.split(" ")[1] if " " in auth_header else auth_header
             decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
 
@@ -41,15 +41,18 @@ def authenticate_request():
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         return jsonify({"error": "Invalid or expired token."}), 401
 
+
 def require_user_token(f):
     """
     Decorator to restrict route access to user tokens only.
     """
+
     @wraps(f)
     def wrapper(*args, **kwargs):
         if getattr(request, 'is_api_token', False):
             return jsonify({"error": "Access denied. This route is restricted to user tokens only."}), 403
         return f(*args, **kwargs)
+
     return wrapper
 
 
@@ -93,10 +96,6 @@ def require_valid_app_ids(param_name=None, allow_multiple=True, source="kwargs")
         return wrapper
 
     return decorator
-
-
-def error_response(message, status_code):
-    return jsonify({"error": message}), status_code
 
 
 @api.route('/applications', methods=['POST'])
@@ -210,7 +209,7 @@ def create_form_container():
     log_timeline_event(form_container.id, form.id, 'FormContainer created',
                        f'Form container created with title {form_container.title} by {user_id}')
     db.session.commit()
-    #todo get mail_sender from app_id or formcontainer ??
+    # todo get mail_sender from app_id or formcontainer ??
     mail_sender = 'hafsa@test.com'
     WorkflowManager(mail_sender, form_container.user_email, form_container.cc_emails, form_container.access_token,
                     form_container.reminder_delay).start_workflow(form.id, form_container.id, form_container.escalate)
@@ -504,7 +503,8 @@ def submit_form_response(access_token, form_id):
     db.session.commit()
     # todo mail sender from app
     mail_sender = 'hafsa@test.com'
-    MailManager.send_email(mail_sender, form_container.user_email, form_container.cc_emails, form_container.title, access_token, questions=answers_summary)
+    MailManager.send_email(mail_sender, form_container.user_email, form_container.cc_emails, form_container.title,
+                           access_token, questions=answers_summary)
     return jsonify({"message": "Response submitted successfully"}), 200
 
 
@@ -559,6 +559,7 @@ def update_application(app_id):
         db.session.commit()
 
     return jsonify({"message": "Application updated successfully", "app_token": application.id}), 200
+
 
 @api.route('/campaigns/<int:campaign_id>', methods=['DELETE'])
 def delete_campaign(campaign_id):
@@ -747,8 +748,6 @@ def rotate_api_token():
     db.session.commit()
 
     return jsonify({"newToken": new_token}), 200
-
-
 
 
 def log_timeline_event(form_container_id, form_id, event, details):

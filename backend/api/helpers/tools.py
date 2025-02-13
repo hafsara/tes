@@ -2,6 +2,7 @@ import logging
 import re
 
 import jwt
+from flask import jsonify
 
 # Configuration du logger
 logging.basicConfig(level=logging.INFO)
@@ -16,6 +17,7 @@ ESCALADE_EMAIL_MAPPING = {
     "@CISO": "SELECT * FROM where sent = '0'",
     "@PSIRT": "emea.cib.csirt.and.monitoring@bnpparibas.com"
 }
+
 
 def search_mail(user_mail, mail):
     """
@@ -38,6 +40,7 @@ def search_mail(user_mail, mail):
     logger.warning(f"Aucune correspondance pour {mail}")
     return ""
 
+
 def get_eq_emails(user_email, escalade_email, cc_emails):
     """
     Traite les emails d'escalade et les emails en copie (CC).
@@ -58,6 +61,7 @@ def get_eq_emails(user_email, escalade_email, cc_emails):
 
     return escalade_email, cc_emails_list
 
+
 def ensure_admin_application_exists():
     """
     Vérifie si l'application Admin existe, sinon la crée.
@@ -73,12 +77,18 @@ def ensure_admin_application_exists():
         db.session.commit()
         print("✅ Application Admin créée avec succès")
 
+
 def is_valid_email(email):
     """ Vérifier si l'email est valide """
     email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
     return re.match(email_regex, email)
 
+
 def generate_token(application):
     payload = {'application_name': application.name, 'app_id': application.id}
     token = jwt.encode(payload, 'your_secret_key', algorithm='HS256')
     return token
+
+
+def error_response(message, status_code):
+    return jsonify({"error": message}), status_code

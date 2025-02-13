@@ -13,7 +13,7 @@ def send_summary():
 
     # Dynamic URL for the form
     form_url = "https://example.com/form"
-    with open("mail_templates/summary_mail.html") as file:
+    with open("templates/summary_mail.html") as file:
         template_content = file.read()
 
     # Créer un objet Template
