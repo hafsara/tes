@@ -204,53 +204,50 @@ def test_escalate_task_form_closed(app, mock_form, mock_db_session):
 def test_workflow_manager_schedules_emails_correctly(app, workflow_manager, mock_db_session):
     with app.app_context():
         with patch('backend.workflow.tasks.MailManager.send_email') as mock_send_email, \
-             patch('backend.workflow.tasks.chain') as mock_chain, \
-             patch('backend.workflow.tasks.send_reminder_task.apply_async') as mock_send_reminder, \
-             patch('backend.workflow.tasks.escalate_task.apply_async') as mock_escalate:
+             patch('backend.workflow.tasks.chain') as mock_chain:
 
             # Call the start_workflow method with escalate=True
+            escalate = True
             workflow_manager.start_workflow(form_id=123, container_id=456, escalate=True)
 
             # Check that tasks are scheduled with the correct countdowns
-            expected_countdowns = [i * workflow_manager.reminder_delay * DAY_SEC for i in range(1, MAX_REMINDERS + 1)]
-            expected_countdowns.append((MAX_REMINDERS + 1) * workflow_manager.reminder_delay * DAY_SEC)
-
-            # Check that send_reminder_task is called with the correct countdowns
-            for i, countdown in enumerate(expected_countdowns[:-1]):
-                mock_send_reminder.assert_any_call(
-                    args=("noreply@example.com", 123, 456, i + 1),
-                    countdown=countdown
+            expected_tasks = []
+            for i in range(1, MAX_REMINDERS + 1):
+                expected_tasks.append(
+                    send_reminder_task.si(
+                        "noreply@example.com", 123, 456, i
+                    ).set(countdown=i * workflow_manager.reminder_delay * DAY_SEC)
+                )
+            if escalate:
+                expected_tasks.append(
+                    escalate_task.si(
+                        "noreply@example.com", 123, 456
+                    ).set(countdown=(MAX_REMINDERS + 1) * workflow_manager.reminder_delay * DAY_SEC)
                 )
 
-            # Check that escalate_task is called with the correct countdown
-            mock_escalate.assert_called_once_with(
-                args=("noreply@example.com", 123, 456),
-                countdown=expected_countdowns[-1]
-            )
+            # Check that chain is called with the correct countdown
+            mock_chain.assert_called_once_with(*expected_tasks)
 
 
 def test_workflow_manager_schedules_emails_without_escalate(app, workflow_manager, mock_db_session):
     with app.app_context():
         with patch('backend.workflow.tasks.MailManager.send_email') as mock_send_email, \
-             patch('backend.workflow.tasks.chain') as mock_chain, \
-             patch('backend.workflow.tasks.send_reminder_task.apply_async') as mock_send_reminder, \
-             patch('backend.workflow.tasks.escalate_task.apply_async') as mock_escalate:
+             patch('backend.workflow.tasks.chain') as mock_chain:
 
             # Call the start_workflow method with escalate=False
             workflow_manager.start_workflow(form_id=123, container_id=456, escalate=False)
 
             # Check that tasks are scheduled with the correct countdowns
-            expected_countdowns = [i * workflow_manager.reminder_delay * DAY_SEC for i in range(1, MAX_REMINDERS + 1)]
-
-            # Check that send_reminder_task is called with the correct countdowns
-            for i, countdown in enumerate(expected_countdowns):
-                mock_send_reminder.assert_any_call(
-                    args=("noreply@example.com", 123, 456, i + 1),
-                    countdown=countdown
+            expected_tasks = []
+            for i in range(1, MAX_REMINDERS + 1):
+                expected_tasks.append(
+                    send_reminder_task.si(
+                        "noreply@example.com", 123, 456, i
+                    ).set(countdown=i * workflow_manager.reminder_delay * DAY_SEC)
                 )
 
-            # Check that escalate_task is not called
-            mock_escalate.assert_not_called()
+            mock_chain.assert_called_once_with(*expected_tasks)
+
 
 def test_workflow_manager_sends_emails_at_correct_time(app, workflow_manager, mock_db_session):
     with app.app_context():
@@ -260,21 +257,22 @@ def test_workflow_manager_sends_emails_at_correct_time(app, workflow_manager, mo
              patch('backend.workflow.tasks.escalate_task.apply_async') as mock_escalate:
 
             # Simulate time with freezegun
-            with freeze_time("2024-10-01 12:00:00"):
+            with freeze_time("2023-10-01 12:00:00"):
+                # Appeler la méthode start_workflow avec escalate=True
                 workflow_manager.start_workflow(form_id=123, container_id=456, escalate=True)
 
-                # Advance time to trigger the first restart
-                with freeze_time("2024-10-02 12:00:00"):  # reminder_delay = 1 day
-                    # Check that the first reminder is sent
+                # Avancer le temps pour déclencher la première relance
+                with freeze_time("2023-10-02 12:00:00"):  # reminder_delay = 1 jour
+                    # Vérifier que la première relance est envoyée
                     mock_send_reminder.assert_any_call(
                         args=("noreply@example.com", 123, 456, 1),
-                        countdown=0  # The countdown is over
+                        countdown=0  # Le countdown est écoulé
                     )
 
-                # Advance time to trigger escalation
-                with freeze_time("2024-10-05 12:00:00"):  # (MAX_REMINDERS + 1) * reminder_delay = 4 jours
-                    # Check that the escalation is sent
+                # Avancer le temps pour déclencher l'escalade
+                with freeze_time("2023-10-05 12:00:00"):  # (MAX_REMINDERS + 1) * reminder_delay = 4 jours
+                    # Vérifier que l'escalade est envoyée
                     mock_escalate.assert_called_once_with(
                         args=("noreply@example.com", 123, 456),
-                        countdown=0  # The countdown is over
+                        countdown=0  # Le countdown est écoulé
                     )
