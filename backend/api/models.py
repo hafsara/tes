@@ -58,6 +58,7 @@ class Form(db.Model):
     questions = db.relationship('Question', backref='form', lazy=True, cascade="all, delete-orphan")
     responses = db.relationship('Response', backref='form', lazy=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    workflow_step = db.Column(db.String(50), nullable=True)
 
     def __repr__(self):
         return f"<Form {self.id} for Container {self.form_container_id}>"

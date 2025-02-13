@@ -1,6 +1,8 @@
 import logging
 import re
 
+import jwt
+
 # Configuration du logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -75,3 +77,8 @@ def is_valid_email(email):
     """ Vérifier si l'email est valide """
     email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
     return re.match(email_regex, email)
+
+def generate_token(application):
+    payload = {'application_name': application.name, 'app_id': application.id}
+    token = jwt.encode(payload, 'your_secret_key', algorithm='HS256')
+    return token

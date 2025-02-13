@@ -1,46 +1,67 @@
 import uuid
 
 from flask import Blueprint, jsonify, request
-from api.models import FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign, ConnectionLog, \
+from win32con import FALSE
+
+from backend.api.models import FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign, \
+    ConnectionLog, \
     APIToken
 from datetime import datetime, timedelta
 from .extensions import db
+from functools import wraps
+from flask import request, jsonify
+
 import jwt
+
+from .helpers.tools import get_eq_emails, generate_token
+from ..workflow.email_manager import MailManager
+from ..workflow.tasks import WorkflowManager
 
 api = Blueprint('api', __name__)
 
 
 @api.before_request
 def authenticate_request():
-    auth_header = request.headers.get('Authorization')
-    if not auth_header:
-        return jsonify({"error": "Missing Authorization Header"})
-
     try:
-        token = auth_header.split(" ")[1] if " " in auth_header else auth_header
-        decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
-        if "app_names" in decoded_token:
-            request.app_names = decoded_token["app_names"]
-            request.user_id = decoded_token["token_name"]
-        elif "sub" in decoded_token:
-            request.user_id = decoded_token["sub"]
-            request.app_names = None
-        else:
-            raise jwt.InvalidTokenError("Invalid token structure")
+
+        auth_header = request.headers.get('Authorization')
+        if  auth_header:
+            token = auth_header.split(" ")[1] if " " in auth_header else auth_header
+            decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
+
+            if "app_names" in decoded_token:
+                request.app_names = decoded_token["app_names"]
+                request.user_id = decoded_token.get("token_name")
+                request.is_api_token = True
+            elif "sub" in decoded_token:
+                request.user_id = decoded_token["sub"]
+                request.app_names = None
+                request.is_api_token = False
+            else:
+                raise jwt.InvalidTokenError("Invalid token structure")
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         return jsonify({"error": "Invalid or expired token."}), 401
 
+def require_user_token(f):
+    """
+    Decorator to restrict route access to user tokens only.
+    """
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if getattr(request, 'is_api_token', False):
+            return jsonify({"error": "Access denied. This route is restricted to user tokens only."}), 403
+        return f(*args, **kwargs)
+    return wrapper
 
-from functools import wraps
-from flask import request, jsonify
 
 def require_valid_app_ids(param_name=None, allow_multiple=True, source="kwargs"):
     """
-    Décorateur pour valider que les app_ids dans la requête correspondent aux app_names autorisés.
-    :param param_name: Nom du paramètre contenant l'app_id(s) (ex.: 'app_id' ou 'app_ids')
-    :param allow_multiple: Indique si plusieurs app_ids sont acceptés
-    :param source: Source des app_ids ('kwargs', 'args', ou 'json')
+        Decorator to validate that the app_ids in the request match the allowed app_names.
+        :param param_name: Name of the parameter containing the app_id(s) (e.g. 'app_id' or 'app_ids')
+        :param allow_multiple: Indicates whether multiple app_ids are allowed
+        :param source: Source of the app_ids ('kwargs', 'args', or 'json')
     """
+
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
@@ -69,8 +90,11 @@ def require_valid_app_ids(param_name=None, allow_multiple=True, source="kwargs")
                     return jsonify({"error": f"Unauthorized access to app_ids: {', '.join(invalid_app_ids)}"}), 403
 
             return f(*args, **kwargs)
+
         return wrapper
+
     return decorator
+
 
 def error_response(message, status_code):
     return jsonify({"error": message}), status_code
@@ -96,6 +120,7 @@ def create_application():
 
 @api.route('/applications', methods=['GET'])
 def get_applications():
+    # todo restraint access to api token
     applications = Application.query.all()
     result = [
         {
@@ -111,6 +136,7 @@ def get_applications():
 
 
 @api.route('/campaigns', methods=['POST'])
+@require_valid_app_ids(param_name="app_id", source="json", allow_multiple=False)
 def create_campaign():
     data = request.json
     campaign_name = data.get('name')
@@ -146,16 +172,18 @@ def create_form_container():
     if campaign_id and not Campaign.query.filter_by(id=campaign_id, app_id=app_id).first():
         return error_response("The provided campaign_id is not linked to the given app_id", 400)
 
+    escalade_email, cc_emails = get_eq_emails(data['user_email'], data.get('escalade_email', ''), data.get('cc_emails'))
+
     form_container = FormContainer(
         title=data['title'],
         description=data['description'],
         user_email=data['user_email'],
-        escalade_email=data['escalade_email'],
+        escalade_email=escalade_email,
         reference=data.get('reference'),
         escalate=data.get('escalate', False),
         initiated_by=user_id,
         reminder_delay=data.get('reminder_delay_day'),
-        cc_emails=data.get('cc_emails'),
+        cc_emails=cc_emails,
         app_id=app_id,
         campaign_id=campaign_id
     )
@@ -181,6 +209,10 @@ def create_form_container():
     log_timeline_event(form_container.id, form.id, 'FormContainer created',
                        f'Form container created with title {form_container.title} by {user_id}')
     db.session.commit()
+    #todo get mail_sender from app_id or formcontainer ??
+    mail_sender = 'hafsa@test.com'
+    WorkflowManager(mail_sender, form_container.user_email, form_container.cc_emails, form_container.access_token,
+                    form_container.reminder_delay).start_workflow(form.id, form_container.id, form_container.escalate)
 
     return jsonify({
         "container_id": form_container.id,
@@ -201,10 +233,14 @@ def get_form_containers(app_ids):
     status = request.args.get('status')
     if filter_type == 'status' and status:
         app_id_list = app_ids.split(',')
-        query = (FormContainer.query
-                 .filter(FormContainer.app_id.in_(app_id_list))
-                 .filter(FormContainer.forms.any(Form.status == status))
-                 .order_by(FormContainer.created_at.desc()))
+        query = FormContainer.query.filter(FormContainer.app_id.in_(app_id_list))
+
+        if status in ('reminder', 'escalate'):
+            query = query.filter(FormContainer.forms.any((Form.workflow_step == status) & (Form.status == 'open')))
+        else:
+            query = query.filter(FormContainer.forms.any(Form.status == status))
+
+        query = query.order_by(FormContainer.created_at.desc())
         form_containers = query.all()
         result = [
             {
@@ -364,6 +400,8 @@ def cancel_form(form_container_id, form_id):
 
     if not form:
         return error_response("Form not found", 404)
+    if form.status != 'open':
+        return error_response("Form cannot be cancelled", 500)
 
     form.status = 'canceled'
     form.cancel_comment = comment
@@ -380,8 +418,6 @@ def add_form_to_container(container_id):
     if not user_id:
         return error_response("User not authenticated", 401)
 
-    if not user_id:
-        return error_response("User not authenticated", 401)
     form_container = FormContainer.query.get_or_404(container_id)
 
     if len(form_container.forms) >= 5:
@@ -410,6 +446,12 @@ def add_form_to_container(container_id):
     try:
         log_timeline_event(form_container.id, new_form.id, 'Unsubstantial response',
                            f'Response marked as unsubstantial by {user_id}')
+        # TODO GET MAIL SENDER FROM APP
+        mail_sender = 'hafsa@test.com'
+        WorkflowManager(mail_sender, form_container.user_email, form_container.cc_emails, form_container.access_token,
+                        form_container.reminder_delay).start_workflow(new_form.id, form_container.id,
+                                                                      form_container.escalate)
+
         db.session.commit()
         return jsonify({"form_id": new_form.id}), 201
     except Exception as e:
@@ -421,6 +463,7 @@ def add_form_to_container(container_id):
 def submit_form_response(access_token, form_id):
     data = request.json
     responder_uid = getattr(request, 'user_id', None)
+    answers_summary = []
 
     if not responder_uid:
         return error_response("User not authenticated", 401)
@@ -449,12 +492,16 @@ def submit_form_response(access_token, form_id):
             "questionId": question.id,
             "response": response_content
         })
+        answers_summary.append({'label': question.label, "response": response_content, "type": question.type})
 
     form.responses.append(response_record)
     form.status = 'answered'
     log_timeline_event(form_container.id, form.id, 'Response submitted',
                        f'Response submitted for form ID {form_id} by {responder_uid}')
     db.session.commit()
+    # todo mail sender from app
+    mail_sender = 'hafsa@test.com'
+    MailManager.send_email(mail_sender, form_container.user_email, form_container.cc_emails, form_container.title, access_token, questions=answers_summary)
     return jsonify({"message": "Response submitted successfully"}), 200
 
 
@@ -510,12 +557,20 @@ def update_application(app_id):
 
     return jsonify({"message": "Application updated successfully", "app_token": application.id}), 200
 
+@api.route('/campaigns/<int:campaign_id>', methods=['DELETE'])
+def delete_campaign(campaign_id):
+    """Delete a campaign"""
+    campaign = Campaign.query.get_or_404(campaign_id)
+    db.session.delete(campaign)
+    db.session.commit()
+    return jsonify({"message": "Campaign deleted successfully", "campaign_id": campaign_id}), 200
+
 
 @api.route('/form-containers/apps/<string:app_ids>/validated', methods=['GET'])
 def get_validated_form_containers(app_ids):
     app_id_list = app_ids.split(',')
     validated_form_containers = db.session.query(FormContainer).filter(FormContainer.validated == True).filter(
-        FormContainer.app_id.in_(app_id_list)).all()
+        FormContainer.app_id.in_(app_id_list)).order_by(FormContainer.created_at.desc()).all()
 
     result = [
         {
@@ -691,10 +746,7 @@ def rotate_api_token():
     return jsonify({"newToken": new_token}), 200
 
 
-def generate_token(application):
-    payload = {'application_name': application.name, 'app_id': application.id}
-    token = jwt.encode(payload, 'your_secret_key', algorithm='HS256')
-    return token
+
 
 def log_timeline_event(form_container_id, form_id, event, details):
     timeline_entry = TimelineEntry(
@@ -705,4 +757,3 @@ def log_timeline_event(form_container_id, form_id, event, details):
         timestamp=datetime.utcnow()
     )
     db.session.add(timeline_entry)
-

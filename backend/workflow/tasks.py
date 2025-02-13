@@ -1,96 +1,117 @@
-from datetime import datetime
-from backend.api.models import FormContainer, TimelineEntry
-from backend.workflow.email_manager import send_email
-from backend.api.extensions import db
+import logging
 from celery import chain
+from datetime import datetime
+from backend.api.models import Form, FormContainer, TimelineEntry
+from backend.api.extensions import db
+from .email_manager import MailManager
 from .celery_app import celery as app
 
+logger = logging.getLogger(__name__)
+
 MAX_REMINDERS = 3
-REMINDER_INTERVAL = 86400  # 1 day in seconds
+DAY_SEC = 86400
+
 
 class WorkflowManager:
-    """
-    A class to handle form related workflows.
-    """
+    def __init__(self, mail_sender, user_email, cc_emails, access_token, reminder_delay):
+        self.mail_sender = mail_sender
+        self.user_email = user_email
+        self.cc_emails = cc_emails if cc_emails is not None else []
+        self.access_token = access_token
+        self.reminder_delay = reminder_delay
+        self.tasks = []
 
-    @classmethod
-    def start_workflow(cls, form_id):
-        """
-        Starts a workflow (reminders followed by escalation).
-        """
-        send_email()
-        tasks = [
-            send_reminder_task.si(form_id, i).set(countdown=i * REMINDER_INTERVAL)
-            for i in range(1, MAX_REMINDERS + 1)
-        ]
-        tasks.append(escalate_task.s(form_id).set(countdown=(MAX_REMINDERS + 1) * REMINDER_INTERVAL))
+    def start_workflow(self, form_id, container_id, escalate):
+        logger.info(f"Starting workflow for form {form_id} and container {container_id}")
+        MailManager.send_email(
+            self.mail_sender,
+            self.user_email,
+            self.cc_emails,
+            'You have a new Form from Psirt team',
+            self.access_token
+        )
 
-        # Create and run the chain
-        chain(*tasks).apply_async()
+        for i in range(1, MAX_REMINDERS + 1):
+            self.tasks.append(
+                send_reminder_task.si(
+                    self.mail_sender, form_id, container_id, i
+                ).set(countdown=i * self.reminder_delay * DAY_SEC)
+            )
+
+        if escalate:
+            self.tasks.append(
+                escalate_task.si(
+                    self.mail_sender, form_id, container_id
+                ).set(countdown=(MAX_REMINDERS + 1) * self.reminder_delay * DAY_SEC)
+            )
+
+        chain(*self.tasks).apply_async()
+        logger.info(f"Workflow started with {len(self.tasks)} tasks")
 
 
 @app.task(bind=True)
-def send_reminder_task(self, container_id, reminder_count):
-    """
-    Task to send a reminder.
-    """
+def escalate_task(self, mail_sender, form_id, container_id):
+    logger.info(f"Escalating form {form_id} and container {container_id}")
+    form = Form.query.get(form_id)
+    if not form or form.status != 'open':
+        logger.warning(f"No escalation needed - form {form_id} is no longer open.")
+        return "No escalation needed - form is no longer open."
+
     form_container = FormContainer.query.get(container_id)
-    if not form_container:
-        return "FormContainer introuvable."
 
-    if form_container.status != 'open':
-        self.request.chain = None  # Break the chain if the workflow is stopped
-        return "Workflow stopped."
+    MailManager.send_email(
+        mail_sender=mail_sender,
+        to=form_container.escalade_email,
+        cc=form_container.cc_emails,
+        title="Please respond to the form.",
+        access_token=form_container.access_token,
+        workflow_step='escalate'
+    )
 
-    latest_form = form_container.forms[-1] if form_container.forms else None
-    if latest_form and latest_form.status == 'open':
-        send_email(
-            to=form_container.user_email,
-            subject="Reminder: Please respond to the form",
-            body=f"Please respond to the form {form_container.title}."
-        )
-        timeline_entry = TimelineEntry(
-            form_container_id=container_id,
-            event=f"Reminder {reminder_count} sent",
-            timestamp=datetime.utcnow(),
-            details=f"Reminder {reminder_count} sent to user {form_container.user_email}"
-        )
-        db.session.add(timeline_entry)
-        db.session.commit()
-        return f"Reminder {reminder_count} sent"
+    timeline_entry = TimelineEntry(
+        form_container_id=container_id,
+        form_id=form_id,
+        event="Escalation sent",
+        timestamp=datetime.utcnow(),
+        details=f"Escalation sent to manager {form_container.escalade_email}"
+    )
+    db.session.add(timeline_entry)
+    form.workflow_step = 'escalate'
+    db.session.commit()
 
-    return "No reminder needed - form is no longer open."
+    logger.info(f"Escalation sent for form {form_id}")
+    return "Escalation sent"
+
 
 @app.task(bind=True)
-def escalate_task(self, container_id):
-    """
-    Task to send an escalation email.
-    """
+def send_reminder_task(self, mail_sender, form_id, container_id, reminder_count):
+    logger.info(f"Sending reminder {reminder_count} for form {form_id} and container {container_id}")
+    form = Form.query.get(form_id)
+    if not form or form.status != 'open':
+        logger.warning(f"No reminder needed - form {form_id} is no longer open.")
+        return "No reminder needed - form is no longer open."
+
     form_container = FormContainer.query.get(container_id)
-    if not form_container:
-        return "FormContainer introuvable."
 
-    if form_container.status == 'stopped':
-        self.request.chain = None  # Break the chain if the workflow is stopped
-        return "Workflow stopped."
+    MailManager.send_email(
+        mail_sender=mail_sender,
+        to=form_container.user_email,
+        cc=form_container.cc_emails,
+        title="Please respond to the form.",
+        access_token=form_container.access_token,
+        workflow_step='reminder'
+    )
 
-    latest_form = form_container.forms[-1] if form_container.forms else None
-    if latest_form and latest_form.status == 'open':
-        send_email(
-            to=form_container.escalade_email,
-            subject="Escalation: User has not responded to the form",
-            body=f"The user has not responded to the form {form_container.title}."
-        )
-        timeline_entry = TimelineEntry(
-            form_container_id=container_id,
-            event="Escalation sent",
-            timestamp=datetime.utcnow(),
-            details=f"Escalation sent to manager {form_container.escalade_email}"
-        )
-        db.session.add(timeline_entry)
+    timeline_entry = TimelineEntry(
+        form_container_id=container_id,
+        form_id=form_id,
+        event=f"Reminder {reminder_count} sent",
+        timestamp=datetime.utcnow(),
+        details=f"Reminder {reminder_count} sent to user {form_container.user_email}"
+    )
+    db.session.add(timeline_entry)
+    form.workflow_step = 'reminder'
+    db.session.commit()
 
-        form_container.escalated = True
-        db.session.commit()
-        return "Escalation sent"
-
-    return "No escalation needed - form is no longer open."
+    logger.info(f"Reminder {reminder_count} sent for form {form_id}")
+    return f"Reminder {reminder_count} sent"

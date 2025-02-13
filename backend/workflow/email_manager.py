@@ -1,25 +1,31 @@
-import smtplib
-from email.mime.text import MIMEText
-from config import Config
-
+from jinja2 import Template
+from flask_mail import Message
+from backend.api.extensions import mail
 
 class MailManager:
-    def __init__(self):
-        self.smtp_server = Config.SMTP_SERVER
-        self.smtp_port = Config.SMTP_PORT
-        self.smtp_username = Config.SMTP_USERNAME
-        self.smtp_password = Config.SMTP_PASSWORD
-        self.email_form = Config.EMAIL_FROM
 
-    def send_email(self, to, subject, body, link=None):
-        message = MIMEText(f"{body}\n\nLien d'accès : {link}" if link else body)
-        message["Subject"] = subject
-        message["From"] = self.email_form
-        message["To"] = to
+    @staticmethod
+    def prepare_subject(title, workflow_step='start'):
+        if workflow_step == 'start':
+            return f"[FOURAS] {title}"
+        return f"[FOURAS][{workflow_step.upper()}]: {title}"
 
-        with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
-            server.starttls()
-            server.login(self.smtp_username, self.smtp_password)
-            server.sendmail(self.email_form, to, message.as_string())
+    @staticmethod
+    def prepare_body(access_token, questions=None):
+        link = f"http/localhost:4200/user-view/{access_token}"
+        template_path = "workflow/templates/summary_mail.html" if questions else "workflow/templates/notification_mail.html"
+        with open(template_path) as file:
+            template_content = file.read()
+        template = Template(template_content)
+        return template.render(form_url=link, questions=questions)
 
-
+    @staticmethod
+    def send_email(mail_sender, to, cc, title, access_token, questions=None, workflow_step='start'):
+        msg = Message(
+            subject=MailManager.prepare_subject(title, workflow_step),
+            sender=mail_sender,
+            recipients=[to],
+            cc=cc
+        )
+        msg.html = MailManager.prepare_body(access_token, questions)
+        mail.send(msg)

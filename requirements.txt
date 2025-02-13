@@ -12,6 +12,8 @@ PyJWT
 flasgger
 grpcio
 grpcio-tools
- grpcio-reflection
-  tavern-grpc
-  tavern
+grpcio-reflection
+tavern-grpc
+tavern
+pytest
+pytest-mock

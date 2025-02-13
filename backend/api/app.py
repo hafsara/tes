@@ -1,11 +1,11 @@
 from flask import Flask
 
-from api.auth import (auth_bp)
-from api.models import Application
-from config import Config
-from api.extensions import db
+from backend.api.auth import (auth_bp)
+from backend.api.models import Application
+from backend.config import Config
+from backend.api.extensions import db
 from flask_migrate import Migrate
-from api.routes import api
+from backend.api.routes import api
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask_cors import CORS
 
