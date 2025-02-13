@@ -1,8 +1,8 @@
 import logging
 from celery import chain
 from datetime import datetime
-from backend.api.models import Form, FormContainer, TimelineEntry
-from backend.api.extensions import db
+from api.models import Form, FormContainer, TimelineEntry
+from api.extensions import db
 from .email_manager import MailManager
 from .celery_app import celery as app
 

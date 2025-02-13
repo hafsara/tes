@@ -1,6 +1,6 @@
 from jinja2 import Template
 from flask_mail import Message
-from backend.api.extensions import mail
+from api.extensions import mail
 
 class MailManager:
 

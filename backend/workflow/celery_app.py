@@ -1,5 +1,5 @@
 from celery import Celery
-from backend.config import Config
+from config import Config
 
 def make_celery():
     celery = Celery(__name__)

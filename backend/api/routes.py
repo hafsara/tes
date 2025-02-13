@@ -3,7 +3,7 @@ import uuid
 from flask import Blueprint, jsonify, request
 from win32con import FALSE
 
-from backend.api.models import FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign, \
+from api.models import FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign, \
     ConnectionLog, \
     APIToken
 from datetime import datetime, timedelta
@@ -14,8 +14,7 @@ from flask import request, jsonify
 import jwt
 
 from .helpers.tools import get_eq_emails, generate_token
-from ..workflow.email_manager import MailManager
-from ..workflow.tasks import WorkflowManager
+from workflow.email_manager import MailManager
 
 api = Blueprint('api', __name__)
 
@@ -159,6 +158,8 @@ def create_campaign():
 @api.route('/form-containers', methods=['POST'])
 @require_valid_app_ids(param_name='app_id', source="json", allow_multiple=False)
 def create_form_container():
+    from workflow.tasks import WorkflowManager
+
     data = request.json
     user_id = getattr(request, 'user_id', None)
 
@@ -413,6 +414,8 @@ def cancel_form(form_container_id, form_id):
 
 @api.route('/form-containers/<int:container_id>/forms', methods=['POST'])
 def add_form_to_container(container_id):
+    from workflow.tasks import WorkflowManager
+
     user_id = getattr(request, 'user_id', None)
 
     if not user_id:
