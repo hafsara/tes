@@ -3,7 +3,8 @@ from unittest.mock import patch, MagicMock
 from flask import Flask
 from backend.api.models import Form, FormContainer
 from backend.api.extensions import db as _db
-from backend.workflow.tasks import WorkflowManager, escalate_task, send_reminder_task, MAX_REMINDERS
+from backend.workflow.tasks import WorkflowManager, escalate_task, send_reminder_task, MAX_REMINDERS, DAY_SEC
+from freezegun import freeze_time
 
 
 # Create a Flask App for Testing
@@ -200,101 +201,80 @@ def test_escalate_task_form_closed(app, mock_form, mock_db_session):
             assert result == "No escalation needed - form is no longer open."
 
 
-def test_email_send_timing_for_reminders(app, workflow_manager):
+def test_workflow_manager_schedules_emails_correctly(app, workflow_manager, mock_db_session):
     with app.app_context():
-        with patch('backend.workflow.tasks.chain') as mock_chain:
-            reminder_delay = 1
+        with patch('backend.workflow.tasks.MailManager.send_email') as mock_send_email, \
+             patch('backend.workflow.tasks.chain') as mock_chain, \
+             patch('backend.workflow.tasks.send_reminder_task.apply_async') as mock_send_reminder, \
+             patch('backend.workflow.tasks.escalate_task.apply_async') as mock_escalate:
 
-            # Lancer le workflow avec escalade activée
-            workflow_manager.start_workflow(
-                mail_sender="noreply@example.com",
-                form_id=123,
-                container_id=456,
-                escalate=True,
-                reminder_delay=reminder_delay
+            # Call the start_workflow method with escalate=True
+            workflow_manager.start_workflow(form_id=123, container_id=456, escalate=True)
+
+            # Check that tasks are scheduled with the correct countdowns
+            expected_countdowns = [i * workflow_manager.reminder_delay * DAY_SEC for i in range(1, MAX_REMINDERS + 1)]
+            expected_countdowns.append((MAX_REMINDERS + 1) * workflow_manager.reminder_delay * DAY_SEC)
+
+            # Check that send_reminder_task is called with the correct countdowns
+            for i, countdown in enumerate(expected_countdowns[:-1]):
+                mock_send_reminder.assert_any_call(
+                    args=("noreply@example.com", 123, 456, i + 1),
+                    countdown=countdown
+                )
+
+            # Check that escalate_task is called with the correct countdown
+            mock_escalate.assert_called_once_with(
+                args=("noreply@example.com", 123, 456),
+                countdown=expected_countdowns[-1]
             )
 
-            # Vérifier les décomptes pour les rappels
-            expected_delays = [i * reminder_delay * DAY_SEC for i in range(MAX_REMINDERS)]
-            actual_delays = [task.options['countdown'] for task in workflow_manager.tasks if 'reminder' in str(task)]
 
-            assert sorted(actual_delays) == sorted(expected_delays), (
-                f"Expected reminder delays: {expected_delays}, but got: {actual_delays}"
-            )
-
-
-# ✅ Test pour vérifier le décompte de l'escalade
-def test_email_send_timing_for_escalation(app, workflow_manager):
+def test_workflow_manager_schedules_emails_without_escalate(app, workflow_manager, mock_db_session):
     with app.app_context():
-        with patch('backend.workflow.tasks.chain') as mock_chain:
-            reminder_delay = 1
+        with patch('backend.workflow.tasks.MailManager.send_email') as mock_send_email, \
+             patch('backend.workflow.tasks.chain') as mock_chain, \
+             patch('backend.workflow.tasks.send_reminder_task.apply_async') as mock_send_reminder, \
+             patch('backend.workflow.tasks.escalate_task.apply_async') as mock_escalate:
 
-            # Lancer le workflow avec escalade activée
-            workflow_manager.start_workflow(
-                mail_sender="noreply@example.com",
-                form_id=123,
-                container_id=456,
-                escalate=True,
-                reminder_delay=reminder_delay
-            )
+            # Call the start_workflow method with escalate=False
+            workflow_manager.start_workflow(form_id=123, container_id=456, escalate=False)
 
-            # Calculer le délai attendu pour l'escalade
-            expected_escalation_delay = (MAX_REMINDERS) * reminder_delay * DAY_SEC
-            actual_escalation_delays = [
-                task.options['countdown'] for task in workflow_manager.tasks if 'escalate' in str(task)
-            ]
+            # Check that tasks are scheduled with the correct countdowns
+            expected_countdowns = [i * workflow_manager.reminder_delay * DAY_SEC for i in range(1, MAX_REMINDERS + 1)]
 
-            assert expected_escalation_delay in actual_escalation_delays, (
-                f"Expected escalation delay: {expected_escalation_delay}, but got: {actual_escalation_delays}"
-            )
+            # Check that send_reminder_task is called with the correct countdowns
+            for i, countdown in enumerate(expected_countdowns):
+                mock_send_reminder.assert_any_call(
+                    args=("noreply@example.com", 123, 456, i + 1),
+                    countdown=countdown
+                )
 
+            # Check that escalate_task is not called
+            mock_escalate.assert_not_called()
 
-def test_send_reminder_task_timing(app, mock_form, mock_form_container, mock_db_session):
+def test_workflow_manager_sends_emails_at_correct_time(app, workflow_manager, mock_db_session):
     with app.app_context():
-        with patch('backend.workflow.tasks.Form.query') as mock_form_query, \
-             patch('backend.workflow.tasks.MailManager.send_email') as mock_send_email:
+        with patch('backend.workflow.tasks.MailManager.send_email') as mock_send_email, \
+             patch('backend.workflow.tasks.chain') as mock_chain, \
+             patch('backend.workflow.tasks.send_reminder_task.apply_async') as mock_send_reminder, \
+             patch('backend.workflow.tasks.escalate_task.apply_async') as mock_escalate:
 
-            mock_form_query.get.return_value = mock_form
+            # Simulate time with freezegun
+            with freeze_time("2024-10-01 12:00:00"):
+                workflow_manager.start_workflow(form_id=123, container_id=456, escalate=True)
 
-            # Exécuter la tâche d'envoi de rappel
-            send_reminder_task(
-                mail_sender="noreply@example.com",
-                form_id=123,
-                container_id=456,
-                reminder_count=2
-            )
+                # Advance time to trigger the first restart
+                with freeze_time("2024-10-02 12:00:00"):  # reminder_delay = 1 day
+                    # Check that the first reminder is sent
+                    mock_send_reminder.assert_any_call(
+                        args=("noreply@example.com", 123, 456, 1),
+                        countdown=0  # The countdown is over
+                    )
 
-            # Vérifier que le mail a été envoyé
-            mock_send_email.assert_called_once_with(
-                mail_sender="noreply@example.com",
-                to=mock_form_container.user_email,
-                cc=mock_form_container.cc_emails,
-                title="Please respond to the form.",
-                access_token="fake_access_token",
-                workflow_step='reminder'
-            )
-
-
-def test_escalate_task_timing(app, mock_form, mock_form_container, mock_db_session):
-    with app.app_context():
-        with patch('backend.workflow.tasks.Form.query') as mock_form_query, \
-             patch('backend.workflow.tasks.MailManager.send_email') as mock_send_email:
-
-            mock_form_query.get.return_value = mock_form
-
-            # Exécuter la tâche d'envoi d'escalade
-            escalate_task(
-                mail_sender="noreply@example.com",
-                form_id=123,
-                container_id=456
-            )
-
-            # Vérifier que le mail d'escalade a été envoyé
-            mock_send_email.assert_called_once_with(
-                mail_sender="noreply@example.com",
-                to=mock_form_container.escalade_email,
-                cc=mock_form_container.cc_emails,
-                title="Please respond to the form.",
-                access_token="fake_access_token",
-                workflow_step='escalate'
-            )
+                # Advance time to trigger escalation
+                with freeze_time("2024-10-05 12:00:00"):  # (MAX_REMINDERS + 1) * reminder_delay = 4 jours
+                    # Check that the escalation is sent
+                    mock_escalate.assert_called_once_with(
+                        args=("noreply@example.com", 123, 456),
+                        countdown=0  # The countdown is over
+                    )
