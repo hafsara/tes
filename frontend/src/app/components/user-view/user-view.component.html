@@ -12,15 +12,19 @@
       </li>
     </ul>
   </div>
-    <div class="sidebar-toggle-button" (click)="toggleSidebar()" *ngIf="historyForms.length > 0">
+  <div class="sidebar-toggle-button" (click)="toggleSidebar()" *ngIf="historyForms.length > 0">
     <i class="pi pi-bars"></i>
   </div>
   <div class="main-content centered-container">
     <div class="card">
       <p-card header="{{ formData.title }}" class="card-background">
-        <p class="m-0">
-          <markdown [data]="markdownDescription"></markdown>
-        </p>
+        <div class="card">
+          <p-fieldset legend="Description" class="scrollable-table-container">
+            <div class="table-wrapper description-scroll-container">
+              <markdown [data]="markdownDescription"></markdown>
+            </div>
+          </p-fieldset>
+        </div>
       </p-card>
     </div>
     <ng-container *ngIf="!isSubmitted && currentForm?.status === 'open'">
