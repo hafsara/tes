@@ -1,5 +1,6 @@
 import logging
 import re
+from datetime import datetime
 
 import jwt
 from flask import jsonify
@@ -71,24 +72,59 @@ def ensure_admin_application_exists():
 
     admin_app = Application.query.filter_by(id='admin-test').first()
     if not admin_app:
-        print("🚀 Première installation : création de l'application Admin")
         new_admin_app = Application(id='admin-test', name="admin", created_by="system")
         db.session.add(new_admin_app)
         db.session.commit()
-        print("✅ Application Admin créée avec succès")
 
 
 def is_valid_email(email):
-    """ Vérifier si l'email est valide """
+    """
+    Check if email is a valid
+    :param email:
+    :return:
+    """
     email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
     return re.match(email_regex, email)
 
 
 def generate_token(application):
+    """
+    Generate Token
+    :param application:
+    :return:
+    """
     payload = {'application_name': application.name, 'app_id': application.id}
     token = jwt.encode(payload, 'your_secret_key', algorithm='HS256')
     return token
 
 
 def error_response(message, status_code):
+    """
+    Error message
+    :param message:
+    :param status_code:
+    :return:
+    """
     return jsonify({"error": message}), status_code
+
+
+def log_timeline_event(form_container_id, form_id, event, details):
+    """
+    Log in timeline event table
+    :param form_container_id:
+    :param form_id:
+    :param event:
+    :param details:
+    :return:
+    """
+    from api.extensions import db
+    from api.models import TimelineEntry
+
+    timeline_entry = TimelineEntry(
+        form_container_id=form_container_id,
+        form_id=form_id,
+        event=event,
+        details=details,
+        timestamp=datetime.utcnow()
+    )
+    db.session.add(timeline_entry)

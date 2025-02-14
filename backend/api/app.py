@@ -11,7 +11,7 @@ from flask_cors import CORS
 
 def create_app(class_config=Config):
     app = Flask(__name__)
-    CORS(app)
+    CORS(api)
 
     app.config.from_object(Config)
 
@@ -23,7 +23,7 @@ def create_app(class_config=Config):
 
     # Swagger setup
     SWAGGER_URL = Config.SWAGGER_URL
-    API_URL = '/static/swaggerr.yml'
+    API_URL = '/static/swagger.yml'
     swaggerui_blueprint = get_swaggerui_blueprint(SWAGGER_URL, API_URL)
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
@@ -35,5 +35,3 @@ def create_app(class_config=Config):
             db.session.add(new_admin_app)
             db.session.commit()
     return app
-
-

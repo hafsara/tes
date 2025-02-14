@@ -1,0 +1,198 @@
+openapi: 3.0.0
+info:
+  title: API Token Management
+  description: API pour la gestion des tokens API (génération, révocation, rotation, et récupération).
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+    description: Serveur de développement
+paths:
+  /api-tokens:
+    get:
+      summary: Récupérer tous les tokens API
+      description: Retourne une liste de tous les tokens API associés à l'utilisateur authentifié.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Liste des tokens API
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/APIToken'
+        '401':
+          description: Utilisateur non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /revoke-api-token:
+    delete:
+      summary: Révoquer un token API
+      description: Révoque un token API existant en le supprimant de la base de données.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: Le token à révoquer
+              required:
+                - token
+      responses:
+        '200':
+          description: Token révoqué avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Token revoked successfully
+        '401':
+          description: Utilisateur non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Token non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /rotate-api-token:
+    put:
+      summary: Faire tourner un token API
+      description: Génère un nouveau token pour remplacer un ancien token.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                old_token:
+                  type: string
+                  description: L'ancien token à remplacer
+              required:
+                - old_token
+      responses:
+        '200':
+          description: Nouveau token généré avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  newToken:
+                    type: string
+                    description: Le nouveau token généré
+        '401':
+          description: Utilisateur non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Token non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /:
+    post:
+      summary: Générer un nouveau token API
+      description: Crée un nouveau token API avec les informations fournies.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateTokenRequest'
+      responses:
+        '201':
+          description: Token généré avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIToken'
+        '400':
+          description: Données invalides
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Utilisateur non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    APIToken:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Le token API
+        app_names:
+          type: array
+          items:
+            type: string
+          description: Les noms des applications associées au token
+        token_name:
+          type: string
+          description: Le nom du token
+        expiration:
+          type: string
+          format: date-time
+          description: La date d'expiration du token
+        created_at:
+          type: string
+          format: date-time
+          description: La date de création du token
+        created_by:
+          type: string
+          description: L'identifiant de l'utilisateur ayant créé le token
+    GenerateTokenRequest:
+      type: object
+      properties:
+        app_names:
+          type: array
+          items:
+            type: string
+          description: Les noms des applications associées au token
+        token_name:
+          type: string
+          description: Le nom du token
+        expiration:
+          type: integer
+          description: La durée de validité du token en jours (par défaut 7)
+      required:
+        - app_names
+        - token_name
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Le message d'erreur
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

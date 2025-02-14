@@ -1,15 +1,20 @@
 openapi: 3.0.0
 info:
   title: Form Management API
+  description: API pour gérer les applications, campagnes, et conteneurs de formulaires.
   version: 1.0.0
+
 servers:
   - url: http://localhost:5000/api
+    description: Serveur de développement local
+
 components:
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
   schemas:
     Application:
       type: object
@@ -20,11 +25,38 @@ components:
         name:
           type: string
 
+    Campaign:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        app_id:
+          type: string
+          format: uuid
+
+    FormContainer:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        user_email:
+          type: string
+          format: email
+        app_id:
+          type: string
+          format: uuid
+
 paths:
   /applications:
     post:
       tags: [Applications]
-      summary: Create new application
+      summary: Create a new application
       security:
         - BearerAuth: []
       requestBody:
@@ -44,3 +76,229 @@ paths:
               example:
                 message: "Application created successfully"
                 app_id: "550e8400-e29b-41d4-a716-446655440000"
+
+    get:
+      tags: [Applications]
+      summary: Get all applications
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: List of applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Application'
+
+  /campaigns:
+    post:
+      tags: [Campaigns]
+      summary: Create a campaign
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                app_id:
+                  type: string
+                  format: uuid
+      responses:
+        201:
+          description: Campaign created
+          content:
+            application/json:
+              example:
+                message: "Campaign created successfully"
+                campaign_id: 123
+
+  /form-containers:
+    post:
+      tags: [Forms]
+      summary: Create a new form container
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                user_email:
+                  type: string
+                  format: email
+                escalade_email:
+                  type: string
+                  format: email
+                app_id:
+                  type: string
+                  format: uuid
+                campaign_id:
+                  type: integer
+      responses:
+        201:
+          description: Form container created
+          content:
+            application/json:
+              example:
+                container_id: 123
+                form_id: 456
+                access_token: "abc123"
+
+  /form-containers/apps/{app_ids}:
+    get:
+      tags: [Forms]
+      summary: Get form containers by application IDs
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: app_ids
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: List of form containers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FormContainer'
+
+  /form-containers/{access_token}:
+    get:
+      tags: [Forms]
+      summary: Get a form container by access token
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: access_token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Form container details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormContainer'
+
+  /form-containers/{container_id}/forms/{form_id}/validate:
+    post:
+      tags: [Forms]
+      summary: Validate a form container
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: container_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: form_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Form successfully validated
+          content:
+            application/json:
+              example:
+                message: "Form successfully validated."
+
+  /api-tokens:
+    get:
+      tags: [Authentication]
+      summary: Get all API tokens
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: List of API tokens
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                    app_names:
+                      type: array
+                      items:
+                        type: string
+                    expiration:
+                      type: string
+                      format: date-time
+
+  /generate-api-token:
+    post:
+      tags: [Authentication]
+      summary: Generate a new API token
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                app_names:
+                  type: array
+                  items:
+                    type: string
+                token_name:
+                  type: string
+                expiration:
+                  type: integer
+                  description: Number of days before expiration
+      responses:
+        201:
+          description: API token generated
+          content:
+            application/json:
+              example:
+                api_token: "generated_api_token_here"
+
+  /revoke-api-token:
+    delete:
+      tags: [Authentication]
+      summary: Revoke an API token
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+      responses:
+        200:
+          description: Token revoked
+          content:
+            application/json:
+              example:
+                message: "Token revoked successfully"

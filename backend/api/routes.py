@@ -1,19 +1,18 @@
 import uuid
 
-from flask import Blueprint, jsonify, request
-from win32con import FALSE
+from flask import Blueprint
 
 from api.models import FormContainer, Form, Question, TimelineEntry, Response, Application, Campaign, \
     ConnectionLog, \
     APIToken
 from datetime import datetime, timedelta
-from .extensions import db
+from api.extensions import db
 from functools import wraps
 from flask import request, jsonify
 
 import jwt
 
-from .helpers.tools import get_eq_emails, generate_token, error_response
+from api.helpers.tools import get_eq_emails, generate_token, error_response
 from workflow.email_manager import MailManager
 
 api = Blueprint('api', __name__)
@@ -24,6 +23,8 @@ def authenticate_request():
     try:
 
         auth_header = request.headers.get('Authorization')
+        print(auth_header)
+
         if auth_header:
             token = auth_header.split(" ")[1] if " " in auth_header else auth_header
             decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
@@ -562,6 +563,7 @@ def update_application(app_id):
 
 
 @api.route('/campaigns/<int:campaign_id>', methods=['DELETE'])
+@require_user_token
 def delete_campaign(campaign_id):
     """Delete a campaign"""
     campaign = Campaign.query.get_or_404(campaign_id)
@@ -700,11 +702,12 @@ def revoke_api_token():
     return jsonify({"message": "Token revoked successfully"}), 200
 
 
-@api.route('/api-tokens', methods=['GET'])
+@api.route('/api-tokens', methods=['GET', 'OPTIONS'])
 def get_api_tokens():
     user_id = getattr(request, 'user_id', None)
 
     if not user_id:
+        print(user_id)
         return jsonify({"error": "User not authenticated"}), 401
 
     tokens = APIToken.query.all()
