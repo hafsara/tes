@@ -54,7 +54,9 @@
             <p-card header="{{ formContainer.title }}" class="card-background">
               <div class="card">
                 <p-fieldset legend="Description">
-                  <markdown [data]="markdownDescription"></markdown>
+                  <div class="description-scroll-container">
+                    <markdown [data]="markdownDescription" class="markdown-table"></markdown>
+                  </div>
                 </p-fieldset>
               </div>
             </p-card>

@@ -92,4 +92,41 @@
 .info-text {
   margin-bottom: 0.5rem;
   color: #333;
-  }
+}
+
+.description-scroll-container {
+  max-height: 300px;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 5px;
+  box-sizing: border-box;
+  position: relative;
+  background-color: #fff;
+}
+
+.markdown-table table {
+  min-width: 1200px;
+  border-collapse: collapse;
+}
+
+.markdown-table th, .markdown-table td {
+  border: 1px solid #ddd;
+  padding: 6px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.markdown-table th {
+  background-color: #f3f4f6;
+  font-weight: bold;
+}
+
+.content-container {
+  margin-left: 260px;
+  padding: 20px;
+  flex: 1;
+  box-sizing: border-box;
+  overflow-x: visible;
+}
