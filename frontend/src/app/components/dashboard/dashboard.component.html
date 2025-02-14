@@ -8,7 +8,8 @@
     (menuItemSelected)="selectMenuItem($event)"
     (createFormClicked)="navigateToCreateForm()">
   </app-sidebar>
-  <div class="content-container content" [ngSwitch]="currentView">
+  <div class="content-container content" [ngClass]="{'questions-view': currentView === 'questions'}"
+       [ngSwitch]="currentView">
     <div *ngSwitchCase="'table'">
       <app-form-table
         [forms]="forms"

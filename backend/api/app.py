@@ -14,7 +14,7 @@ def create_app(class_config=Config):
     CORS(app)
 
     app.config.from_object(Config)
-
+    # app.url_map.strict_slashes = False
     db.init_app(app)
     migrate = Migrate(app, db)
 

@@ -90,10 +90,13 @@ p-button {
 }
 
 .content-container {
-    margin-left: 260px;
-    padding: 20px;
-    flex: 1;
-    max-width: calc(100vw - 260px);
+  margin-left: 260px;
+  padding: 20px;
+  flex: 1;
+  max-width: calc(100vw - 260px);
+
+  &.questions-view {
     overflow-x: auto;
     box-sizing: border-box;
+  }
 }
