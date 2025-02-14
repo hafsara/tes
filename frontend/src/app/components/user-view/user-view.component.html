@@ -20,8 +20,8 @@
       <p-card header="{{ formData.title }}" class="card-background">
         <div class="card">
           <p-fieldset legend="Description" class="scrollable-table-container">
-            <div class="table-wrapper description-scroll-container">
-              <markdown [data]="markdownDescription"></markdown>
+            <div class="responsive-table-container">
+              <markdown [data]="markdownDescription" class="markdown-table"></markdown>
             </div>
           </p-fieldset>
         </div>

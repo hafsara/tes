@@ -185,7 +185,9 @@
             </div>
             <div class="mb-3">
               <label class="font-bold">Description:</label>
-              <markdown [data]="formContainer.description"></markdown>
+              <div class="responsive-table-container">
+                <markdown [data]="formContainer.description" class="markdown-table"></markdown>
+              </div>
             </div>
 
             <h5>Form preview :</h5>
