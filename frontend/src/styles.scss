@@ -173,30 +173,46 @@ input:focus, textarea:focus, .p-dropdown:focus, .p-inputnumber:focus {
     cursor: pointer;
 }
 
-.markdown-table table {
-  border-collapse: collapse;
-  width: 100%;
-  border: 2px solid #333;
-}
-
-.markdown-table th, .markdown-table td {
-  border: 1px solid #333;
-  padding: 8px;
-  text-align: left;
-}
-
-.markdown-table th {
-  background-color: #f2f2f2;
-  font-weight: bold;
-}
-
 .responsive-table-container {
   max-height: 500px;
   width: 100%;
   overflow-x: auto;
   overflow-y: auto;
-  border: 1px solid #ccc;
   padding: 5px;
   box-sizing: border-box;
   background-color: #fff;
+}
+
+.markdown-table table {
+  border-collapse: collapse;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.markdown-table th, .markdown-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.markdown-table th {
+  background-color: var(--highlight-bg);
+  color: #333;
+  font-weight: 600;
+}
+
+.markdown-table tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.markdown-table tr:hover {
+  background-color: var(--highlight-bg);
+}
+
+.markdown-table td {
+  font-size: 0.95rem;
+  color: #444;
 }
