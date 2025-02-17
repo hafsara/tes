@@ -9,7 +9,8 @@ export const sSOGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   const ssoToken = authService.getToken();
-
+        const currentPath = route.routeConfig?.path;
+        console.error('dfghjk', currentPath);
   if (ssoToken) {
       const decodedToken = authService.decodeToken(ssoToken);
       sharedService.setUserInfo({
@@ -21,9 +22,19 @@ export const sSOGuard: CanActivateFn = (route, state) => {
   } else {
     const accessToken = route.paramMap.get('access_token');
     if (accessToken) {
-      router.navigate(['/auth'], { queryParams: { accessToken } });
+        const currentPath = route.routeConfig?.path;
+        if (currentPath?.startsWith('user-view')) {
+            console.error('Route détectée : user-view');
+            router.navigate(['/auth'], { queryParams: { accessToken, view: 'user' } });
+        } else if (currentPath?.includes('dashboard') && currentPath?.includes('load-form')) {
+            console.error('Route détectée : dashboard/load-form');
+            router.navigate(['/auth'], { queryParams: { accessToken, view: 'dashboard' } });
+        } else {
+            console.warn('Route inconnue');
+            router.navigate(['/auth'], { queryParams: { accessToken } });
+        }
     } else {
-      router.navigate(['/auth']);
+        router.navigate(['/auth']);
     }
     return false;
   }
