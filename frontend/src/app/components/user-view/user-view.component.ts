@@ -56,7 +56,7 @@ export class UserViewComponent implements OnInit {
           this.historyForms = this.formData.forms.filter((form: any) => form.status === 'unsubstantial');
           this.currentForm = this.formData.forms.find((form: any) => form.status !== 'unsubstantial');
           const formStatus = this.currentForm?.status;
-          if (this.formData.validated || formStatus === 'canceled') {
+          if (this.formData.validated && new Date(this.formData.archive_at) <= new Date() || formStatus === 'canceled') {
             this.router.navigate(['/404']);
           } else if (formStatus === 'answered' || formStatus === 'unsubstantial') {
             this.isSubmitted = true;

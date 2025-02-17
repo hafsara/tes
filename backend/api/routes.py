@@ -16,6 +16,8 @@ import jwt
 from .helpers.tools import get_eq_emails, generate_token
 from workflow.email_manager import MailManager
 
+from api.schemas import FormContainerSchema
+
 api = Blueprint('api', __name__)
 
 
@@ -158,8 +160,6 @@ def create_campaign():
 @api.route('/form-containers', methods=['POST'])
 @require_valid_app_ids(param_name='app_id', source="json", allow_multiple=False)
 def create_form_container():
-    from workflow.tasks import WorkflowManager
-
     data = request.json
     user_id = getattr(request, 'user_id', None)
 
@@ -210,11 +210,7 @@ def create_form_container():
     log_timeline_event(form_container.id, form.id, 'FormContainer created',
                        f'Form container created with title {form_container.title} by {user_id}')
     db.session.commit()
-    #todo get mail_sender from app_id or formcontainer ??
     mail_sender = 'hafsa@test.com'
-    WorkflowManager(mail_sender, form_container.user_email, form_container.cc_emails, form_container.access_token,
-                    form_container.reminder_delay).start_workflow(form.id, form_container.id, form_container.escalate)
-
     return jsonify({
         "container_id": form_container.id,
         "form_id": form.id,
@@ -316,6 +312,10 @@ def get_form_container_by_access_token(access_token):
     return jsonify(result), 200
 
 
+from datetime import datetime, timedelta
+from flask import request, jsonify
+from marshmallow import ValidationError
+
 @api.route('/form-containers/<int:container_id>/forms/<int:form_id>/validate', methods=['POST'])
 def validate_form_container(container_id, form_id):
     user_id = getattr(request, 'user_id', None)
@@ -336,14 +336,23 @@ def validate_form_container(container_id, form_id):
     if not form:
         return error_response("Form not found", 404)
 
-    form_container.validated = True
+    data = request.json
+    if data.get("archive", False):
+        form_container.archive_at = datetime.utcnow()
+    else:
+        form_container.archive_at = datetime.utcnow() + timedelta(days=90)
+
     form.status = 'validated'
+
+    # Enregistrer l'événement et commit
     log_timeline_event(form_container.id, form.id, 'FormContainer validated',
                        f'Form container validated by {user_id}')
     db.session.commit()
 
-    return jsonify({"message": "Form successfully validated."}), 200
-
+    return jsonify({
+        "message": "Form successfully validated.",
+        "archive_at": form_container.archive_at
+    }), 200
 
 @api.route('/form-containers/<int:form_container_id>/timeline', methods=['GET'])
 def get_form_container_timeline(form_container_id):

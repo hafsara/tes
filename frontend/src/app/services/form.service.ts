@@ -54,10 +54,10 @@ export class FormService {
   }
 
 
-  validateFormContainer(formContainerId: number, formId: number): Observable<any> {
+  validateFormContainer(formContainerId: number, formId: number, archive:boolean): Observable<any> {
     const headers = this.getAuthHeaders();
     const url = `${this.apiFormContainerUrl}/${formContainerId}/forms/${formId}/validate`;
-    return this.http.post(url, {}, { headers });
+    return this.http.post(url, {archive: archive}, { headers });
   }
 
   addFormToContainer(containerId: number, formData: any): Observable<any> {

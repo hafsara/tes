@@ -81,8 +81,7 @@
                   <div class="button-group">
                     <p-button label="Ask again" class="custom-button" [outlined]="true"
                               (onClick)="verifAddNewForm()"></p-button>
-                    <p-button label="Validate" class="custom-button" [outlined]="true"
-                              (onClick)="validateFormContainer($event)"></p-button>
+                    <p-splitButton   label="Validate" class="custom-button"  [outlined]="true" (onClick)="validateFormContainer($event, false)" [model]="items" />
                   </div>
                 </div>
                 <div class="centered-container-button flex justify-content-end"
@@ -98,7 +97,7 @@
 
         <p-tabPanel header="Timeline" (click)="sidebarVisible=false">
           <ng-template pTemplate="content">
-            <app-timeline [formContainerId]="formContainer.id"></app-timeline>
+            <app-timeline [formContainerId]="formContainer.id" [key]="timelineKey"></app-timeline>
           </ng-template>
         </p-tabPanel>
       </p-tabView>

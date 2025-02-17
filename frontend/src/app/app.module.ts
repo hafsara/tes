@@ -45,7 +45,7 @@ import { ChipsModule } from 'primeng/chips';
 import { FieldsetModule } from 'primeng/fieldset';
 import { AvatarModule } from 'primeng/avatar';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-
+import { SplitButtonModule } from 'primeng/splitbutton';
 import { UserViewComponent } from './components/user-view/user-view.component';
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
 import { CreateFormContainerComponent } from './components/create-form-container/create-form-container.component';
@@ -135,7 +135,8 @@ import { SafeUrlPipe } from './pipes/safe-url.pipe';
     CardModule,
     MenuModule,
     TabViewModule,
-    TimelineModule
+    TimelineModule,
+    SplitButtonModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [MessageService, ConfirmationService, provideHttpClient(withFetch())],

@@ -1,9 +1,10 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { FormService } from '../../services/form.service';
 import { PollingService } from '../../services/polling.service';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MenuItem, ConfirmationService, MessageService } from 'primeng/api';
 import { Question, Form, formatQuestions, createForm } from '../../utils/question-formatter';
 import { Router } from '@angular/router';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-form-container-preview',
@@ -26,14 +27,24 @@ export class FormContainerPreviewComponent implements OnInit, OnDestroy {
   formContainer!: any;
   newFormContainer!: any;
   pollingKey: string = 'formContainerPolling';
+  items: MenuItem[];
+  timelineKey: number = 0;
 
   constructor(
     private formService: FormService,
     private pollingService: PollingService,
     private messageService: MessageService,
     private router: Router,
-    private confirmationService: ConfirmationService
-  ) {}
+    private confirmationService: ConfirmationService,
+    private cdr: ChangeDetectorRef
+  ) {
+this.items = [
+    {
+        label: 'Validate and Archive',
+        command: (event) => this.validateFormContainer(event?.originalEvent as Event, true)
+    }
+];
+  }
 
   ngOnInit(): void {
     this.loadFormContainer();
@@ -119,6 +130,8 @@ export class FormContainerPreviewComponent implements OnInit, OnDestroy {
       this.messageService.clear('refresh-toast');
       this.updateFormContainerDetails();
       this.startPolling();
+      this.timelineKey++;
+      this.cdr.detectChanges();
     }
   }
 
@@ -139,7 +152,7 @@ export class FormContainerPreviewComponent implements OnInit, OnDestroy {
     this.visible = true;
   }
 
-  validateFormContainer(event: Event): void {
+  validateFormContainer(event: Event, archived:boolean): void {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
       message: 'Are you sure that you want to validate?',
@@ -149,14 +162,14 @@ export class FormContainerPreviewComponent implements OnInit, OnDestroy {
       rejectIcon: 'none',
       rejectButtonStyleClass: 'p-button-text',
       accept: () => {
-        this.confirmValidate();
+        this.confirmValidate(archived);
         setTimeout(() => window.location.reload(), 1000);
       },
     });
   }
 
-  confirmValidate(): void {
-    this.formService.validateFormContainer(this.formContainer.id, this.currentForm.form_id).subscribe(
+  confirmValidate(archived: boolean): void {
+    this.formService.validateFormContainer(this.formContainer.id, this.currentForm.form_id, archived).subscribe(
       (response) => {
         this.messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'FormContainer validated', key: 'global-toast'});
       },
