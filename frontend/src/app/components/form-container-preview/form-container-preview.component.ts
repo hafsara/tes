@@ -130,8 +130,6 @@ this.items = [
       this.messageService.clear('refresh-toast');
       this.updateFormContainerDetails();
       this.startPolling();
-      this.timelineKey++;
-      this.cdr.detectChanges();
     }
   }
 

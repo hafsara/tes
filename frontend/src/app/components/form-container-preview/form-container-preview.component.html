@@ -97,8 +97,7 @@
 
         <p-tabPanel header="Timeline" (click)="sidebarVisible=false">
           <ng-template pTemplate="content">
-            <app-timeline [formContainerId]="formContainer.id" [key]="timelineKey"></app-timeline>
-          </ng-template>
+ <app-timeline [formContainer]="formContainer"></app-timeline>          </ng-template>
         </p-tabPanel>
       </p-tabView>
     </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { FormService } from '../../services/form.service';
 import { MessageService } from 'primeng/api';
 
@@ -14,19 +14,25 @@ interface EventItem {
   templateUrl: './timeline.component.html',
   styleUrls: ['./timeline.component.scss']
 })
-export class TimelineComponent implements OnInit {
-  @Input() formContainerId!: number;
+export class TimelineComponent implements OnInit, OnChanges  {
+  @Input() formContainer!: any;
   events: EventItem[] = [];
   formDialogVisible = false;
   selectedForm: any = null;
 
   constructor(private formService: FormService, private messageService: MessageService) {}
-  ngOnInit() {
-    this.loadTimeline();
+
+  ngOnInit(): void {
+      this.loadTimeline();
+  }
+  ngOnChanges(changes: SimpleChanges): void {
+      if (changes['formContainer'] && !changes['formContainer'].firstChange) {
+        this.loadTimeline();
+      }
   }
 
   loadTimeline(){
-      this.formService.getFormContainerTimeline(this.formContainerId).subscribe(
+      this.formService.getFormContainerTimeline(this.formContainer.id).subscribe(
         (data) => {
           this.events = data;
         },
