@@ -3,7 +3,7 @@
     <img src="Logo-BNP-Paribas.jpg" alt="Logo" class="logo-img" /><span style=" font-weight: bold">Fouras</span>
   </div>
   <div class="nav-right">
-    <div class="app-selector">
+    <div *ngIf="hasAvailableApps()" class="app-selector">
       <p-multiSelect
         [options]="appOptions"
         [(ngModel)]="selectedApps"

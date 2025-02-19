@@ -12,12 +12,17 @@ export class AdminPanelComponent {
   appOptions: { name: string; token: string }[] = [];
   selectedTab: string = 'api-tokens';
   swaggerUrl: string = `${environment.apiUrl}/api/docs`;
+  hasApps: boolean = true;
 
   constructor(private sharedService: SharedService) {
   }
 
   onAppOptionsLoaded(options: { name: string; token: string }[]): void {
-    this.appOptions = options;
+    this.appOptions = options.filter(app => app.name !== 'admin');
+    this.hasApps = this.appOptions.length > 0;
+    if (!this.hasApps) {
+      this.selectedTab = 'applications'
+    }
   }
 
   isAuthorized(): boolean {

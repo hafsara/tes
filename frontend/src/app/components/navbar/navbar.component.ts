@@ -120,4 +120,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   navigateToAdminPanel(): void {
     this.router.navigate(['/admin/settings']);
   }
+
+  hasAvailableApps(): boolean {
+    return this.appOptions.length > 0;
+  }
+
 }

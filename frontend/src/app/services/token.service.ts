@@ -84,10 +84,12 @@ export class TokenService {
   }
 
   getAppNames(): { name: string | null; token: string }[] {
-    return this.safeRetrieveTokens().map((token) => {
-      const decoded = this.decodeToken(token);
-      return { name: decoded?.application_name || 'Unknown', token };
-    });
+        return this.safeRetrieveTokens()
+            .map((token) => {
+                const decoded = this.decodeToken(token);
+                return { name: decoded?.application_name || 'Unknown', token };
+            })
+            .filter(app => app.name !== "admin");
   }
 
   public isBrowser(): boolean {
