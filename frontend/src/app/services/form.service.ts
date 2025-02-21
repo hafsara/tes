@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpParams, HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 
@@ -32,8 +32,9 @@ export class FormService {
   submitUserForm(access_token: string, formData: any): Observable<any> {
     const headers = this.getAuthHeaders();
     return this.http.post(
-      `${this.apiFormContainerUrl}/${access_token}/forms/${formData.form_id}/submit-response`,
+      `${this.apiBaseUrl}/forms/${formData.form_id}/submit-response`,
       {
+        access_token: access_token,
         questions: formData.questions.map((q: any) => ({
           id: q.id,
           response: q.response
@@ -47,12 +48,17 @@ export class FormService {
     return this.http.get(`${this.apiFormContainerUrl}/${formContainerId}/timeline`, { headers });
   }
 
-  getFormContainersByStatus(appIds: string, status: string) : Observable<any> {
-    const headers = this.getAuthHeaders();
-    const url = `${this.apiFormContainerUrl}/apps/${appIds}?filter=status&status=${status}`;
-    return this.http.get<any[]>(url, { headers });
+  getFormContainersByStatus(
+      appIds: string,
+      status: string,
+  ): Observable<any> {
+     const headers = this.getAuthHeaders();
+     const params = new HttpParams()
+       .set('app_ids', appIds)
+       .set('filter', 'status')
+       .set('status', status)
+     return this.http.get<any>(`${this.apiFormContainerUrl}`, { headers, params });
   }
-
 
   validateFormContainer(formContainerId: number, formId: number, archive:boolean): Observable<any> {
     const headers = this.getAuthHeaders();
@@ -68,7 +74,7 @@ export class FormService {
 
   validateToken(token: string): Observable<{ is_valid: boolean; token: string | null }> {
     const headers = this.getAuthHeaders();
-    const url = `${this.apiBaseUrl}/validate-token/${token}`;
+    const url = `${this.apiBaseUrl}/applications/validate-token/${token}`;
     return this.http.get<{ is_valid: boolean; token: string | null }>(url, { headers });
   }
 
@@ -90,11 +96,6 @@ export class FormService {
     return this.http.post(url, { comment }, { headers });
   }
 
-  getValidatedFormContainers(appIds: string): Observable<any[]> {
-    const headers = this.getAuthHeaders();
-    return this.http.get<any[]>(`${this.apiFormContainerUrl}/apps/${appIds}/validated`, { headers });
-  }
-
   getFormById(formId: number): Observable<any> {
     const headers = this.getAuthHeaders();
     return this.http.get<any>(`${this.apiBaseUrl}/forms/${formId}`, { headers });
@@ -102,7 +103,9 @@ export class FormService {
 
   getTotalFormsCount(appIds: string): Observable<{ totalCount: number }> {
     const headers = this.getAuthHeaders();
-    return this.http.get<{ totalCount: number }>(`${this.apiBaseUrl}/forms/apps/${appIds}/total-count`, { headers });
+        const params = new HttpParams()
+        .set('app_ids', appIds);
+    return this.http.get<{ totalCount: number }>(`${this.apiFormContainerUrl}/total-count`, { headers, params });
   }
 
   logConnection(payload: any): Observable<any> {
@@ -110,7 +113,7 @@ export class FormService {
     return this.http.post(`${this.apiBaseUrl}/log-connection`, payload,  { headers });
   }
 
-  updateCampaign(campaignId: number, data: { name: string }): Observable<any> {
+  updateCampaign(campaignId: number, data: { name: string, app_id: string }): Observable<any> {
     const headers = this.getAuthHeaders();
     return this.http.put(`${this.apiBaseUrl}/campaigns/${campaignId}`, data, { headers });
   }

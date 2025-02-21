@@ -1,7 +1,9 @@
 import logging
 import re
+from datetime import datetime
 
 import jwt
+from flask import jsonify
 
 # Configuration du logger
 logging.basicConfig(level=logging.INFO)
@@ -16,6 +18,9 @@ ESCALADE_EMAIL_MAPPING = {
     "@CISO": "SELECT * FROM where sent = '0'",
     "@PSIRT": "emea.cib.csirt.and.monitoring@bnpparibas.com"
 }
+
+def error_response(message, status_code):
+    return jsonify({"error": message}), status_code
 
 def search_mail(user_mail, mail):
     """
@@ -82,3 +87,17 @@ def generate_token(application):
     payload = {'application_name': application.name, 'app_id': application.id}
     token = jwt.encode(payload, 'your_secret_key', algorithm='HS256')
     return token
+
+
+def log_timeline_event(form_container_id, form_id, event, details):
+    from api.models import TimelineEntry
+    from api.extensions import db
+
+    timeline_entry = TimelineEntry(
+        form_container_id=form_container_id,
+        form_id=form_id,
+        event=event,
+        details=details,
+        timestamp=datetime.utcnow()
+    )
+    db.session.add(timeline_entry)

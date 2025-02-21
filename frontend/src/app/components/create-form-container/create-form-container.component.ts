@@ -162,7 +162,7 @@ export class CreateFormContainerComponent {
       rejectButtonStyleClass: "p-button-text",
       accept: () => {
         this.submitForm();
-        setTimeout(() => window.location.reload(), 1000);
+        //setTimeout(() => window.location.reload(), 1000);
       }
     });
   }
@@ -177,9 +177,9 @@ export class CreateFormContainerComponent {
       escalade_email: this.formContainer.escaladeEmail,
       reference: this.formContainer.reference,
       escalate: this.formContainer.escalate,
-      reminder_delay_day: this.formContainer.reminderDelayDay,
+      reminder_delay: this.formContainer.reminderDelayDay,
       cc_emails: this.formContainer.ccEmails,
-      forms: { questions: this.formContainer.forms[0].questions }
+      forms: this.formContainer.forms
     };
 
     this.formService.createFormContainer(payload).subscribe(

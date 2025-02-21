@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AdminService {
-  private readonly baseUrl = 'http://localhost:5000';
+  private readonly baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -22,7 +23,7 @@ export class AdminService {
    * @param appData Application data
    * @returns The application created
    */
-  createApplication(appData: { name: string }): Observable<any> {
+  createApplication(appData: { name: string , mail_sender: string}): Observable<any> {
     const headers = this.getAuthHeaders();
     return this.http.post<any>(`${this.baseUrl}/applications`, appData, { headers });
   }
@@ -50,9 +51,9 @@ export class AdminService {
    * @param tokenData Data for the token
    * @returns Generated Token
    */
-  generateToken(tokenData: { app_names: string[]; token_name: string, expiration: number }): Observable<any> {
+  generateToken(tokenData: { app_names: string[]; token_name: string, expiration: Date }): Observable<any> {
     const headers = this.getAuthHeaders();
-    return this.http.post<any>(`${this.baseUrl}/generate-api-token`, tokenData, { headers });
+    return this.http.post<any>(`${this.baseUrl}/api-tokens`, tokenData, { headers });
   }
 
   /**
@@ -62,10 +63,7 @@ export class AdminService {
    */
   revokeToken(token: string): Observable<any> {
     const headers = this.getAuthHeaders();
-    return this.http.delete<any>(`${this.baseUrl}/revoke-api-token`, {
-      headers,
-      body: { token },
-    });
+    return this.http.delete<any>(`${this.baseUrl}/api-tokens/${token}`, {headers});
   }
 
   /**
@@ -73,9 +71,9 @@ export class AdminService {
    * @param old_token Token to regenerate
    * @returns Rotation confirmation
    */
-  rotateToken(old_token: string): Observable<any> {
+  rotateToken(token_name: string): Observable<any> {
     const headers = this.getAuthHeaders();
-    return this.http.put<any>(`${this.baseUrl}/rotate-api-token`, { old_token }, { headers });
+    return this.http.put<any>(`${this.baseUrl}/api-tokens/rotate`, { token_name }, { headers });
   }
 
   /**

@@ -10,9 +10,9 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class AdminCampaignComponent implements OnInit {
   @Input() appOptions: { name: string; token: string }[] = [];
-  campaignOptions: { id: number; name: string; applicationName: string; createdAt: Date; createdBy: string }[] = [];
+  campaignOptions: { id: number; name: string; applicationName: string; appId: string;createdAt: Date; createdBy: string }[] = [];
   loading: boolean = true;
-  selectedCampaign: { id: number; name: string } = { id: 0, name: '' };
+  selectedCampaign: { id: number; name: string; appId:string } = { id: 0, name: '' , appId:''};
   editDialogVisible = false;
 
   constructor(private formService: FormService, private messageService: MessageService, private confirmationService: ConfirmationService) {}
@@ -46,6 +46,7 @@ export class AdminCampaignComponent implements OnInit {
                 id: campaign.id,
                 name: campaign.name,
                 applicationName: app.name,
+                appId: appId,
                 createdAt: campaign.created_at,
                 createdBy: campaign.created_by,
               }))
@@ -77,13 +78,13 @@ export class AdminCampaignComponent implements OnInit {
   }
 
   openEditDialog(campaign: any) {
-    this.selectedCampaign = { id: campaign.id, name: campaign.name };
+    this.selectedCampaign = { id: campaign.id, name: campaign.name, appId: campaign.appId };
     this.editDialogVisible = true;
   }
 
   updateCampaign() {
     if (this.selectedCampaign) {
-      this.formService.updateCampaign(this.selectedCampaign.id, { name: this.selectedCampaign.name }).subscribe({
+      this.formService.updateCampaign(this.selectedCampaign.id, { name: this.selectedCampaign.name, app_id: this.selectedCampaign.appId }).subscribe({
         next: () => {
           const index = this.campaignOptions.findIndex((c) => c.id === this.selectedCampaign.id);
           if (index > -1) {

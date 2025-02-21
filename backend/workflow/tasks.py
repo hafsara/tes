@@ -13,16 +13,18 @@ DAY_SEC = 86400
 
 
 class WorkflowManager:
-    def __init__(self, mail_sender, user_email, cc_emails, access_token, reminder_delay):
-        self.mail_sender = mail_sender
-        self.user_email = user_email
-        self.cc_emails = cc_emails if cc_emails is not None else []
-        self.access_token = access_token
-        self.reminder_delay = reminder_delay
+    def __init__(self, form_container):
+        self.mail_sender = form_container.application.mail_sender
+        self.user_email = form_container.user_email
+        self.cc_emails = form_container.cc_emails if form_container.cc_emails is not None else []
+        self.access_token = form_container.access_token
+        self.reminder_delay = form_container.reminder_delay
+        self.escalate = form_container.escalate
+        self.container_id = form_container.id
         self.tasks = []
 
-    def start_workflow(self, form_id, container_id, escalate):
-        logger.info(f"Starting workflow for form {form_id} and container {container_id}")
+    def start_workflow(self, form_id):
+        logger.info(f"Starting workflow for form {form_id} and container {self.container_id}")
         MailManager.send_email(
             self.mail_sender,
             self.user_email,
@@ -34,11 +36,11 @@ class WorkflowManager:
         for i in range(1, MAX_REMINDERS + 1):
             self.tasks.append(
                 send_reminder_task.si(
-                    self.mail_sender, form_id, container_id, i
+                    self.mail_sender, form_id, self.container_id, i
                 ).set(countdown=i * self.reminder_delay * DAY_SEC)
             )
 
-        if escalate:
+        if self.escalate:
             self.tasks.append(
                 escalate_task.si(
                     self.mail_sender, form_id, container_id

@@ -49,7 +49,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   updateStatus(newStatus: string): void {
     this.status = newStatus;
     this.currentView = 'loading';
-    newStatus === 'validated' ? this.loadValidatedForms() : this.switchTo('table');
+    this.switchTo('table');
     this.location.go('/dashboard');
   }
 
@@ -58,7 +58,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       const appIds = this.selectedApps.join(',');
       this.loadForms(appIds, this.status);
     } else {
-      this.forms = []
+      this.forms = [];
       this.totalCount = 0;
     }
   }
@@ -72,21 +72,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.checkAndLoadForms();
   }
 
-  loadForms(appIds:string, status: string): void {
+  loadForms(appIds: string, status: string): void {
     this.fetchTotalCount(appIds);
     this.formService.getFormContainersByStatus(appIds, status).subscribe(
       (data) => {
-        this.forms = data;
-      }
-    );
-  }
-
-  loadValidatedForms(): void {
-    const appIds = this.selectedApps.join(',');
-    this.formService.getValidatedFormContainers(appIds).subscribe(
-      (data) => {
-        this.forms = data;
-        this.currentView = 'table';
+        this.forms = data.form_containers;
       }
     );
   }
@@ -116,12 +106,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       'tablePolling',
       15000,
       () => {
-      const appIds = this.selectedApps.join(',');
-      if (!appIds) {
-        return Promise.resolve([]);
-      }
-      return this.fetchForms(appIds);
-    },
+        const appIds = this.selectedApps.join(',');
+        if (!appIds) {
+          return Promise.resolve({ total: 0, form_containers: [] });
+        }
+        return this.fetchForms(appIds);
+      },
       (newData) => this.updateForms(newData)
     );
   }
@@ -130,14 +120,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.pollingService.stopPolling('tablePolling');
   }
 
-  private fetchForms(appIds: string): Promise<any[]> {
-    return this.formService.getFormContainersByStatus(appIds, this.status).toPromise();
+  private fetchForms(appIds: string): Promise<{ total: number; form_containers: any[] }> {
+    return this.formService.getFormContainersByStatus(appIds, this.status)
+      .toPromise()
+      .then(response => ({
+        total: response.total,
+        form_containers: response.form_containers || []
+      }))
+      .catch(() => ({ total: 0, form_containers: [] }));
   }
 
-  private updateForms(newData: any[]): void {
-    if (newData.length !== this.forms.length) {
-      this.forms = newData;
+  private updateForms(newData: { total: number; form_containers: any[] }): void {
+    if (newData.form_containers.length !== this.forms.length) {
+      this.forms = newData.form_containers;
     }
+    this.totalCount = newData.total;
   }
 
   fetchTotalCount(appIds: string): void {

@@ -18,6 +18,7 @@ export class SidebarComponent {
   onCreateFormClick(): void {
     this.createFormClicked.emit();
   }
+
   initializeMenuItems(): void {
     this.menuItems = [
       { label: 'To be checked', icon: 'pi pi-check-square', command: () => this.updateStatus('answered') },
@@ -28,9 +29,11 @@ export class SidebarComponent {
       { label: 'Canceled', icon: 'pi pi-times-circle', command: () => this.updateStatus('canceled') },
     ];
   }
-   updateStatus(status: string): void{
+
+  updateStatus(status: string): void {
    this.status = status
-    }
+  }
+
   selectMenuItem(index: number): void {
     this.selectedMenuItem = index;
     this.menuItems[index].command();

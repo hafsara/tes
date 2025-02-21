@@ -5,7 +5,7 @@ import requests
 from flask import Blueprint, request, jsonify, redirect, url_for, session
 
 # Création du Blueprint
-auth_bp = Blueprint('auth', __name__)
+auth_bp = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
 
 
 # Route pour démarrer l'authentification

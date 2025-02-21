@@ -76,6 +76,7 @@ export class AdminApplicationsComponent {
 
     const newApp = {
       name: this.newAppName,
+      mail_sender: 'test@ttt.com'
     };
 
     this.adminService.createApplication(newApp).subscribe(

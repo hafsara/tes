@@ -10,7 +10,6 @@ export const sSOGuard: CanActivateFn = (route, state) => {
 
   const ssoToken = authService.getToken();
         const currentPath = route.routeConfig?.path;
-        console.error('dfghjk', currentPath);
   if (ssoToken) {
       const decodedToken = authService.decodeToken(ssoToken);
       sharedService.setUserInfo({

@@ -1,30 +1,18 @@
 openapi: 3.0.0
 info:
-  title: Form Management API
+  title: API Token Management
+  description: API for managing application tokens
   version: 1.0.0
+
 servers:
-  - url: http://localhost:5000/api
-components:
-  securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-  schemas:
-    Application:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
+  - url: http://localhost:5000/api/v1
 
 paths:
-  /applications:
+  /form-containers:
     post:
-      tags: [Applications]
-      summary: Create new application
+      summary: Create a new form container
+      tags:
+        - Form Containers
       security:
         - BearerAuth: []
       requestBody:
@@ -32,15 +20,954 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
+              $ref: "#/components/schemas/FormContainerCreate"
       responses:
-        201:
-          description: Application created
+        "201":
+          description: Form container created successfully
           content:
             application/json:
-              example:
-                message: "Application created successfully"
-                app_id: "550e8400-e29b-41d4-a716-446655440000"
+              schema:
+                type: object
+                properties:
+                  container_id:
+                    type: integer
+                    example: 1
+                  form_id:
+                    type: integer
+                    example: 10
+                  access_token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1..."
+        "400":
+          description: Invalid request data
+        "401":
+          description: Unauthorized
+
+    get:
+      summary: Retrieve all form containers
+      tags:
+        - Form Containers
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: app_ids
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Comma-separated list of application IDs
+        - name: filter
+          in: query
+          schema:
+            type: string
+          description: Filter type (e.g., "status")
+        - name: status
+          in: query
+          schema:
+            type: string
+          description: Status of the form containers (e.g., "open", "reminder", "escalate")
+        - name: sort
+          in: query
+          schema:
+            type: string
+            default: "desc"
+          description: "Sorting order (default: desc)"
+      responses:
+        "200":
+          description: List of form containers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    example: 15
+                  form_containers:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FormContainer"
+        "401":
+          description: Unauthorized
+
+  /form-containers/{access_token}:
+    get:
+      summary: Retrieve form container details by access token
+      tags:
+        - Form Containers
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: access_token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Form container details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FormContainer"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Form container not found
+
+  /form-containers/{container_id}/forms/{form_id}/validate:
+    post:
+      summary: Validate a form container
+      tags:
+        - Form Containers
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: container_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: form_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                archive:
+                  type: boolean
+                  example: true
+      responses:
+        "200":
+          description: Form successfully validated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Form successfully validated."
+                  archive_at:
+                    type: string
+                    format: date-time
+                    example: "2025-03-01T12:00:00Z"
+        "401":
+          description: Unauthorized
+        "400":
+          description: Form container already validated
+
+  /form-containers/{container_id}/forms/{form_id}/cancel:
+    post:
+      summary: Cancel a form
+      tags:
+        - Form Containers
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: container_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: form_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                  example: "User no longer interested."
+      responses:
+        "200":
+          description: Form successfully canceled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Form canceled successfully."
+                  form_id:
+                    type: integer
+                    example: 10
+                  comment:
+                    type: string
+                    example: "User no longer interested."
+        "401":
+          description: Unauthorized
+        "400":
+          description: Form cannot be canceled
+
+  /forms/{form_id}:
+    get:
+      summary: Retrieve a form by its ID
+      tags:
+        - Forms
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: app_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Application ID
+        - name: form_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Form details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FormResponse"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Form not found
+
+  /forms/{form_id}/submit-response:
+    post:
+      summary: Submit a response to a form
+      tags:
+        - Forms
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: form_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FormSubmissionRequest"
+      responses:
+        "200":
+          description: Response submitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Response submitted successfully"
+        "401":
+          description: Unauthorized or Form already answered
+        "404":
+          description: Form or Question not found
+
+  /applications:
+    post:
+      summary: Create a new application
+      tags:
+        - Applications
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationCreateRequest"
+      responses:
+        "201":
+          description: Application created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Application created successfully"
+                  app_id:
+                    type: string
+                    example: "123e4567-e89b-12d3-a456-426614174000"
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized
+
+    get:
+      summary: Retrieve all applications
+      tags:
+        - Applications
+      security:
+        - BearerAuth: [ ]
+      responses:
+        "200":
+          description: List of applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApplicationResponse"
+        "401":
+          description: Unauthorized
+
+  /applications/{app_id}:
+    put:
+      summary: Update an application
+      tags:
+        - Applications
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: app_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationUpdateRequest"
+      responses:
+        "200":
+          description: Application updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Application updated successfully"
+                  app_token:
+                    type: string
+                    example: "123e4567-e89b-12d3-a456-426614174000"
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized
+        "404":
+          description: Application not found
+
+  /applications/log-connection:
+    post:
+      summary: Log a user's connection to an application
+      tags:
+        - Applications
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConnectionLogRequest"
+      responses:
+        "201":
+          description: Connection log added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Connection log added successfully"
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized
+
+  /applications/validate-token/{token}:
+    get:
+      summary: Validate an application token
+      tags:
+        - Applications
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Token is valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  is_valid:
+                    type: boolean
+                    example: true
+                  token:
+                    type: string
+                    example: "newly_generated_token_here"
+        "401":
+          description: Invalid token
+
+  /api-tokens:
+    post:
+      summary: Generate a new API token
+      tags:
+        - API Tokens
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/APITokenRequest"
+      responses:
+        "201":
+          description: Token created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APITokenResponse"
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized
+
+    get:
+      summary: Retrieve all API tokens
+      tags:
+        - API Tokens
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of API tokens
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/APITokenResponse"
+        "401":
+          description: Unauthorized
+
+  /campaigns:
+    post:
+      summary: Create a new campaign
+      tags:
+        - Campaigns
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CampaignCreateRequest"
+      responses:
+        "201":
+          description: Campaign created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Campaign created successfully"
+                  campaign_id:
+                    type: integer
+                    example: 1
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized
+
+  /campaigns/{app_id}:
+    get:
+      summary: Retrieve all campaigns linked to a specific application ID
+      tags:
+        - Campaigns
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: app_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of campaigns for the given application ID
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CampaignResponse"
+        "401":
+          description: Unauthorized
+
+  /campaigns/{campaign_id}:
+    put:
+      summary: Update a campaign name
+      tags:
+        - Campaigns
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CampaignUpdateRequest"
+      responses:
+        "200":
+          description: Campaign updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Campaign updated successfully"
+                  campaign_id:
+                    type: integer
+                    example: 1
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized
+        "404":
+          description: Campaign not found
+
+    delete:
+      summary: Delete a campaign by ID
+      tags:
+        - Campaigns
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CampaignDeleteRequest"
+      responses:
+        "200":
+          description: Campaign deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Campaign deleted successfully"
+                  campaign_id:
+                    type: integer
+                    example: 1
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized
+        "404":
+          description: Campaign not found
+
+  /api-tokens/{token}:
+    delete:
+      summary: Revoke an API token
+      tags:
+        - API Tokens
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Token revoked successfully
+        "401":
+          description: Unauthorized
+        "404":
+          description: Token not found
+
+  /api-tokens/rotate:
+    put:
+      summary: Rotate an API token
+      tags:
+        - API Tokens
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/APITokenRotateRequest"
+      responses:
+        "200":
+          description: Token rotated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  new_token:
+                    type: string
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized
+        "404":
+          description: Token not found
+
+components:
+  schemas:
+    FormContainerCreate:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Feedback Form"
+        description:
+          type: string
+          example: "A survey form to collect feedback"
+        user_email:
+          type: string
+          format: email
+          example: "user@example.com"
+        escalate:
+          type: boolean
+          example: false
+        reminder_delay:
+          type: integer
+          example: 5
+        app_id:
+          type: string
+          example: "700679c8-c988-4335-a0bf-d2a54e9f2e36"
+        campaign_id:
+          type: integer
+          example: 2
+        forms:
+          type: array
+          items:
+            type: object
+            properties:
+              questions:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Question"
+
+    FormContainer:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Feedback Form"
+        description:
+          type: string
+          example: "A survey form to collect feedback"
+        user_email:
+          type: string
+          format: email
+          example: "user@example.com"
+        escalade_email:
+          type: string
+          format: email
+          example: "admin@example.com"
+        escalate:
+          type: boolean
+          example: false
+        validated:
+          type: boolean
+          example: false
+        reminder_delay:
+          type: integer
+          example: 5
+        app_id:
+          type: string
+          example: "700679c8-c988-4335-a0bf-d2a54e9f2e36"
+        campaign_id:
+          type: integer
+          example: 2
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:00:00Z"
+
+
+    ApplicationCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "MyApplication"
+        mail_sender:
+          type: string
+          example: "no-reply@myapp.com"
+      required:
+        - name
+
+    ApplicationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          example: "MyApplication"
+        created_by:
+          type: string
+          example: "user123"
+        mail_sender:
+          type: string
+          example: "no-reply@myapp.com"
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:00:00Z"
+
+    ApplicationUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "UpdatedAppName"
+        new_mail_sender:
+          type: string
+          example: "updated-email@myapp.com"
+        generate_new_id:
+          type: boolean
+          example: true
+
+    ConnectionLogRequest:
+      type: object
+      properties:
+        app_ids:
+          type: array
+          items:
+            type: string
+          example: ["app-name", "another-app"]
+      required:
+        - app_ids
+
+    CampaignCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Marketing Campaign"
+        app_id:
+          type: string
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      required:
+        - name
+        - app_id
+
+    CampaignResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Marketing Campaign"
+        app_id:
+          type: string
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        created_by:
+          type: string
+          example: "user123"
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:00:00Z"
+
+    CampaignUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Updated Campaign Name"
+        app_id:
+          type: string
+          example: "123e4567-e89b-12d3-a456-426614174000"
+
+    CampaignDeleteRequest:
+      type: object
+      properties:
+        app_id:
+          type: string
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      required:
+        - app_id
+
+    APITokenRequest:
+      type: object
+      properties:
+        token_name:
+          type: string
+          example: "MyAppToken"
+        app_names:
+          type: array
+          items:
+            type: string
+          example: ["App1", "App2"]
+        expiration:
+          type: string
+          format: date-time
+          example: "2025-12-31T23:59:59Z"
+      required:
+        - token_name
+        - app_names
+        - expiration
+
+    APITokenResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        token_name:
+          type: string
+          example: "MyAppToken"
+        app_names:
+          type: array
+          items:
+            type: string
+          example: ["App1", "App2"]
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR..."
+        created_by:
+          type: string
+          example: "user123"
+        expiration:
+          type: string
+          format: date-time
+          example: "2025-12-31T23:59:59Z"
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:00:00Z"
+
+    APITokenRotateRequest:
+      type: object
+      properties:
+        token_name:
+          type: string
+          example: "MyAppToken"
+      required:
+        - token_name
+
+    FormResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Customer Feedback Form"
+        description:
+          type: string
+          example: "A survey form to collect customer feedback."
+        status:
+          type: string
+          example: "open"
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:00:00Z"
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Question"
+
+    FormSubmissionRequest:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: "eyJhbGciOi..."
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Answer"
+
+    Question:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        label:
+          type: string
+          example: "What is your favorite color?"
+        type:
+          type: string
+          example: "text"
+        options:
+          type: array
+          items:
+            type: string
+          example: ["Red", "Blue", "Green"]
+
+    Answer:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        response:
+          type: string
+          example: "Blue"
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

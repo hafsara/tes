@@ -63,12 +63,12 @@ export class AdminTokensComponent implements OnInit {
     const tokenData = {
       token_name: this.newToken.token_name,
       app_names: this.newToken.app_names,
-      expiration: this.newToken.expiration,
+      expiration: new Date(Date.now() + this.newToken.expiration * 24 * 60 * 60 * 1000)
     };
 
     this.adminService.generateToken(tokenData).subscribe({
       next: (response) => {
-          this.newTokenJwt = response.api_token;
+          this.newTokenJwt = response.token;
           this.displayTokenDialog = true;
           this.loadTokens();
       },
@@ -103,13 +103,13 @@ export class AdminTokensComponent implements OnInit {
       );
   }
 
-  confirmRotateToken(oldToken: string): void {
+  confirmRotateToken(tokenName: string): void {
     this.confirmationService.confirm({
       message: 'Are you sure you want to rotate this token?',
       header: 'Confirm Rotation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.rotateToken(oldToken);
+        this.rotateToken(tokenName);
       },
     });
   }
@@ -126,17 +126,17 @@ export class AdminTokensComponent implements OnInit {
     });
  }
 
- rotateToken(oldToken: string): void {
-   this.adminService.rotateToken(oldToken).subscribe({
+ rotateToken(tokenName: string): void {
+   this.adminService.rotateToken(tokenName).subscribe({
         next: (response) => {
-          this.newTokenJwt = response.newToken;
+          this.newTokenJwt = response.new_token;
           this.displayTokenDialog = true;
 
-          const tokenIndex = this.tokens.findIndex((token) => token.token === oldToken);
+          const tokenIndex = this.tokens.findIndex((token) => token.token_name === tokenName);
           if (tokenIndex !== -1) {
             this.tokens[tokenIndex] = {
               ...this.tokens[tokenIndex],
-              token: response.newToken
+              token: response.new_token
             };
           }
         },

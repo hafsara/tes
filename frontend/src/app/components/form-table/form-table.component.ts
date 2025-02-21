@@ -16,9 +16,7 @@ export class FormTableComponent {
   minDate: Date = new Date(new Date().setFullYear(new Date().getFullYear() - 1));
   maxDate: Date = new Date();
 
-  constructor(
-    private location: Location
-    ) { }
+  constructor(private location: Location) { }
 
   filterGlobal(table: Table, event: Event): void {
     const input = event.target as HTMLInputElement;
