@@ -82,3 +82,18 @@ def get_users_emails():
         "user_id": "fff", "email": "test1@hafsa.com", "manager_email": "manager-test1@hafsa.com", "full_name": 'test RAII'}]
     return jsonify(emails), 200
 
+@form_bp.route('/users', methods=['GET'])
+def get_users():
+    search_query = request.args.get('search', '').strip().lower()
+
+    if len(search_query) < 3:
+        return jsonify([])  # Pas de recherche si < 3 caractères
+
+    emails = [{"user_id": "d76476", "email": "test@hafsa.com", "manager_email": "manager-test@hafsa.com", 'full_name': 'hafsa raii'}, {
+        "user_id": "fff", "email": "test1@hafsa.com", "manager_email": "manager-test1@hafsa.com", "full_name": 'test RAII'}]
+
+
+    return jsonify([
+        {"email": user["email"], "user_id": user["user_id"], "manager_email": user["manager_email"], "full_name": user["full_name"]}
+        for user in emails
+    ])

@@ -124,7 +124,6 @@ class FormContainerDetailSchema(SQLAlchemyAutoSchema):
     title = fields.Str(required=True, validate=validate.Length(max=255))
     description = fields.Str(required=True, validate=validate.Length(max=1024))
     user_email = fields.Email(required=True)
-    escalade_email = fields.Email(allow_none=True)
     reference = fields.Str(allow_none=True, validate=validate.Length(max=255))
     cc_emails = fields.List(fields.Email(), allow_none=True)
     escalate = fields.Boolean(default=False)
@@ -135,12 +134,13 @@ class FormContainerDetailSchema(SQLAlchemyAutoSchema):
     app_name = fields.Method("get_app_name")
     campaign_name = fields.Method("get_campaign_name")
     forms = fields.Nested(FormSchemaSQL, many=True)
+    escalade_email = fields.Str(required=False)
 
     @validates("escalade_email")
     def validate_escalade_email(self, value):
-        if value == "":
-            return None
-        return value
+        if value and "@" not in value:
+            raise ValidationError("Not a valid email address")
+
 
     def get_app_name(self, obj):
         return obj.application.name if obj.application else None
@@ -194,7 +194,6 @@ class FormContainerSchema(Schema):
     title = fields.Str(required=True, validate=validate.Length(max=255))
     description = fields.Str(required=True, validate=validate.Length(max=1024))
     user_email = fields.Email(required=True)
-    escalade_email = fields.Email(allow_none=True)
     cc_emails = fields.List(fields.Email(), required=False)
     reference = fields.Str(allow_none=True)
     escalate = fields.Bool(default=False)
@@ -207,7 +206,12 @@ class FormContainerSchema(Schema):
     campaign_id = fields.Int(allow_none=True)
     archived_at = fields.DateTime(allow_none=True)
     forms = fields.List(fields.Nested(FormSchema), required=True)
+    escalade_email = fields.Str(required=False)
 
+    @validates("escalade_email")
+    def validate_escalade_email(self, value):
+        if value and "@" not in value:
+            raise ValidationError("Not a valid email address")
 
 class TimelineEntrySchema(SQLAlchemyAutoSchema):
     """

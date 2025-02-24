@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormService } from '../../services/form.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { FormContainer, Form, Question } from '../../utils/question-formatter';
@@ -11,7 +11,7 @@ import { environment } from '../../../environments/environment';
   templateUrl: './create-form-container.component.html',
   styleUrls: ['./create-form-container.component.scss']
 })
-export class CreateFormContainerComponent implements OnInit {
+export class CreateFormContainerComponent {
   @Input() appOptions: { name: string; token: string }[] = [];
   currentStep: number = 0;
   showErrors = false;
@@ -42,7 +42,6 @@ export class CreateFormContainerComponent implements OnInit {
     }]
   };
 
-  users: { email: string; user_id: string; manager_email: string, full_name: string }[] = [];
   filteredEmails: any [] = [];
 
   selectedCampaign: string | undefined;
@@ -57,10 +56,6 @@ export class CreateFormContainerComponent implements OnInit {
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
   ) {}
-
-  ngOnInit() {
-    this.loadEmails();
-  }
 
   onAppChange(event: any) {
     this.appSelected = true;
@@ -120,6 +115,7 @@ export class CreateFormContainerComponent implements OnInit {
   validateCurrentStep(): boolean {
     if (this.currentStep === 0) {
       const isEmailValid = this.emailPattern.test(this.formContainer.userEmail || '');
+      const isManagerEmailValid = !this.formContainer.escalate || this.isManagerEmailValid();
 
       return (
         this.formContainer.appId !== '' &&
@@ -127,7 +123,7 @@ export class CreateFormContainerComponent implements OnInit {
         this.formContainer.title.trim() !== '' &&
         this.formContainer.description.trim() !== '' &&
         isEmailValid &&
-        this.isManagerEmailValid() &&
+        isManagerEmailValid &&
         this.validateCcEmails()
       );
     } else if (this.currentStep === 1) {
@@ -227,33 +223,35 @@ export class CreateFormContainerComponent implements OnInit {
     );
   }
 
-  loadEmails(): void {
-    this.formService.getUsersList().subscribe(users => {
-      this.users = users.map((user : { email: string; user_id: string; manager_email: string, full_name: string }) => ({
-        email: user.email,
-        user_id: user.user_id,
-        manager_email: user.manager_email,
-        full_name: user.full_name
-      }));
-    });
-  }
-
   filterEmails(event: any): void {
-    const query = event.query.toLowerCase();
-    this.filteredEmails = this.users
-      .filter(user =>
-        user.email.toLowerCase().includes(query) ||
-        user.user_id.toLowerCase().includes(query)
-      )
-      .map(user => ({
+    const query = event.query.trim().toLowerCase();
+    if (query.length < 3) {
+      this.filteredEmails = [];
+      return;
+    }
+
+    this.formService.getUsersList(query).subscribe(users => {
+      this.filteredEmails = users.map((user: { email: string; user_id: string; manager_email: string, full_name: string }) => ({
         label: `${user.full_name} - ${user.email}`,
         email: user.email,
         manager_email: user.manager_email
       }));
+    });
   }
 
   selectUser(event: any): void {
     this.formContainer.userEmail = event.value.email;
     this.formContainer.escaladeEmail = event.value.manager_email || '';
+  }
+
+  set escalate(value: boolean) {
+    this.formContainer.escalate = value;
+    if (!value) {
+      this.formContainer.escaladeEmail = '';
+    }
+  }
+
+  get escalate(): boolean {
+    return this.formContainer.escalate;
   }
 }
