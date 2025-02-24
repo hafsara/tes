@@ -43,7 +43,7 @@ class WorkflowManager:
         if self.escalate:
             self.tasks.append(
                 escalate_task.si(
-                    self.mail_sender, form_id, container_id
+                    self.mail_sender, form_id, self.container_id
                 ).set(countdown=(MAX_REMINDERS + 1) * self.reminder_delay * DAY_SEC)
             )
 
@@ -52,9 +52,14 @@ class WorkflowManager:
 
 
 @app.task(bind=True)
-def escalate_task(self, mail_sender, form_id, container_id):
-    logger.info(f"Escalating form {form_id} and container {container_id}")
+def escalate_task(self, mail_sender, form_id, container_id, manual_escalation=False):
+    """
+    Escalade un formulaire, soit automatiquement après X relances, soit manuellement si la réponse est insatisfaisante.
+    """
+    logger.info(f"Escalating form {form_id} and container {container_id} (manual: {manual_escalation})")
+
     form = Form.query.get(form_id)
+
     if not form or form.status != 'open':
         logger.warning(f"No escalation needed - form {form_id} is no longer open.")
         return "No escalation needed - form is no longer open."
@@ -70,19 +75,20 @@ def escalate_task(self, mail_sender, form_id, container_id):
         workflow_step='escalate'
     )
 
+    event_type = "Manual Escalation" if manual_escalation else "Automatic Escalation"
     timeline_entry = TimelineEntry(
         form_container_id=container_id,
         form_id=form_id,
-        event="Escalation sent",
+        event=event_type,
         timestamp=datetime.utcnow(),
-        details=f"Escalation sent to manager {form_container.escalade_email}"
+        details=f"{event_type} sent to manager {form_container.escalade_email}"
     )
     db.session.add(timeline_entry)
     form.workflow_step = 'escalate'
     db.session.commit()
 
-    logger.info(f"Escalation sent for form {form_id}")
-    return "Escalation sent"
+    logger.info(f"{event_type} sent for form {form_id}")
+    return f"{event_type} sent"
 
 
 @app.task(bind=True)

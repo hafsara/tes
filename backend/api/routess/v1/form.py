@@ -72,16 +72,6 @@ def submit_form_response(form_id):
                                access_token, questions=answers_summary)
     return jsonify({"message": "Response submitted successfully"}), 200
 
-
-@form_bp.route('/users', methods=['GET'])
-def get_users_emails():
-    """
-    Retrieve a form by its ID.
-    """
-    emails = [{"user_id": "d76476", "email": "test@hafsa.com", "manager_email": "manager-test@hafsa.com", 'full_name': 'hafsa raii'}, {
-        "user_id": "fff", "email": "test1@hafsa.com", "manager_email": "manager-test1@hafsa.com", "full_name": 'test RAII'}]
-    return jsonify(emails), 200
-
 @form_bp.route('/users', methods=['GET'])
 def get_users():
     search_query = request.args.get('search', '').strip().lower()
