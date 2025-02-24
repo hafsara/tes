@@ -216,3 +216,8 @@ input:focus, textarea:focus, .p-dropdown:focus, .p-inputnumber:focus {
   font-size: 0.95rem;
   color: #444;
 }
+
+p-autoComplete .p-autocomplete {
+  display: flex !important;
+  width: 100% !important;
+}

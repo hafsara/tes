@@ -13,7 +13,6 @@ from workflow.email_manager import MailManager
 form_bp = Blueprint("form_bp", __name__)
 
 
-
 @form_bp.route('/forms/<int:form_id>', methods=['GET'])
 @require_valid_app_ids(param_name="app_id", source="args", allow_multiple=False)
 def get_form_by_id(form_id):
@@ -72,4 +71,14 @@ def submit_form_response(form_id):
                                form_container.cc_emails, form_container.title,
                                access_token, questions=answers_summary)
     return jsonify({"message": "Response submitted successfully"}), 200
+
+
+@form_bp.route('/users', methods=['GET'])
+def get_users_emails():
+    """
+    Retrieve a form by its ID.
+    """
+    emails = [{"user_id": "d76476", "email": "test@hafsa.com", "manager_email": "manager-test@hafsa.com", 'full_name': 'hafsa raii'}, {
+        "user_id": "fff", "email": "test1@hafsa.com", "manager_email": "manager-test1@hafsa.com", "full_name": 'test RAII'}]
+    return jsonify(emails), 200
 

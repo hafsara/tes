@@ -88,7 +88,6 @@ def create_form_container():
         details=f'Form container created with title {form_container.title} by {user_id}'
     )
     db.session.commit()
-    WorkflowManager(form_container).start_workflow(form.id, form_container.id, form_container.escalate)
 
     return jsonify({
         "container_id": form_container.id,
@@ -337,8 +336,6 @@ def add_form_to_container(container_id):
     try:
         log_timeline_event(form_container.id, new_form.id, 'Unsubstantial response',
                            f'Response marked as unsubstantial by {user_id}')
-        WorkflowManager(form_container).start_workflow(new_form.id, form_container.id,
-                                                       form_container.escalate)
         db.session.commit()
         return jsonify({"form_id": new_form.id}), 201
     except Exception as e:

@@ -117,4 +117,9 @@ export class FormService {
     const headers = this.getAuthHeaders();
     return this.http.put(`${this.apiBaseUrl}/campaigns/${campaignId}`, data, { headers });
   }
+
+  getUsersList(){
+    const headers = this.getAuthHeaders();
+    return this.http.get<any>(`${this.apiBaseUrl}/users`, { headers });
+  }
 }

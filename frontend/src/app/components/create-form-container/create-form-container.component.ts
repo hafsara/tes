@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormService } from '../../services/form.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { FormContainer, Form, Question } from '../../utils/question-formatter';
@@ -11,7 +11,7 @@ import { environment } from '../../../environments/environment';
   templateUrl: './create-form-container.component.html',
   styleUrls: ['./create-form-container.component.scss']
 })
-export class CreateFormContainerComponent {
+export class CreateFormContainerComponent implements OnInit {
   @Input() appOptions: { name: string; token: string }[] = [];
   currentStep: number = 0;
   showErrors = false;
@@ -42,6 +42,9 @@ export class CreateFormContainerComponent {
     }]
   };
 
+  users: { email: string; user_id: string; manager_email: string, full_name: string }[] = [];
+  filteredEmails: any [] = [];
+
   selectedCampaign: string | undefined;
   selectedApp: string | undefined;
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -54,6 +57,10 @@ export class CreateFormContainerComponent {
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
   ) {}
+
+  ngOnInit() {
+    this.loadEmails();
+  }
 
   onAppChange(event: any) {
     this.appSelected = true;
@@ -162,7 +169,7 @@ export class CreateFormContainerComponent {
       rejectButtonStyleClass: "p-button-text",
       accept: () => {
         this.submitForm();
-        //setTimeout(() => window.location.reload(), 1000);
+        setTimeout(() => window.location.reload(), 1000);
       }
     });
   }
@@ -218,5 +225,35 @@ export class CreateFormContainerComponent {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: `Failed to create campaign ${error}` });
       }
     );
+  }
+
+  loadEmails(): void {
+    this.formService.getUsersList().subscribe(users => {
+      this.users = users.map((user : { email: string; user_id: string; manager_email: string, full_name: string }) => ({
+        email: user.email,
+        user_id: user.user_id,
+        manager_email: user.manager_email,
+        full_name: user.full_name
+      }));
+    });
+  }
+
+  filterEmails(event: any): void {
+    const query = event.query.toLowerCase();
+    this.filteredEmails = this.users
+      .filter(user =>
+        user.email.toLowerCase().includes(query) ||
+        user.user_id.toLowerCase().includes(query)
+      )
+      .map(user => ({
+        label: `${user.full_name} - ${user.email}`,
+        email: user.email,
+        manager_email: user.manager_email
+      }));
+  }
+
+  selectUser(event: any): void {
+    this.formContainer.userEmail = event.value.email;
+    this.formContainer.escaladeEmail = event.value.manager_email || '';
   }
 }

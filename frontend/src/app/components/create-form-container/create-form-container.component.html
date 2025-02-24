@@ -63,7 +63,14 @@
 
             <div class="centered-container">
               <p-floatLabel>
-                <input pInputText id="userMail" [(ngModel)]="formContainer.userEmail"/>
+                <p-autoComplete
+                  id="userMail"
+                  [(ngModel)]="formContainer.userEmail"
+                  [suggestions]="filteredEmails"
+                  (completeMethod)="filterEmails($event)"
+                  (onSelect)="selectUser($event)"
+                  field="label"
+                />
                 <label for="userMail">User Email</label>
               </p-floatLabel>
               <small *ngIf="showErrors && !emailPattern.test(formContainer.userEmail || '')" class="p-error">Invalid

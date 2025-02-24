@@ -1,4 +1,4 @@
-from marshmallow import fields, validate, Schema
+from marshmallow import fields, validate, Schema, validates, ValidationError
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
 from .models import (
@@ -136,6 +136,12 @@ class FormContainerDetailSchema(SQLAlchemyAutoSchema):
     campaign_name = fields.Method("get_campaign_name")
     forms = fields.Nested(FormSchemaSQL, many=True)
 
+    @validates("escalade_email")
+    def validate_escalade_email(self, value):
+        if value == "":
+            return None
+        return value
+
     def get_app_name(self, obj):
         return obj.application.name if obj.application else None
 
@@ -158,13 +164,18 @@ class FormContainerListSchema(SQLAlchemyAutoSchema):
     title = fields.Str(required=True, validate=validate.Length(max=255))
     description = fields.Str(required=True, validate=validate.Length(max=1024))
     user_email = fields.Email(required=True)
-    escalade_email = fields.Email(allow_none=True)
     reference = fields.Str(allow_none=True, validate=validate.Length(max=255))
     escalate = fields.Boolean(default=False)
     validated = fields.Boolean(default=False)
     created_at = fields.DateTime(dump_only=True)
     app_name = fields.Method("get_app_name")
     campaign_name = fields.Method("get_campaign_name")
+    escalade_email = fields.Str(required=False)
+
+    @validates("escalade_email")
+    def validate_escalade_email(self, value):
+        if value and "@" not in value:
+            raise ValidationError("Not a valid email address")
 
     def get_app_name(self, obj):
         return obj.application.name if obj.application else None
