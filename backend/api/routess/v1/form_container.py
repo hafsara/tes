@@ -334,6 +334,7 @@ def add_form_to_container(container_id):
         return error_response("An error occurred while adding the form", 500)
 
     try:
+        # escalate_task.delay(Config.MAIL_SENDER, form_id, container_id, manual_escalation=True)
         log_timeline_event(form_container.id, new_form.id, 'Unsubstantial response',
                            f'Response marked as unsubstantial by {user_id}')
         db.session.commit()
