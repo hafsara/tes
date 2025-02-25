@@ -16,7 +16,7 @@ class WorkflowManager:
     def __init__(self, form_container):
         self.mail_sender = form_container.application.mail_sender
         self.user_email = form_container.user_email
-        self.cc_emails = form_container.cc_emails if form_container.cc_emails is not None else []
+        self.cc_emails = form_container.cc_emails if form_container.cc_emails else []
         self.access_token = form_container.access_token
         self.reminder_delay = form_container.reminder_delay
         self.escalate = form_container.escalate
@@ -36,13 +36,13 @@ class WorkflowManager:
         for i in range(1, MAX_REMINDERS + 1):
             self.tasks.append(
                 send_reminder_task.si(form_id, self.container_id, i
-                ).set(countdown=i * self.reminder_delay * DAY_SEC)
+                                      ).set(countdown=i * self.reminder_delay * DAY_SEC)
             )
 
         if self.escalate:
             self.tasks.append(
                 escalate_task.si(form_id, self.container_id
-                ).set(countdown=(MAX_REMINDERS + 1) * self.reminder_delay * DAY_SEC)
+                                 ).set(countdown=(MAX_REMINDERS + 1) * self.reminder_delay * DAY_SEC)
             )
 
         chain(*self.tasks).apply_async()
@@ -50,18 +50,17 @@ class WorkflowManager:
 
 
 @app.task(bind=True)
-def escalate_task(self, form_id, container_id, manual_escalation=False, manuel_escalation_email=None):
+def escalate_task(self, form_id, container_id, manual_escalation=False, manual_escalation_email=None):
     """
     Escalade un formulaire, soit automatiquement après X relances, soit manuellement si la réponse est insatisfaisante.
     """
-    form = Form.query.get(form_id)
-
-    if not form or form.status != 'open':
-        logger.warning(f"No escalation needed - form {form_id} is no longer open.")
-        return "No escalation needed - form is no longer open."
-
+    form = Form.query.filter_by(id=form_id, status='open').first()
     form_container = FormContainer.query.get(container_id)
-    to =  manuel_escalation_email if manual_escalation  and manuel_escalation_email else form_container.escalade_email
+
+    if not form or not form_container:
+        return f"Escalation skipped for form {form_id} - {container_id}"
+
+    to = manual_escalation_email if manual_escalation and manual_escalation_email else form_container.escalade_email
     MailManager.send_email(
         mail_sender=form_container.application.mail_sender,
         to=to,
@@ -81,10 +80,14 @@ def escalate_task(self, form_id, container_id, manual_escalation=False, manuel_e
     )
     db.session.add(timeline_entry)
     form.workflow_step = 'escalate'
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Database commit failed: {e}")
+        return {"status": "error", "message": str(e)}
 
-    logger.info(f"{event_type} sent for form {form_id}")
-    return f"{event_type} sent"
+    return {"status": "success", "task": "escalate", "form_id": form_id, "access_token": form_container.access_token}
 
 
 @app.task(bind=True)
@@ -118,4 +121,5 @@ def send_reminder_task(self, form_id, container_id, reminder_count):
     db.session.commit()
 
     logger.info(f"Reminder {reminder_count} sent for form {form_id}")
-    return f"Reminder {reminder_count} sent"
+    return {"status": "success", "task": "reminder", "form_id": form_id, "access_token": form_container.access_token,
+            "reminder_count": reminder_count}

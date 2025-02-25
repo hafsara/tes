@@ -18,8 +18,8 @@ class Connector:
         redis_config = self.config.get("redis")
         if redis and redis_config:
             try:
-                self.redis_client = redis.StrictRedis(
-                    host=redis_config.get("host", "localhost"),
+                self.redis_client = redis.RedisCluster(
+                    startup_nodes=redis_config.get("host"),
                     port=redis_config.get("port", 6379),
                     db=redis_config.get("db", 0),
                     decode_responses=True
@@ -46,16 +46,3 @@ class Connector:
         if not self.redis_client:
             print(f" Aucun connecteur actif, événement non envoyé : {event_json}")
 
-
-# Initialisation globale des connecteurs avec la configuration
-CONNECTOR_CONFIG = {
-    "redis": {
-        "host": "localhost",
-        "port": 6379,
-        "db": 0
-    },
-    "kafka": {
-        "bootstrap_servers": "localhost:9092"
-    }
-}
-connector = Connector(CONNECTOR_CONFIG)

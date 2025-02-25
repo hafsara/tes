@@ -5,6 +5,8 @@ from datetime import datetime
 import jwt
 from flask import jsonify
 
+from api.helpers.connector import Connector
+
 # Configuration du logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -18,6 +20,15 @@ ESCALADE_EMAIL_MAPPING = {
     "@CISO": "SELECT * FROM where sent = '0'",
     "@PSIRT": "emea.cib.csirt.and.monitoring@bnpparibas.com"
 }
+# Initialisation globale des connecteurs avec la configuration
+CONNECTOR_CONFIG = {
+    "redis": {
+        "host": "localhost",
+        "port": 6379,
+        "db": 0
+    },
+}
+connector = Connector(CONNECTOR_CONFIG)
 
 def error_response(message, status_code):
     return jsonify({"error": message}), status_code
@@ -43,10 +54,13 @@ def search_mail(user_mail, mail):
     logger.warning(f"Aucune correspondance pour {mail}")
     return ""
 
-def get_eq_emails(user_email, escalade_email, cc_emails):
+def get_eq_emails(user_email, escalade_email, cc_emails=None):
     """
     Traite les emails d'escalade et les emails en copie (CC).
     """
+    if cc_emails is None:
+        cc_emails = []
+
     cc_emails_list = []
 
     # Traiter escalade_email
@@ -72,11 +86,9 @@ def ensure_admin_application_exists():
 
     admin_app = Application.query.filter_by(id='admin-test').first()
     if not admin_app:
-        print("🚀 Première installation : création de l'application Admin")
         new_admin_app = Application(id='admin-test', name="admin", created_by="system")
         db.session.add(new_admin_app)
         db.session.commit()
-        print("✅ Application Admin créée avec succès")
 
 def is_valid_email(email):
     """ Vérifier si l'email est valide """
@@ -101,3 +113,4 @@ def log_timeline_event(form_container_id, form_id, event, details):
         timestamp=datetime.utcnow()
     )
     db.session.add(timeline_entry)
+    connector.send_event('channel', event)
