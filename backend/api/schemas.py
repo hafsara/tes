@@ -128,7 +128,7 @@ class FormContainerDetailSchema(SQLAlchemyAutoSchema):
     cc_emails = fields.List(fields.Email(), allow_none=True)
     escalate = fields.Boolean(default=False)
     validated = fields.Boolean(default=False)
-    reminder_delay = fields.Int(allow_none=True)
+    reminder_delay = fields.Int(allow_none=False)
     initiated_by = fields.Str(required=True)
     created_at = fields.DateTime(dump_only=True)
     app_name = fields.Method("get_app_name")

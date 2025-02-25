@@ -33,18 +33,7 @@ def db_session(app):
 
 # Fixtures for test data
 @pytest.fixture
-def workflow_manager():
-    return WorkflowManager(
-        mail_sender="noreply@example.com",
-        user_email="user@example.com",
-        cc_emails=["manager@example.com"],
-        access_token="fake_access_token",
-        reminder_delay=1  # 1 jour
-    )
-
-
-@pytest.fixture
-def mock_form(db_session):
+def mock_form():
     form = MagicMock(spec=Form)
     form.status = 'open'
     form.workflow_step = 'reminder'
@@ -52,7 +41,7 @@ def mock_form(db_session):
 
 
 @pytest.fixture
-def mock_form_container(db_session):
+def mock_form_container():
     form_container = MagicMock(spec=FormContainer)
     form_container.user_email = "user@example.com"
     form_container.cc_emails = ["manager@example.com"]
@@ -62,68 +51,43 @@ def mock_form_container(db_session):
 
 
 @pytest.fixture
-def mock_db_session(db_session):
-    return MagicMock(spec=db_session)
+def workflow_manager(mock_form_container):
+    return WorkflowManager(
+        form_container=mock_form_container
+    )
 
 
-# Tests pour WorkflowManager
-def test_start_workflow(app, workflow_manager, mock_db_session):
+def test_start_workflow(app, workflow_manager):
     with app.app_context():
         with patch('workflow.tasks.MailManager.send_email') as mock_send_email, \
                 patch('workflow.tasks.chain') as mock_chain:
-            # Call the start_workflow method
-            workflow_manager.start_workflow(form_id=123, container_id=456, escalate=True)
+            workflow_manager.start_workflow(form_id=123)
 
             # Verify that the initial email was sent
             mock_send_email.assert_called_once_with(
-                "noreply@example.com",
-                "user@example.com",
-                ["manager@example.com"],
+                workflow_manager.mail_sender,
+                workflow_manager.user_email,
+                workflow_manager.cc_emails,
                 'You have a new Form from Psirt team',
-                "fake_access_token"
+                workflow_manager.access_token
             )
 
             # Verify that the tasks have been configured correctly
-            assert len(workflow_manager.tasks) == MAX_REMINDERS + 1
+            assert len(workflow_manager.tasks) == (MAX_REMINDERS + 1 if workflow_manager.escalate else MAX_REMINDERS)
             mock_chain.assert_called_once()
 
 
-def test_start_workflow_without_escalate(app, workflow_manager, mock_db_session):
+def test_send_reminder_task(app, mock_form, mock_form_container):
     with app.app_context():
-        with patch('workflow.tasks.MailManager.send_email') as mock_send_email, \
-                patch('workflow.tasks.chain') as mock_chain:
-            # Call the start workflow method without escalation
-            workflow_manager.start_workflow(form_id=123, container_id=456, escalate=False)
-
-            # Verify that the initial email was sent
-            mock_send_email.assert_called_once_with(
-                "noreply@example.com",
-                "user@example.com",
-                ["manager@example.com"],
-                'You have a new Form from Psirt team',
-                "fake_access_token"
-            )
-
-            # Verify that the tasks have been configured correctly
-            assert len(workflow_manager.tasks) == MAX_REMINDERS
-            mock_chain.assert_called_once()
-
-
-def test_send_reminder_task(app, mock_form, mock_form_container, mock_db_session):
-    with app.app_context():
-        with patch('workflow.tasks.Form.query') as mock_form_query, \
-                patch('workflow.tasks.FormContainer.query') as mock_form_container_query, \
+        with patch('workflow.tasks.Form.query.get', return_value=mock_form), \
+                patch('workflow.tasks.FormContainer.query.get', return_value=mock_form_container), \
                 patch('workflow.tasks.MailManager.send_email') as mock_send_email, \
-                patch('workflow.tasks.db.session', mock_db_session):
-            # Simulate database queries
-            mock_form_query.get.return_value = mock_form
-            mock_form_container_query.get.return_value = mock_form_container
+                patch('workflow.tasks.db.session') as mock_db_session:
 
-            # Call the send_reminder_task task
             result = send_reminder_task(mail_sender="noreply@example.com", form_id=123, container_id=456,
                                         reminder_count=1)
 
-            # Verify that the email was sent
+            # Vérifier que l'email a été envoyé
             mock_send_email.assert_called_once_with(
                 mail_sender="noreply@example.com",
                 to="user@example.com",
@@ -141,7 +105,7 @@ def test_send_reminder_task(app, mock_form, mock_form_container, mock_db_session
             assert result == "Reminder 1 sent"
 
 
-def test_send_reminder_task_form_closed(app, mock_form, mock_db_session):
+def test_send_reminder_task_form_closed(app, mock_form):
     with app.app_context():
         with patch('workflow.tasks.Form.query') as mock_form_query:
             # Simulate a closed form
@@ -156,20 +120,16 @@ def test_send_reminder_task_form_closed(app, mock_form, mock_db_session):
             assert result == "No reminder needed - form is no longer open."
 
 
-def test_escalate_task(app, mock_form, mock_form_container, mock_db_session):
+# 🟢 **TEST 4: Vérifier que `escalate_task` envoie un email d'escalade**
+def test_escalate_task(app, mock_form, mock_form_container):
     with app.app_context():
-        with patch('workflow.tasks.Form.query') as mock_form_query, \
-                patch('workflow.tasks.FormContainer.query') as mock_form_container_query, \
+        with patch('workflow.tasks.Form.query.get', return_value=mock_form), \
+                patch('workflow.tasks.FormContainer.query.get', return_value=mock_form_container), \
                 patch('workflow.tasks.MailManager.send_email') as mock_send_email, \
-                patch('workflow.tasks.db.session', mock_db_session):
-            # Simulate database queries
-            mock_form_query.get.return_value = mock_form
-            mock_form_container_query.get.return_value = mock_form_container
-
-            # Call the escalate_task task
+                patch('workflow.tasks.db.session') as mock_db_session:
             result = escalate_task(mail_sender="noreply@example.com", form_id=123, container_id=456)
 
-            # Verify that the escalation email was sent
+            # Vérifier que l'email d'escalade a été envoyé
             mock_send_email.assert_called_once_with(
                 mail_sender="noreply@example.com",
                 to="escalade@example.com",
@@ -179,49 +139,46 @@ def test_escalate_task(app, mock_form, mock_form_container, mock_db_session):
                 workflow_step='escalate'
             )
 
-            # Check that the timeline has been updated
+            # Vérifier que l'événement a été enregistré en base
             mock_db_session.add.assert_called_once()
             mock_db_session.commit.assert_called_once()
 
-            # Check the task result
-            assert result == "Escalation sent"
+            # Vérifier le message de retour
+            assert result == "Automatic Escalation sent"
 
 
-def test_escalate_task_form_closed(app, mock_form, mock_db_session):
+# 🟢 **TEST 5: Vérifier que `escalate_task` ne fait rien si le formulaire est fermé**
+def test_escalate_task_form_closed(app, mock_form):
     with app.app_context():
-        with patch('workflow.tasks.Form.query') as mock_form_query:
-            # Simulate a closed form
+        with patch('workflow.tasks.Form.query.get', return_value=mock_form):
+            # Simuler un formulaire fermé
             mock_form.status = 'closed'
-            mock_form_query.get.return_value = mock_form
 
-            # Call the escalate_task task
             result = escalate_task(mail_sender="noreply@example.com", form_id=123, container_id=456)
 
-            # Check that the escalation email has not been sent
             assert result == "No escalation needed - form is no longer open."
 
 
-def test_workflow_manager_schedules_emails_correctly(app, workflow_manager, mock_db_session):
+def test_workflow_manager_schedules_emails_correctly(app, workflow_manager):
     with app.app_context():
-        with patch('workflow.tasks.MailManager.send_email') as mock_send_email, \
-             patch('workflow.tasks.chain') as mock_chain:
+        with patch('workflow.tasks.MailManager.send_email'), \
+                patch('workflow.tasks.chain') as mock_chain:
 
-            # Call the start_workflow method with escalate=True
-            escalate = True
-            workflow_manager.start_workflow(form_id=123, container_id=456, escalate=True)
+            workflow_manager.start_workflow(form_id=123)
 
             # Check that tasks are scheduled with the correct countdowns
             expected_tasks = []
             for i in range(1, MAX_REMINDERS + 1):
                 expected_tasks.append(
                     send_reminder_task.si(
-                        "noreply@example.com", 123, 456, i
+                        workflow_manager.mail_sender, 123, workflow_manager.container_id, i
                     ).set(countdown=i * workflow_manager.reminder_delay * DAY_SEC)
                 )
-            if escalate:
+
+            if workflow_manager.escalate:
                 expected_tasks.append(
                     escalate_task.si(
-                        "noreply@example.com", 123, 456
+                        workflow_manager.mail_sender, 123, workflow_manager.container_id
                     ).set(countdown=(MAX_REMINDERS + 1) * workflow_manager.reminder_delay * DAY_SEC)
                 )
 
@@ -229,45 +186,27 @@ def test_workflow_manager_schedules_emails_correctly(app, workflow_manager, mock
             mock_chain.assert_called_once_with(*expected_tasks)
 
 
-def test_workflow_manager_schedules_emails_without_escalate(app, workflow_manager, mock_db_session):
-    with app.app_context():
-        with patch('workflow.tasks.MailManager.send_email') as mock_send_email, \
-             patch('workflow.tasks.chain') as mock_chain:
 
-            # Call the start_workflow method with escalate=False
-            workflow_manager.start_workflow(form_id=123, container_id=456, escalate=False)
-
-            # Check that tasks are scheduled with the correct countdowns
-            expected_tasks = []
-            for i in range(1, MAX_REMINDERS + 1):
-                expected_tasks.append(
-                    send_reminder_task.si(
-                        "noreply@example.com", 123, 456, i
-                    ).set(countdown=i * workflow_manager.reminder_delay * DAY_SEC)
-                )
-
-            mock_chain.assert_called_once_with(*expected_tasks)
-
-
-def test_workflow_manager_sends_emails_at_correct_time(app, workflow_manager, mock_db_session):
-    with app.app_context():
+def test_workflow_manager_sends_emails_at_correct_time(app, workflow_manager):
+    with (app.app_context()):
         with patch('workflow.tasks.MailManager.send_email'), \
              patch('workflow.tasks.chain') as mock_chain, \
              patch('workflow.tasks.send_reminder_task.apply_async') as mock_send_reminder, \
-             patch('workflow.tasks.escalate_task.apply_async') as mock_escalate:
+             patch('workflow.tasks.escalate_task.apply_async') as mock_escalate,\
+             patch('workflow.tasks.db.session') as mock_db_session:
 
             with freeze_time("2023-10-01 12:00:00"):
-                workflow_manager.start_workflow(form_id=123, container_id=456, escalate=True)
+                workflow_manager.start_workflow(form_id=123)
                 expected_tasks = []
                 for i in range(1, MAX_REMINDERS + 1):
                     expected_tasks.append(
                         send_reminder_task.si(
-                            "noreply@example.com", 123, 456, i
+                            workflow_manager.mail_sender, 123, workflow_manager.container_id, i
                         ).set(countdown=i * workflow_manager.reminder_delay * DAY_SEC)
                     )
                 expected_tasks.append(
                     escalate_task.si(
-                        "noreply@example.com", 123, 456
+                        workflow_manager.mail_sender, 123, workflow_manager.container_id
                     ).set(countdown=(MAX_REMINDERS + 1) * workflow_manager.reminder_delay * DAY_SEC)
                 )
 

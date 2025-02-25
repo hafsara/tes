@@ -14,7 +14,7 @@ def create_app(class_config=Config):
     app = Flask(__name__)
     CORS(app)
 
-    app.config.from_object(Config)
+    app.config.from_object(class_config)
     # app.url_map.strict_slashes = False
     db.init_app(app)
     migrate = Migrate(app, db)
@@ -23,7 +23,7 @@ def create_app(class_config=Config):
     app.register_blueprint(auth_bp)
 
     # Swagger setup
-    SWAGGER_URL = Config.SWAGGER_URL
+    SWAGGER_URL = class_config.SWAGGER_URL
     API_URL = '/static/swagger.yml'
     swaggerui_blueprint = get_swaggerui_blueprint(SWAGGER_URL, API_URL)
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)

@@ -52,12 +52,10 @@ class WorkflowManager:
 
 
 @app.task(bind=True)
-def escalate_task(self, mail_sender, form_id, container_id, manual_escalation=False):
+def escalate_task(self, mail_sender, form_id, container_id, manual_escalation=False, manuel_escalation_email=None):
     """
     Escalade un formulaire, soit automatiquement après X relances, soit manuellement si la réponse est insatisfaisante.
     """
-    logger.info(f"Escalating form {form_id} and container {container_id} (manual: {manual_escalation})")
-
     form = Form.query.get(form_id)
 
     if not form or form.status != 'open':
@@ -65,10 +63,10 @@ def escalate_task(self, mail_sender, form_id, container_id, manual_escalation=Fa
         return "No escalation needed - form is no longer open."
 
     form_container = FormContainer.query.get(container_id)
-
+    to =  manuel_escalation_email if manual_escalation  and manuel_escalation_email else form_container.escalade_email
     MailManager.send_email(
         mail_sender=mail_sender,
-        to=form_container.escalade_email,
+        to=to,
         cc=form_container.cc_emails,
         title="Please respond to the form.",
         access_token=form_container.access_token,
@@ -81,7 +79,7 @@ def escalate_task(self, mail_sender, form_id, container_id, manual_escalation=Fa
         form_id=form_id,
         event=event_type,
         timestamp=datetime.utcnow(),
-        details=f"{event_type} sent to manager {form_container.escalade_email}"
+        details=f"{event_type} sent to manager {to}"
     )
     db.session.add(timeline_entry)
     form.workflow_step = 'escalate'

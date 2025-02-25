@@ -84,6 +84,7 @@ def update_application(app_id):
 
     # Update linked records if `generate_new_id` is True
     if generate_new_id:
+        # TODO UPDATE API TOKEN
         db.session.query(FormContainer).filter(FormContainer.app_id == old_app_id).update({"app_id": new_app_id})
         db.session.query(Campaign).filter(Campaign.app_id == old_app_id).update({"app_id": new_app_id})
         db.session.commit()
@@ -98,21 +99,19 @@ def log_connection():
     Log a user's connection to an application.
     """
     data = request.json
-    created_by = getattr(request, 'user_id', None)
+    user_id = getattr(request, 'user_id', None)
 
-    if not created_by:
+    if not user_id:
         return error_response("User not authenticated", 401)
 
-    data['created_by'] = created_by
+    data['user_id'] = user_id
 
     try:
         validated_data = connection_log_schema.load(data)
     except ValidationError as err:
         return error_response(err.messages, 400)
 
-    user_id = getattr(request, 'user_id', None)
-    if not user_id:
-        return error_response("User not authenticated", 401)
+
 
     connection_log = ConnectionLog(
         user_id=user_id,

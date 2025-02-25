@@ -13,7 +13,7 @@ class MailManager:
     @staticmethod
     def prepare_body(access_token, questions=None):
         link = f"http/localhost:4200/user-view/{access_token}"
-        template_path = "workflow/templates/summary_mail.html" if questions else "workflow/templates/notification_mail.html"
+        template_path = "C:\\Users\hafsa\\PycharmProjects\\juratus_form1\\backend\workflow\\templates\summary_mail.html" if questions else "C:\\Users\hafsa\\PycharmProjects\\juratus_form1\\backend\workflow\\templates/notification_mail.html"
         with open(template_path) as file:
             template_content = file.read()
         template = Template(template_content)

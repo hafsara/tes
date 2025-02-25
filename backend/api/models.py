@@ -21,7 +21,7 @@ class FormContainer(db.Model):
     initiated_by = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    reminder_delay = db.Column(db.Integer, nullable=True)
+    reminder_delay = db.Column(db.Integer, nullable=False)
     app_id = db.Column(db.String(36), db.ForeignKey('application.id'), nullable=True)
     campaign_id = db.Column(db.Integer, db.ForeignKey('campaign.id'), nullable=True)
     archived_at = db.Column(db.DateTime, nullable=True)
