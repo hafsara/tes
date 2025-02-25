@@ -35,15 +35,13 @@ class WorkflowManager:
 
         for i in range(1, MAX_REMINDERS + 1):
             self.tasks.append(
-                send_reminder_task.si(
-                    self.mail_sender, form_id, self.container_id, i
+                send_reminder_task.si(form_id, self.container_id, i
                 ).set(countdown=i * self.reminder_delay * DAY_SEC)
             )
 
         if self.escalate:
             self.tasks.append(
-                escalate_task.si(
-                    self.mail_sender, form_id, self.container_id
+                escalate_task.si(form_id, self.container_id
                 ).set(countdown=(MAX_REMINDERS + 1) * self.reminder_delay * DAY_SEC)
             )
 
@@ -52,7 +50,7 @@ class WorkflowManager:
 
 
 @app.task(bind=True)
-def escalate_task(self, mail_sender, form_id, container_id, manual_escalation=False, manuel_escalation_email=None):
+def escalate_task(self, form_id, container_id, manual_escalation=False, manuel_escalation_email=None):
     """
     Escalade un formulaire, soit automatiquement après X relances, soit manuellement si la réponse est insatisfaisante.
     """
@@ -65,7 +63,7 @@ def escalate_task(self, mail_sender, form_id, container_id, manual_escalation=Fa
     form_container = FormContainer.query.get(container_id)
     to =  manuel_escalation_email if manual_escalation  and manuel_escalation_email else form_container.escalade_email
     MailManager.send_email(
-        mail_sender=mail_sender,
+        mail_sender=form_container.application.mail_sender,
         to=to,
         cc=form_container.cc_emails,
         title="Please respond to the form.",
@@ -90,7 +88,7 @@ def escalate_task(self, mail_sender, form_id, container_id, manual_escalation=Fa
 
 
 @app.task(bind=True)
-def send_reminder_task(self, mail_sender, form_id, container_id, reminder_count):
+def send_reminder_task(self, form_id, container_id, reminder_count):
     logger.info(f"Sending reminder {reminder_count} for form {form_id} and container {container_id}")
     form = Form.query.get(form_id)
     if not form or form.status != 'open':
@@ -100,7 +98,7 @@ def send_reminder_task(self, mail_sender, form_id, container_id, reminder_count)
     form_container = FormContainer.query.get(container_id)
 
     MailManager.send_email(
-        mail_sender=mail_sender,
+        mail_sender=form_container.application.mail_sender,
         to=form_container.user_email,
         cc=form_container.cc_emails,
         title="Please respond to the form.",
