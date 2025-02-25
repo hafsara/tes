@@ -30,8 +30,10 @@ CONNECTOR_CONFIG = {
 }
 connector = Connector(CONNECTOR_CONFIG)
 
+
 def error_response(message, status_code):
     return jsonify({"error": message}), status_code
+
 
 def search_mail(user_mail, mail):
     """
@@ -53,6 +55,7 @@ def search_mail(user_mail, mail):
 
     logger.warning(f"Aucune correspondance pour {mail}")
     return ""
+
 
 def get_eq_emails(user_email, escalade_email, cc_emails=None):
     """
@@ -77,6 +80,7 @@ def get_eq_emails(user_email, escalade_email, cc_emails=None):
 
     return escalade_email, cc_emails_list
 
+
 def ensure_admin_application_exists():
     """
     Vérifie si l'application Admin existe, sinon la crée.
@@ -90,10 +94,12 @@ def ensure_admin_application_exists():
         db.session.add(new_admin_app)
         db.session.commit()
 
+
 def is_valid_email(email):
     """ Vérifier si l'email est valide """
     email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
     return re.match(email_regex, email)
+
 
 def generate_token(application):
     payload = {'application_name': application.name, 'app_id': application.id}
@@ -114,3 +120,7 @@ def log_timeline_event(form_container_id, form_id, event, details):
     )
     db.session.add(timeline_entry)
     connector.send_event('channel', event)
+
+
+def get_user_country(user_email):
+    country = 'France'

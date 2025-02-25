@@ -17,3 +17,6 @@ tavern-grpc
 tavern
 pytest
 pytest-mock
+pycountry
+holidays
+workalendar

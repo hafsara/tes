@@ -1,10 +1,14 @@
 import logging
+
+import pycountry
 from celery import chain
-from datetime import datetime
+from datetime import datetime, timedelta, date
+from workalendar.registry import registry
 from api.models import Form, FormContainer, TimelineEntry
 from api.extensions import db
 from .email_manager import MailManager
 from .celery_app import celery as app
+from api.helpers.tools import get_user_country
 
 logger = logging.getLogger(__name__)
 
@@ -13,15 +17,43 @@ DAY_SEC = 86400
 
 
 class WorkflowManager:
-    def __init__(self, form_container):
+    def __init__(self, form_container, working_day=False):
         self.mail_sender = form_container.application.mail_sender
         self.user_email = form_container.user_email
         self.cc_emails = form_container.cc_emails if form_container.cc_emails else []
         self.access_token = form_container.access_token
-        self.reminder_delay = form_container.reminder_delay
         self.escalate = form_container.escalate
         self.container_id = form_container.id
         self.tasks = []
+        self.country_code = self.get_country_code()
+
+        if self.country_code and working_day:
+            self.reminder_delay = self.adjust_for_working_days(form_container.reminder_delay)
+        else:
+            self.reminder_delay = form_container.reminder_delay
+
+    def adjust_for_working_days(self, delay_days):
+        """Convert delay_days into actual working days, excluding weekends and public holidays."""
+        current_date = date.today()
+        cal = registry.get(self.country_code)()
+        public_holidays = set(cal.holidays(current_date.year))
+
+        days_counted = 0
+        while days_counted < delay_days:
+            current_date += timedelta(days=1)
+            if cal.is_working_day(current_date) and current_date not in public_holidays:
+                days_counted += 1
+
+        return (current_date - date.today()).days
+
+    def get_country_code(self):
+        """Convert country name to ISO Alpha-2 country code."""
+        try:
+            country_name = get_user_country(self.user_email)
+            return pycountry.countries.lookup(country_name).alpha_2
+        except LookupError:
+            logger.warning(f"Invalid country name: {country_name}.")
+            return None
 
     def start_workflow(self, form_id):
         logger.info(f"Starting workflow for form {form_id} and container {self.container_id}")
