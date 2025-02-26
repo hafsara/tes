@@ -1,7 +1,18 @@
 import pytest
 from datetime import datetime
-from api.models import FormContainer, Form, Campaign, TimelineEntry
+from api.models import FormContainer, Form, Campaign, TimelineEntry, Application
 from api.extensions import db
+
+
+@pytest.fixture
+def application():
+    """
+    Creates a question linked to the form.
+    """
+    test_app = Application(id=1, name="test_app", created_by="user-test", mail_sender='test-app@exemple.com')
+    db.session.add(test_app)
+    db.session.commit()
+    return test_app
 
 
 @pytest.fixture
@@ -50,23 +61,23 @@ def campaign():
     return test_campaign
 
 
-def test_create_form_container(client, headers):
+def test_create_form_container(client, application, headers):
     """Test creating a new form container."""
     payload = {
         "title": "New Container",
         "description": "Description",
         "user_email": "user@example.com",
         "app_id": "1",
+        "reminder_delay": 2,
         "forms": [{"questions": [{"label": "Q1", "type": "text"}]}]
     }
-
     response = client.post("/api/v1/form-containers", json=payload, headers=headers)
-
     assert response.status_code == 201
     data = response.get_json()
     assert "container_id" in data
     assert "form_id" in data
     assert "access_token" in data
+
 
 
 def test_create_form_container_without_form(client, headers):
@@ -75,6 +86,7 @@ def test_create_form_container_without_form(client, headers):
         "title": "Container without form",
         "description": "Description",
         "user_email": "user@example.com",
+        "reminder_delay": 2,
         "app_id": "app_123"
     }
 
@@ -82,8 +94,8 @@ def test_create_form_container_without_form(client, headers):
 
     assert response.status_code == 400
     data = response.get_json()
-    assert "forms" in data  # Match actual error key
-    assert "Missing data for required field." in data["forms"]  # Match actual error message
+    assert "forms" in data['error']
+    assert "Missing data for required field." in data['error']["forms"]  # Match actual error message
 
 
 def test_get_form_containers(client, headers, form_container):
