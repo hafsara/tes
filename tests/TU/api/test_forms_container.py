@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from datetime import datetime
 from api.models import FormContainer, Form, Campaign, TimelineEntry, Application
@@ -71,13 +73,16 @@ def test_create_form_container(client, application, headers):
         "reminder_delay": 2,
         "forms": [{"questions": [{"label": "Q1", "type": "text"}]}]
     }
-    response = client.post("/api/v1/form-containers", json=payload, headers=headers)
-    assert response.status_code == 201
-    data = response.get_json()
-    assert "container_id" in data
-    assert "form_id" in data
-    assert "access_token" in data
 
+    with patch("workflow.tasks.WorkflowManager.start_workflow") as mock_start_workflow:
+        mock_start_workflow.return_value = None
+        response = client.post("/api/v1/form-containers", json=payload, headers=headers)
+        assert response.status_code == 201
+        data = response.get_json()
+        assert "container_id" in data
+        assert "form_id" in data
+        assert "access_token" in data
+        mock_start_workflow.assert_called_once()
 
 
 def test_create_form_container_without_form(client, headers):
