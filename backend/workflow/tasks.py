@@ -94,7 +94,7 @@ def escalate_task(self, form_id, container_id, manual_escalation=False, manual_e
     form_container = FormContainer.query.get(container_id)
 
     if not form or not form_container:
-        return {"status": "skipped", "message": f"Escalation skipped for form {form_id} - {container_id}"}
+        return {"status": "skipped", "message": f"Escalation skipped for form {form_id} - {container_id}."}
 
     to = manual_escalation_email if manual_escalation and manual_escalation_email else form_container.escalade_email
     MailManager.send_email(
@@ -133,7 +133,7 @@ def send_reminder_task(self, form_id, container_id, reminder_count):
     form_container = FormContainer.query.get(container_id)
 
     if not form or not form_container:
-        return {"status": "skipped", "message": f"Reminder skipped for form {form_id} - {container_id}"}
+        return {"status": "skipped", "message": f"Reminder skipped for form {form_id} - {container_id}."}
 
     MailManager.send_email(
         mail_sender=form_container.application.mail_sender,

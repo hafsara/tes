@@ -5,7 +5,7 @@ from api.models import Campaign
 @pytest.fixture
 def new_campaign():
     """
-    Fixture pour une campagne valide.
+    Fixture for a valid campaign.
     """
     return {
         "name": "Test Campaign",
@@ -16,7 +16,7 @@ def new_campaign():
 @pytest.fixture
 def created_campaign(client, headers, new_campaign):
     """
-    Crée une campagne avant les tests.
+    Create a campaign before testing.
     """
     response = client.post("/api/v1/campaigns", json=new_campaign, headers=headers)
     return response.get_json()
@@ -25,12 +25,11 @@ def created_campaign(client, headers, new_campaign):
 @pytest.fixture
 def campaign_id(created_campaign):
     """
-    Récupère l'ID de la campagne créée.
+    Retrieves the ID of the created campaign.
     """
     return created_campaign["campaign_id"]
 
 
-# 1️⃣ **Test de création d’une campagne**
 def test_create_campaign(client, headers, new_campaign):
     response = client.post("/api/v1/campaigns", json=new_campaign, headers=headers)
     data = response.get_json()
@@ -45,7 +44,6 @@ def test_create_campaign(client, headers, new_campaign):
     assert campaign.app_id == new_campaign["app_id"]
 
 
-# 2️⃣ **Test de récupération des campagnes**
 def test_get_campaigns(client, headers, new_campaign):
     client.post("/api/v1/campaigns", json=new_campaign, headers=headers)
 
@@ -58,7 +56,6 @@ def test_get_campaigns(client, headers, new_campaign):
     assert data[0]["name"] == new_campaign["name"]
 
 
-# 3️⃣ **Test de mise à jour d’une campagne**
 def test_update_campaign(client, headers, campaign_id):
     updated_data = {
         "app_id": "valid_app_id",
@@ -76,21 +73,18 @@ def test_update_campaign(client, headers, campaign_id):
     assert updated_campaign.name == "Updated Campaign"
 
 
-# 6️⃣ **Test récupération d’une campagne avec un app_id invalide**
 def test_get_campaigns_invalid_app_id(client, headers):
     response = client.get("/api/v1/campaigns/invalid_app_id", headers=headers)
     assert response.status_code == 200
     assert response.get_json() == []
 
 
-# 7️⃣ **Test accès sans authentification (`401 Unauthorized`)**
 def test_access_without_auth(client):
     response = client.post("/api/v1/campaigns", json={"name": "Test Campaign", "app_id": "valid_app_id"})
     assert response.status_code == 401
     assert response.get_json()["error"] == "User not authenticated"
 
 
-# 8️⃣ **Test mise à jour d’une campagne avec un app_id invalide**
 def test_update_campaign_invalid_app_id(client, headers, campaign_id):
     updated_data = {
         "app_id": "invalid_app_id",
@@ -101,7 +95,6 @@ def test_update_campaign_invalid_app_id(client, headers, campaign_id):
     assert response.status_code == 404
 
 
-# 9️⃣ **Test création de campagne avec un app_id manquant**
 def test_create_campaign_missing_app_id(client, headers):
     campaign_data = {
         "name": "Campaign Without App ID"
@@ -112,7 +105,6 @@ def test_create_campaign_missing_app_id(client, headers):
     assert "app_id" in response.get_json()["error"]
 
 
-# 🔟 **Test mise à jour d’une campagne inexistante**
 def test_update_nonexistent_campaign(client, headers):
     updated_data = {
         "app_id": "valid_app_id",

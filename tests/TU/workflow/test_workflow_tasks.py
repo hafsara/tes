@@ -79,7 +79,7 @@ def test_send_reminder_task_form_validated(app, mock_form):
             mock_form.status = 'validated'
             result = send_reminder_task(form_id=123, container_id=456, reminder_count=1)
             assert result["status"] == "skipped"
-            assert "Reminder skipped for form 123 - 456" == result["message"]
+            assert "Reminder skipped for form 123 - 456." == result["message"]
 
 
 def test_escalate_task(app, mock_form, mock_form_container):
@@ -104,7 +104,7 @@ def test_escalate_task_form_validated(app, mock_form):
 
             result = escalate_task(form_id=123, container_id=456)
             assert result["status"] == "skipped"
-            assert "Escalation skipped for form 123 - 456" == result["message"]
+            assert "Escalation skipped for form 123 - 456." == result["message"]
 
 
 def test_workflow_manager_schedules_emails_correctly(app, workflow_manager):

@@ -6,7 +6,7 @@ from api.models import APIToken
 @pytest.fixture
 def new_api_token():
     """
-    Fixture pour un exemple de token API.
+    Fixture for an example API token.
     """
     return {
         "app_names": ["Test App"],
@@ -18,7 +18,7 @@ def new_api_token():
 @pytest.fixture
 def created_api_token(client, headers, new_api_token):
     """
-    Crée un token API avant les tests.
+    Create API token before testing.
     """
     response = client.post("/api/v1/api-tokens", json=new_api_token, headers=headers)
     return response.get_json()
@@ -27,12 +27,11 @@ def created_api_token(client, headers, new_api_token):
 @pytest.fixture
 def token_id(created_api_token):
     """
-    Récupère l'ID du token API créé.
+    Retrieves the ID of the created API token.
     """
     return created_api_token["token"]
 
 
-# 1️⃣ **Test de génération d'un token API**
 def test_generate_api_token(client, headers, new_api_token):
     response = client.post("/api/v1/api-tokens", json=new_api_token, headers=headers)
     data = response.get_json()
@@ -47,7 +46,6 @@ def test_generate_api_token(client, headers, new_api_token):
     assert api_token.app_names == new_api_token["app_names"]
 
 
-# 2️⃣ **Test de suppression d'un token API**
 def test_revoke_api_token(client, headers, token_id):
     response = client.delete(f"/api/v1/api-tokens/{token_id}", headers=headers)
     assert response.status_code == 200
@@ -57,7 +55,6 @@ def test_revoke_api_token(client, headers, token_id):
     assert revoked_token is None
 
 
-# 3️⃣ **Test de récupération des tokens API**
 def test_get_api_tokens(client, headers):
     response = client.get("/api/v1/api-tokens", headers=headers)
     assert response.status_code == 200
@@ -66,7 +63,6 @@ def test_get_api_tokens(client, headers):
     assert isinstance(data, list)
 
 
-# 4️⃣ **Test de rotation d'un token API**
 def test_rotate_api_token(client, headers, created_api_token):
     rotate_data = {"token_name": created_api_token["token_name"]}
 
@@ -81,21 +77,18 @@ def test_rotate_api_token(client, headers, created_api_token):
     assert rotated_token.token != created_api_token["token"]
 
 
-# 5️⃣ **Test suppression d'un token inexistant**
 def test_revoke_nonexistent_api_token(client, headers):
     response = client.delete("/api/v1/api-tokens/invalid_token", headers=headers)
     assert response.status_code == 404
     assert response.get_json()["error"] == "Token not found"
 
 
-# 6️⃣ **Test accès non autorisé**
 def test_access_without_auth(client):
     response = client.get("/api/v1/api-tokens")
     assert response.status_code == 401
     assert response.get_json()["error"] == "User not authenticated"
 
 
-# 7️⃣ **Test rotation d'un token inexistant**
 def test_rotate_nonexistent_api_token(client, headers):
     rotate_data = {"token_name": "NonExistentToken"}
 
