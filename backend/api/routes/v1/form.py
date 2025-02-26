@@ -3,7 +3,7 @@ from api.extensions import db
 from api.helpers.tools import error_response, log_timeline_event
 from api.models import FormContainer, Form, Response, Question
 from api.schemas import ResponseSchema, FormSchema, FormSchemaSQL
-from api.routess.auth_decorators import require_valid_app_ids, require_user_token
+from api.routes.auth_decorators import require_valid_app_ids, require_user_token
 
 from workflow.email_manager import MailManager
 

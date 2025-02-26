@@ -5,7 +5,7 @@ from marshmallow import ValidationError
 from api.schemas import ApplicationSchema, ApplicationUpdateSchema, ConnectionLogSchema
 from api.extensions import db
 from api.models import Application, FormContainer, Campaign, ConnectionLog
-from api.routess.auth_decorators import require_user_token
+from api.routes.auth_decorators import require_user_token
 from api.helpers.tools import error_response, generate_token
 
 application_bp = Blueprint('application_bp', __name__)

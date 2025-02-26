@@ -28,11 +28,12 @@ class Config:
     APP_URL = 'https://yourapp.com'
     ARCHIVE_DELAY_DAYS = 90
 
-class TestingConfig:
+
+class TestConfig:
     SECRET_KEY = os.getenv('SECRET_KEY', 'your_secret_key')
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    MAIL_SUPPRESS_SEND = True
+
     # Celery configuration (utilisé pour les rappels et escalades)
     CELERY_BROKER_URL = 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'

@@ -20,7 +20,6 @@ ESCALADE_EMAIL_MAPPING = {
     "@CISO": "SELECT * FROM where sent = '0'",
     "@PSIRT": "emea.cib.csirt.and.monitoring@bnpparibas.com"
 }
-# Initialisation globale des connecteurs avec la configuration
 CONNECTOR_CONFIG = {
     "redis": {
         "host": "localhost",
@@ -120,7 +119,3 @@ def log_timeline_event(form_container_id, form_id, event, details):
     )
     db.session.add(timeline_entry)
     connector.send_event('channel', event)
-
-
-def get_user_country(user_email):
-    country = 'France'

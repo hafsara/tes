@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError
 
-from api.routess.auth_decorators import require_valid_app_ids, require_user_token
+from api.routes.auth_decorators import require_valid_app_ids, require_user_token
 from api.schemas import CampaignSchema
 from api.extensions import db
 from api.models import Campaign

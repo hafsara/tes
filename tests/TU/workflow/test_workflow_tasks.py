@@ -22,6 +22,7 @@ def mock_form_container():
     form_container.cc_emails = ["manager@example.com"]
     form_container.access_token = "fake_access_token"
     form_container.escalade_email = "escalade@example.com"
+    form_container.application.mail_sender = "application_email@example.com"
     return form_container
 
 

@@ -7,9 +7,7 @@ from api.extensions import db
 from api.models import FormContainer, Campaign, Form, TimelineEntry, Question, Response
 from api.schemas import FormContainerSchema, FormContainerDetailSchema, FormContainerListSchema
 from api.helpers.tools import get_eq_emails, error_response, log_timeline_event
-from api.routess.auth_decorators import require_valid_app_ids, require_user_token
-
-from workflow.tasks import WorkflowManager, escalate_task
+from api.routes.auth_decorators import require_valid_app_ids, require_user_token
 
 from config import Config
 
@@ -22,6 +20,8 @@ def create_form_container():
     """
     Create a new form container.
     """
+    from workflow.tasks import WorkflowManager
+
     data = request.json
     schema = FormContainerSchema()
 
@@ -305,8 +305,9 @@ def get_total_forms_count():
 @form_container_bp.route('/form-containers/<int:container_id>/forms', methods=['POST'])
 @require_valid_app_ids(param_name="app_id", source="args", allow_multiple=False)
 def add_form_to_container(container_id):
-    user_id = getattr(request, 'user_id', None)
+    from workflow.tasks import WorkflowManager, escalate_task
 
+    user_id = getattr(request, 'user_id', None)
     if not user_id:
         return error_response("User not authenticated", 401)
 

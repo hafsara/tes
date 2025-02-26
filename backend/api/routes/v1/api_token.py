@@ -8,7 +8,7 @@ from api.extensions import db
 from api.models import APIToken
 from api.schemas import APITokenSchema
 from api.helpers.tools import error_response
-from api.routess.auth_decorators import require_user_token
+from api.routes.auth_decorators import require_user_token
 
 api_token_bp = Blueprint("api_token_bp", __name__)
 api_token_schema = APITokenSchema(session=db.session)

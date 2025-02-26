@@ -8,7 +8,6 @@ from api.models import Form, FormContainer, TimelineEntry
 from api.extensions import db
 from .email_manager import MailManager
 from .celery_app import celery as app
-from api.helpers.tools import get_user_country
 
 logger = logging.getLogger(__name__)
 
@@ -46,10 +45,15 @@ class WorkflowManager:
 
         return (current_date - date.today()).days
 
+    @staticmethod
+    def get_user_country(user_email):
+        country = 'France'
+        return country
+
     def get_country_code(self):
         """Convert country name to ISO Alpha-2 country code."""
         try:
-            country_name = get_user_country(self.user_email)
+            country_name = self.get_user_country(self.user_email)
             return pycountry.countries.lookup(country_name).alpha_2
         except LookupError:
             logger.warning(f"Invalid country name: {country_name}.")
