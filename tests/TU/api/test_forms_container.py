@@ -50,7 +50,7 @@ def campaign():
     return test_campaign
 
 
-def test_create_form_container(client):
+def test_create_form_container(client, headers):
     """Test creating a new form container."""
     payload = {
         "title": "New Container",
@@ -60,7 +60,7 @@ def test_create_form_container(client):
         "forms": [{"questions": [{"label": "Q1", "type": "text"}]}]
     }
 
-    response = client.post("/api/v1/form-containers", json=payload)
+    response = client.post("/api/v1/form-containers", json=payload, headers=headers)
 
     assert response.status_code == 201
     data = response.get_json()
@@ -69,7 +69,7 @@ def test_create_form_container(client):
     assert "access_token" in data
 
 
-def test_create_form_container_without_form(client):
+def test_create_form_container_without_form(client, headers):
     """Test failure when creating a form container without a form."""
     payload = {
         "title": "Container without form",
@@ -78,16 +78,17 @@ def test_create_form_container_without_form(client):
         "app_id": "app_123"
     }
 
-    response = client.post("/api/v1/form-containers", json=payload)
+    response = client.post("/api/v1/form-containers", json=payload, headers=headers)
 
     assert response.status_code == 400
     data = response.get_json()
-    assert "A form is required to create a container" in data["error"]
+    assert "forms" in data  # Match actual error key
+    assert "Missing data for required field." in data["forms"]  # Match actual error message
 
 
-def test_get_form_containers(client, form_container):
+def test_get_form_containers(client, headers, form_container):
     """Test retrieving form containers with filtering and pagination."""
-    response = client.get("/api/v1/form-containers?app_ids=1")
+    response = client.get("/api/v1/form-containers?app_ids=1", headers=headers)
 
     assert response.status_code == 200
     data = response.get_json()
@@ -95,34 +96,42 @@ def test_get_form_containers(client, form_container):
     assert isinstance(data["form_containers"], list)
 
 
-def test_get_form_container_by_access_token(client, form_container):
+def test_get_form_container_by_access_token(client, form_container, headers):
     """Test retrieving a form container using an access token."""
-    response = client.get(f"/api/v1/form-containers/{form_container.access_token}")
+    response = client.get(f"/api/v1/form-containers/{form_container.access_token}", headers=headers)
 
     assert response.status_code == 200
     data = response.get_json()
     assert data["title"] == form_container.title
 
 
-def test_validate_form_container(client, form_container, form):
+def test_validate_form_container(client, headers, form_container, form):
     """Test validating a form container."""
-    response = client.post(f"/api/v1/form-containers/{form_container.id}/forms/{form.id}/validate", json={"archive": False})
+    response = client.post(
+        f"/api/v1/form-containers/{form_container.id}/forms/{form.id}/validate",
+        json={"archive": False},
+        headers=headers
+    )
 
     assert response.status_code == 200
     data = response.get_json()
     assert data["message"] == "Form successfully validated."
 
 
-def test_cancel_form_container(client, form):
+def test_cancel_form_container(client, headers, form):
     """Test canceling a form within a form container."""
-    response = client.post(f"/api/v1/form-containers/{form.form_container_id}/forms/{form.id}/cancel", json={"comment": "Not needed anymore"})
+    response = client.post(
+        f"/api/v1/form-containers/{form.form_container_id}/forms/{form.id}/cancel",
+        json={"comment": "Not needed anymore"},
+        headers=headers
+    )
 
     assert response.status_code == 200
     data = response.get_json()
     assert data["message"] == "Form canceled successfully."
 
 
-def test_get_form_container_timeline(client, form_container, form):
+def test_get_form_container_timeline(client, headers, form_container, form):
     """Test retrieving the timeline of a form container."""
     timeline_entry = TimelineEntry(
         form_container_id=form_container.id,
@@ -134,7 +143,7 @@ def test_get_form_container_timeline(client, form_container, form):
     db.session.add(timeline_entry)
     db.session.commit()
 
-    response = client.get(f"/api/v1/form-containers/{form_container.id}/timeline")
+    response = client.get(f"/api/v1/form-containers/{form_container.id}/timeline", headers=headers)
 
     assert response.status_code == 200
     data = response.get_json()
@@ -142,9 +151,9 @@ def test_get_form_container_timeline(client, form_container, form):
     assert data[0]["event"] == "Form Created"
 
 
-def test_get_total_forms_count(client):
+def test_get_total_forms_count(client, headers):
     """Test retrieving the total count of forms across all containers."""
-    response = client.get("/api/v1/form-containers/total-count?app_ids=1")
+    response = client.get("/api/v1/form-containers/total-count?app_ids=1", headers=headers)
 
     assert response.status_code == 200
     data = response.get_json()

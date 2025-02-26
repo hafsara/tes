@@ -55,6 +55,7 @@ def question(form):
     db.session.commit()
     return test_question
 
+
 @pytest.fixture
 def application():
     """
