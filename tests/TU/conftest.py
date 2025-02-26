@@ -3,26 +3,26 @@ import pytest
 from datetime import datetime, timedelta
 from api.app import create_app
 from api.extensions import db as _db
-from flask import request, Flask
+from flask import request
 from flask_mail import Mail
 
-from config import TestingConfig
+from config import TestConfig
 
 
-# Create a Flask App for Testing
 @pytest.fixture
 def app():
-    app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['TESTING'] = True
-
-    _db.init_app(app)
+    """
+    Configure an instance of the Flask application for testing.
+    """
+    app = create_app(TestConfig)
+    app.config.update()
     mail = Mail(app)
     mail.init_app(app)
+
     with app.app_context():
         _db.create_all()
         yield app
+        _db.session.remove()
         _db.drop_all()
 
 
@@ -32,6 +32,7 @@ def db_session(app):
     with app.app_context():
         yield _db.session
         _db.session.remove()
+
 
 @pytest.fixture
 def client(app):
@@ -46,7 +47,7 @@ def headers():
     """
     Génère un token JWT utilisateur valide.
     """
-    secret_key = TestingConfig.SECRET_KEY
+    secret_key = TestConfig.SECRET_KEY
     payload = {
         "sub": "test_user",
         "exp": datetime.utcnow() + timedelta(hours=1)
