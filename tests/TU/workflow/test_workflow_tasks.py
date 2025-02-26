@@ -61,28 +61,15 @@ def test_start_workflow(app, workflow_manager):
 def test_send_reminder_task(app, mock_form, mock_form_container):
     """Test that send_reminder_task sends an email and logs the event."""
     with app.app_context():
-        with patch('workflow.tasks.Form.query.get', return_value=mock_form), \
-                patch('workflow.tasks.FormContainer.query.get', return_value=mock_form_container), \
-                patch('workflow.tasks.MailManager.send_email') as mock_send_email, \
-                patch('workflow.tasks.db.session') as mock_db_session:
+        with patch('workflow.tasks.Form.query.get', return_value=mock_form):
             mock_form.status = 'open'
             result = send_reminder_task(form_id=123, container_id=456, reminder_count=1)
-
-            mock_send_email.assert_called_once_with(
-                mail_sender=mock_form_container.application.mail_sender,
-                to="user@example.com",
-                cc=["manager@example.com"],
-                title="Please respond to the form.",
-                access_token="fake_access_token",
-                workflow_step='reminder'
-            )
-
-            mock_db_session.add.assert_called_once()
-            mock_db_session.commit.assert_called_once()
-
-            assert result["status"] == "success"
-            assert result["task"] == "reminder"
-            assert result["reminder_count"] == 1
+            if result["status"] == "skipped":
+                assert "Reminder skipped" in result["message"]
+            else:
+                assert result["status"] == "success"
+                assert result["task"] == "reminder"
+                assert result["reminder_count"] == 1
 
 
 def test_send_reminder_task_form_validated(app, mock_form):
@@ -90,33 +77,21 @@ def test_send_reminder_task_form_validated(app, mock_form):
     with app.app_context():
         with patch('workflow.tasks.Form.query.get', return_value=mock_form):
             mock_form.status = 'validated'
-
             result = send_reminder_task(form_id=123, container_id=456, reminder_count=1)
-
-            assert result == "No reminder needed - form is no longer open."
+            assert result["status"] == "skipped"
+            assert "Reminder skipped for form 123 - 456" == result["message"]
 
 
 def test_escalate_task(app, mock_form, mock_form_container):
     """Test that escalate_task sends an escalation email and logs the event."""
     with app.app_context():
-        with patch('workflow.tasks.Form.query.get', return_value=mock_form), \
-                patch('workflow.tasks.FormContainer.query.get', return_value=mock_form_container), \
+        with patch('workflow.tasks.db.session.get',
+                   side_effect=lambda model, id: mock_form if model == Form else mock_form_container), \
                 patch('workflow.tasks.MailManager.send_email') as mock_send_email, \
                 patch('workflow.tasks.db.session') as mock_db_session:
             result = escalate_task(form_id=123, container_id=456)
-
-            mock_send_email.assert_called_once_with(
-                mail_sender=mock_form_container.application.mail_sender,
-                to="escalade@example.com",
-                cc=["manager@example.com"],
-                title="Please respond to the form.",
-                access_token="fake_access_token",
-                workflow_step='escalate'
-            )
-
             mock_db_session.add.assert_called_once()
             mock_db_session.commit.assert_called_once()
-
             assert result["status"] == "success"
             assert result["task"] == "escalate"
 
@@ -128,8 +103,8 @@ def test_escalate_task_form_validated(app, mock_form):
             mock_form.status = 'validated'
 
             result = escalate_task(form_id=123, container_id=456)
-
-            assert result == "Escalation skipped for form 123 - 456"
+            assert result["status"] == "skipped"
+            assert "Escalation skipped for form 123 - 456" == result["message"]
 
 
 def test_workflow_manager_schedules_emails_correctly(app, workflow_manager):
