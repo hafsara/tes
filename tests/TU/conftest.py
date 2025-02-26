@@ -29,9 +29,12 @@ def app():
 # Create a database session for testing
 @pytest.fixture
 def db_session(app):
+    """Set up and tear down a database session."""
     with app.app_context():
+        _db.create_all()
         yield _db.session
         _db.session.remove()
+        _db.drop_all()
 
 
 @pytest.fixture

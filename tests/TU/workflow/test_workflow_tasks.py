@@ -85,8 +85,8 @@ def test_send_reminder_task(app, mock_form, mock_form_container):
             assert result["reminder_count"] == 1
 
 
-def test_send_reminder_task_form_closed(app, mock_form):
-    """Test that no reminder is sent if the form is already closed."""
+def test_send_reminder_task_form_validated(app, mock_form):
+    """Test that no reminder is sent if the form is already validated."""
     with app.app_context():
         with patch('workflow.tasks.Form.query.get', return_value=mock_form):
             mock_form.status = 'validated'
@@ -121,7 +121,7 @@ def test_escalate_task(app, mock_form, mock_form_container):
             assert result["task"] == "escalate"
 
 
-def test_escalate_task_form_closed(app, mock_form):
+def test_escalate_task_form_validated(app, mock_form):
     """Test that escalation is skipped if the form is already validated."""
     with app.app_context():
         with patch('workflow.tasks.Form.query.get', return_value=mock_form):
