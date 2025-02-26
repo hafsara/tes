@@ -1,6 +1,11 @@
+import os
+
 from jinja2 import Template
 from flask_mail import Message
 from api.extensions import mail
+
+from config import Config
+
 
 class MailManager:
 
@@ -12,10 +17,13 @@ class MailManager:
 
     @staticmethod
     def prepare_body(access_token, questions=None):
-        link = f"http/localhost:4200/user-view/{access_token}"
-        template_path = "C:\\Users\hafsa\\PycharmProjects\\juratus_form1\\backend\workflow\\templates\summary_mail.html" if questions else "C:\\Users\hafsa\\PycharmProjects\\juratus_form1\\backend\workflow\\templates/notification_mail.html"
-        with open(template_path) as file:
+        link = f"{Config.APP_URL}/user-view/{access_token}"
+        template_filename = "summary_mail.html" if questions else "notification_mail.html"
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        template_path = os.path.join(base_dir, "templates", template_filename)
+        with open(template_path, encoding="utf-8") as file:
             template_content = file.read()
+
         template = Template(template_content)
         return template.render(form_url=link, questions=questions)
 
