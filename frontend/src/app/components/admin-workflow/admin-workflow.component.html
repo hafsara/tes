@@ -1,5 +1,5 @@
 <div class="workflow-container">
-  <p-panel *ngFor="let step of steps" [header]="step.label" class="step-panel" [toggleable]="true">
+  <p-panel *ngFor="let step of steps" [collapsed]="true" [header]="step.label" class="step-panel" [toggleable]="true">
     <ng-template pTemplate="icons">
       <button class="p-panel-header-icon p-link mr-2" (click)="openContextMenu($event, step, menu)">
         <span class="pi pi-cog"></span>
@@ -13,12 +13,15 @@
     </div>
   </p-panel>
 
-  <p-button label="Add step" icon="pi pi-plus" (click)="addStep()"></p-button>
-      <p-button label="Save Workflow" icon="pi pi-save" class="p-button-success" (click)="saveWorkflow()"></p-button>
+  <div class="workflow-actions">
 
+    <p-button label="Add step" icon="pi pi-plus" (click)="addStep()"></p-button>
+    <p-button label="Save Workflow" icon="pi pi-save" class="p-button-success" (click)="saveWorkflow()"></p-button>
+
+  </div>
 </div>
 
-<p-dialog [(visible)]="displayDialog" [modal]="true"*ngIf="selectedStep">
+<p-dialog [(visible)]="displayDialog" [modal]="true" *ngIf="selectedStep">
   <h3>Configure the Step</h3>
   <div>
     <label>Step Name :</label>
