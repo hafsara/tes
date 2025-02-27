@@ -1,0 +1,36 @@
+<div class="workflow-container">
+  <p-panel *ngFor="let step of steps" [header]="step.label" class="step-panel" [toggleable]="true">
+    <ng-template pTemplate="icons">
+      <button class="p-panel-header-icon p-link mr-2" (click)="openContextMenu($event, step, menu)">
+        <span class="pi pi-cog"></span>
+      </button>
+      <p-menu #menu id="config_menu" [model]="items" [popup]="true"/>
+    </ng-template>
+
+    <div class="step-details">
+      <p>Type: {{ step.type }}</p>
+      <p>Delay: {{ step.delay }} jours</p>
+    </div>
+  </p-panel>
+
+  <p-button label="Add step" icon="pi pi-plus" (click)="addStep()"></p-button>
+      <p-button label="Save Workflow" icon="pi pi-save" class="p-button-success" (click)="saveWorkflow()"></p-button>
+
+</div>
+
+<p-dialog [(visible)]="displayDialog" [modal]="true"*ngIf="selectedStep">
+  <h3>Configure the Step</h3>
+  <div>
+    <label>Step Name :</label>
+    <input type="text" pInputText [(ngModel)]="selectedStep.label">
+  </div>
+  <div>
+    <label>Type :</label>
+    <p-dropdown [options]="stepTypes" [(ngModel)]="selectedStep.type"></p-dropdown>
+  </div>
+  <div>
+    <label>Delay (jours) :</label>
+    <input type="number" pInputText [(ngModel)]="selectedStep.delay">
+  </div>
+  <p-button label="Validate" (click)="validateStep()"></p-button>
+</p-dialog>

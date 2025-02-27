@@ -10,6 +10,7 @@ import { provideHttpClient, withFetch } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
 // PrimeNG Modules
+import { PanelModule } from 'primeng/panel';
 import { DialogModule } from 'primeng/dialog';
 import { StepsModule } from 'primeng/steps';
 import { CalendarModule } from 'primeng/calendar';
@@ -67,6 +68,7 @@ import { AdminTokensComponent } from './components/admin-tokens/admin-tokens.com
 import { AdminCampaignComponent } from './components/admin-campaign/admin-campaign.component';
 import { AdminApplicationsComponent } from './components/admin-applications/admin-applications.component';
 import { SafeUrlPipe } from './pipes/safe-url.pipe';
+import { AdminWorkflowComponent } from './components/admin-workflow/admin-workflow.component';
 
 @NgModule({
   declarations: [
@@ -91,7 +93,8 @@ import { SafeUrlPipe } from './pipes/safe-url.pipe';
     AdminTokensComponent,
     AdminCampaignComponent,
     AdminApplicationsComponent,
-    SafeUrlPipe
+    SafeUrlPipe,
+    AdminWorkflowComponent
   ],
   imports: [
     BrowserModule,
@@ -120,6 +123,7 @@ import { SafeUrlPipe } from './pipes/safe-url.pipe';
     InputNumberModule,
     CalendarModule,
     ButtonModule,
+    PanelModule,
     InputTextModule,
     RadioButtonModule,
     ProgressSpinnerModule,

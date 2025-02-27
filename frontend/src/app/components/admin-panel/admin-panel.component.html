@@ -5,6 +5,9 @@
 
 <div class="admin-panel">
   <div class="sidebar">
+    <button *ngIf="isAuthorized()" (click)="selectedTab = 'workflows'"
+            [class.active]="selectedTab === 'workflows'">Workflows
+    </button>
     <button *ngIf="hasApps" (click)="selectedTab = 'api-tokens'" [class.active]="selectedTab === 'api-tokens'">API Tokens</button>
     <button *ngIf="hasApps" (click)="selectedTab = 'campaigns'" [class.active]="selectedTab === 'campaigns'">Campaigns</button>
     <button *ngIf="isAuthorized()" (click)="selectedTab = 'applications'"
@@ -22,6 +25,10 @@
     <!-- Applications Section -->
     <div *ngIf="selectedTab === 'applications'">
       <app-admin-applications [appOptions]="appOptions"></app-admin-applications>
+    </div>
+
+    <div *ngIf="selectedTab === 'workflows'">
+      <app-admin-workflow [appOptions]="appOptions"></app-admin-workflow>
     </div>
 
     <!-- Campaigns Section -->

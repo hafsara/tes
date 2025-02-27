@@ -1,0 +1,22 @@
+.workflow-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 50%;
+  margin: auto;
+}
+
+.step-panel {
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 5px;
+}
+
+.step-details {
+  margin-bottom: 10px;
+}
+
+.step-actions {
+  display: flex;
+  gap: 10px;
+}
