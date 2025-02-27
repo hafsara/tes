@@ -207,6 +207,7 @@ class FormContainerSchema(Schema):
     archived_at = fields.DateTime(allow_none=True)
     forms = fields.List(fields.Nested(FormSchema), required=True)
     escalade_email = fields.Str(required=False)
+    use_working_days = fields.Bool(default=False)
 
     @validates("escalade_email")
     def validate_escalade_email(self, value):

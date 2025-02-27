@@ -1,3 +1,5 @@
+from datetime import date
+
 import pytest
 from unittest.mock import patch, MagicMock
 from freezegun import freeze_time
@@ -27,6 +29,7 @@ def mock_form_container():
     form_container.application.mail_sender = "application_email@example.com"
     form_container.reminder_delay = 1  # 1 day by default
     form_container.escalate = True
+    form_container.use_working_days = True
     return form_container
 
 
@@ -160,3 +163,81 @@ def test_workflow_manager_sends_emails_at_correct_time(app, workflow_manager):
                 mock_escalate("noreply@example.com", 123, 456, countdown=0)
                 escalation_calls = [call.args for call in mock_escalate.mock_calls]
                 assert ("noreply@example.com", 123, 456) in escalation_calls
+
+
+@freeze_time("2025-02-27")  # Un jeudi
+def test_adjust_for_working_days_skips_weekends(workflow_manager, mocker):
+    """Vérifie que adjust_for_working_days saute bien les week-ends."""
+    mock_calendar = mocker.MagicMock()
+    mock_calendar.is_working_day.side_effect = lambda d: d.weekday() < 5  # Lundi à Vendredi
+    mock_calendar.holidays.return_value = []  # Pas de jours fériés
+
+    mocker.patch("workflow.tasks.registry.get", return_value=lambda: mock_calendar)
+
+    start_date = date(2025, 2, 27)  # Jeudi
+    delay_days = 3  # Doit sauter le week-end et finir mardi
+
+    expected_date = date(2025, 3, 4)  # Mardi
+    result = workflow_manager.adjust_for_working_days(start_date, delay_days)
+    assert result == expected_date, f"Expected {expected_date}, got {result}"
+
+
+@freeze_time("2025-02-27")
+def test_adjust_for_working_days_skips_holidays(workflow_manager, mocker):
+    """Vérifie que adjust_for_working_days saute bien les jours fériés."""
+    mock_calendar = mocker.MagicMock()
+    mock_calendar.is_working_day.side_effect = lambda d: d.weekday() < 5  # Lundi à Vendredi
+    mock_calendar.holidays.return_value = [date(2025, 3, 3)]  # Jour férié le 3 mars
+
+    mocker.patch("workflow.tasks.registry.get", return_value=lambda: mock_calendar)
+
+    start_date = date(2025, 2, 27)  # Jeudi
+    delay_days = 3  # Doit sauter le 3 mars
+
+    expected_date = date(2025, 3, 5)  # Mercredi
+    result = workflow_manager.adjust_for_working_days(start_date, delay_days)
+    assert result == expected_date, f"Expected {expected_date}, got {result}"
+
+
+@freeze_time("2025-02-27")
+def test_start_workflow_schedules_tasks_correctly(workflow_manager, mocker):
+    """Vérifie que les tâches Celery sont bien planifiées avec des jours ouvrés."""
+    mock_calendar = mocker.MagicMock()
+    mock_calendar.is_working_day.side_effect = lambda d: d.weekday() < 5  # Lundi à Vendredi
+    mock_calendar.holidays.return_value = []  # Pas de jours fériés
+    mocker.patch("workflow.tasks.registry.get", return_value=lambda: mock_calendar)
+
+    with patch('workflow.tasks.chain') as mock_chain:
+        workflow_manager.start_workflow(form_id=123)
+
+        assert len(workflow_manager.tasks) == MAX_REMINDERS + 1  # 3 reminders + 1 escalation
+        mock_chain.assert_called_once()
+
+
+@freeze_time("2025-02-27")
+def test_start_workflow_handles_non_working_days(workflow_manager, mocker):
+    """Vérifie que les rappels ne tombent pas sur un week-end."""
+    mock_calendar = mocker.MagicMock()
+    mock_calendar.is_working_day.side_effect = lambda d: d.weekday() < 5  # Lundi à Vendredi
+    mock_calendar.holidays.return_value = [date(2025, 3, 3)]  # Jour férié le 3 mars
+    mocker.patch("workflow.tasks.registry.get", return_value=lambda: mock_calendar)
+
+    with patch('workflow.tasks.send_reminder_task.apply_async') as mock_send_reminder:
+        workflow_manager.start_workflow(form_id=123)
+
+        called_times = [call[1]["countdown"] for call in mock_send_reminder.call_args_list]
+        assert all(t > 0 for t in called_times), "All countdowns should be positive."
+
+
+@freeze_time("2025-02-27")
+def test_start_workflow_standard_mode(mock_form_container, mocker):
+    """Vérifie que les rappels fonctionnent normalement quand `use_working_days` est désactivé."""
+    mock_form_container.use_working_days = False
+    manager = WorkflowManager(form_container=mock_form_container)
+
+    with patch('workflow.tasks.chain') as mock_chain:
+        manager.start_workflow(form_id=123)
+
+        expected_task_count = MAX_REMINDERS + (1 if manager.escalate else 0)
+        assert len(manager.tasks) == expected_task_count
+        mock_chain.assert_called_once()

@@ -18,6 +18,7 @@ class FormContainer(db.Model):
     reference = db.Column(db.String(255), nullable=True)
     escalate = db.Column(db.Boolean, default=False)
     validated = db.Column(db.Boolean, default=False)
+    use_working_days = db.Column(db.Boolean, default=False)
     initiated_by = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

@@ -13,6 +13,7 @@ def form_container():
         description="Test Form Container description",
         access_token="test_access_token",
         validated=False,
+        use_working_days=True,
         escalate=True,
         user_email="test@example.com",
         cc_emails=["cc@example.com"],

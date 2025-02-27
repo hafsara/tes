@@ -16,7 +16,7 @@ DAY_SEC = 86400
 
 
 class WorkflowManager:
-    def __init__(self, form_container, working_day=False):
+    def __init__(self, form_container):
         self.mail_sender = form_container.application.mail_sender
         self.user_email = form_container.user_email
         self.cc_emails = form_container.cc_emails if form_container.cc_emails else []
@@ -25,25 +25,25 @@ class WorkflowManager:
         self.container_id = form_container.id
         self.tasks = []
         self.country_code = self.get_country_code()
+        self.reminder_delay = form_container.reminder_delay
+        self.use_working_days = form_container.use_working_days
 
-        if self.country_code and working_day:
-            self.reminder_delay = self.adjust_for_working_days(form_container.reminder_delay)
-        else:
-            self.reminder_delay = form_container.reminder_delay
-
-    def adjust_for_working_days(self, delay_days):
-        """Convert delay_days into actual working days, excluding weekends and public holidays."""
-        current_date = date.today()
+    def adjust_for_working_days(self, start_date, delay_days):
+        """
+        Retourne la date réelle en tenant compte des jours ouvrés.
+        """
         cal = registry.get(self.country_code)()
-        public_holidays = set(cal.holidays(current_date.year))
+        public_holidays = set(cal.holidays(start_date.year))
 
+        current_date = start_date
         days_counted = 0
+
         while days_counted < delay_days:
             current_date += timedelta(days=1)
             if cal.is_working_day(current_date) and current_date not in public_holidays:
                 days_counted += 1
 
-        return (current_date - date.today()).days
+        return current_date
 
     @staticmethod
     def get_user_country(user_email):
@@ -69,16 +69,29 @@ class WorkflowManager:
             self.access_token
         )
 
+        start_date = datetime.utcnow()
+
         for i in range(1, MAX_REMINDERS + 1):
+            if self.use_working_days:
+                reminder_date = self.adjust_for_working_days(start_date.date(), i * self.reminder_delay)
+                countdown = (datetime.combine(reminder_date, datetime.min.time()) - start_date).total_seconds()
+            else:
+                countdown = i * self.reminder_delay * DAY_SEC
+
             self.tasks.append(
-                send_reminder_task.si(form_id, self.container_id, i
-                                      ).set(countdown=i * self.reminder_delay * DAY_SEC)
+                send_reminder_task.si(form_id, self.container_id, i).set(countdown=countdown)
             )
 
         if self.escalate:
+            if self.use_working_days:
+                escalation_date = self.adjust_for_working_days(start_date.date(),
+                                                               (MAX_REMINDERS + 1) * self.reminder_delay)
+                countdown = (datetime.combine(escalation_date, datetime.min.time()) - start_date).total_seconds()
+            else:
+                countdown = (MAX_REMINDERS + 1) * self.reminder_delay * DAY_SEC
+
             self.tasks.append(
-                escalate_task.si(form_id, self.container_id
-                                 ).set(countdown=(MAX_REMINDERS + 1) * self.reminder_delay * DAY_SEC)
+                escalate_task.si(form_id, self.container_id).set(countdown=countdown)
             )
 
         chain(*self.tasks).apply_async()

@@ -41,9 +41,14 @@ def create_form_container():
     if campaign_id and not Campaign.query.filter_by(id=campaign_id, app_id=app_id).first():
         return error_response("The provided campaign_id is not linked to the given app_id", 400)
 
-    escalade_email, cc_emails = get_eq_emails(validated_data['user_email'],
-                                              validated_data.get('escalade_email', ''),
-                                              validated_data.get('cc_emails'))
+    escalade_email, cc_emails = get_eq_emails(
+        validated_data['user_email'],
+        validated_data.get('escalade_email', ''),
+        validated_data.get('cc_emails')
+    )
+
+    # Récupération de `use_working_days`
+    use_working_days = validated_data.get('use_working_days', False)
 
     form_container = FormContainer(
         title=validated_data['title'],
@@ -54,6 +59,7 @@ def create_form_container():
         escalate=validated_data.get('escalate', False),
         initiated_by=user_id,
         reminder_delay=validated_data.get('reminder_delay'),
+        use_working_days=use_working_days,
         cc_emails=cc_emails,
         app_id=app_id,
         campaign_id=campaign_id
@@ -62,7 +68,6 @@ def create_form_container():
     db.session.add(form_container)
     db.session.commit()
 
-    # Create form
     form_data = validated_data.get('forms')
 
     if not form_data:
@@ -81,6 +86,7 @@ def create_form_container():
     )
     db.session.add(form)
     db.session.commit()
+
     log_timeline_event(
         form_container_id=form_container.id,
         form_id=form.id,
@@ -89,7 +95,6 @@ def create_form_container():
     )
     WorkflowManager(form_container).start_workflow(form.id)
     db.session.commit()
-
     return jsonify({
         "container_id": form_container.id,
         "form_id": form.id,

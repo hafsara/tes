@@ -26,6 +26,7 @@ def form_container():
         access_token="test_access_token",
         validated=False,
         escalate=True,
+        use_working_days=True,
         user_email="test@example.com",
         cc_emails=["cc@example.com"],
         escalade_email="escalade@example.com",
