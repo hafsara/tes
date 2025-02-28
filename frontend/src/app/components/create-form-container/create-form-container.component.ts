@@ -31,7 +31,8 @@ export class CreateFormContainerComponent {
     escaladeEmail: '',
     escalate: true,
     ccEmails: [],
-    reminderDelayDay: 1,
+    workflowId: 1,
+    useWorkingDays: false,
     forms: [{
       questions: [{
         label: '',
@@ -49,13 +50,22 @@ export class CreateFormContainerComponent {
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   emailKeywords = environment.emailKeywords;
   campaignOptions: { name: string, id: string }[] = [];
+  workflows: any[] = [];
 
   constructor(
     private formService: FormService,
     private router: Router,
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
-  ) {}
+  ) {
+
+      this.loadWorkflows();
+}
+  loadWorkflows() {
+    this.formService.getWorkflows().subscribe((data: any) => {
+      this.workflows = data;
+    });
+  }
 
   onAppChange(event: any) {
     this.appSelected = true;
@@ -180,7 +190,8 @@ export class CreateFormContainerComponent {
       escalade_email: this.formContainer.escaladeEmail,
       reference: this.formContainer.reference,
       escalate: this.formContainer.escalate,
-      reminder_delay: this.formContainer.reminderDelayDay,
+      use_working_days: this.formContainer.useWorkingDays,
+      workflow_id: this.formContainer.workflowId,
       cc_emails: this.formContainer.ccEmails,
       forms: this.formContainer.forms
     };

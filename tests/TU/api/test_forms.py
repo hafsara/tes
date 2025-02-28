@@ -19,7 +19,7 @@ def form_container():
         cc_emails=["cc@example.com"],
         escalade_email="escalade@example.com",
         initiated_by='user_id',
-        reminder_delay=2,
+        workflow_id=2,
         app_id=1,
         campaign_id=2
     )

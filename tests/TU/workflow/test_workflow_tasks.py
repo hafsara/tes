@@ -27,7 +27,7 @@ def mock_form_container():
     form_container.access_token = "fake_access_token"
     form_container.escalade_email = "escalade@example.com"
     form_container.application.mail_sender = "application_email@example.com"
-    form_container.reminder_delay = 1  # 1 day by default
+    form_container.workflow_id = 1  # 1 day by default
     form_container.escalate = True
     form_container.use_working_days = True
     return form_container
@@ -119,14 +119,14 @@ def test_workflow_manager_schedules_emails_correctly(app, workflow_manager):
 
             expected_tasks = [
                 send_reminder_task.si(123, workflow_manager.container_id, i).set(
-                    countdown=i * workflow_manager.reminder_delay * DAY_SEC)
+                    countdown=i * workflow_manager.workflow_id * DAY_SEC)
                 for i in range(1, MAX_REMINDERS + 1)
             ]
 
             if workflow_manager.escalate:
                 expected_tasks.append(
                     escalate_task.si(123, workflow_manager.container_id).set(
-                        countdown=(MAX_REMINDERS + 1) * workflow_manager.reminder_delay * DAY_SEC)
+                        countdown=(MAX_REMINDERS + 1) * workflow_manager.workflow_id * DAY_SEC)
                 )
 
             mock_chain.assert_called_once_with(*expected_tasks)
@@ -144,12 +144,12 @@ def test_workflow_manager_sends_emails_at_correct_time(app, workflow_manager):
             workflow_manager.start_workflow(form_id=123)
             expected_tasks = [
                 send_reminder_task.si(123, workflow_manager.container_id, i).set(
-                    countdown=i * workflow_manager.reminder_delay * DAY_SEC)
+                    countdown=i * workflow_manager.workflow_id * DAY_SEC)
                 for i in range(1, MAX_REMINDERS + 1)
             ]
             expected_tasks.append(
                 escalate_task.si(123, workflow_manager.container_id).set(
-                    countdown=(MAX_REMINDERS + 1) * workflow_manager.reminder_delay * DAY_SEC)
+                    countdown=(MAX_REMINDERS + 1) * workflow_manager.workflow_id * DAY_SEC)
             )
 
             mock_chain.assert_called_once_with(*expected_tasks)

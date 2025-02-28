@@ -24,7 +24,8 @@ export interface FormContainer {
   escaladeEmail?: string;
   ccEmails?: string[];
   escalate: boolean;
-  reminderDelayDay: number;
+  workflowId: number;
+  useWorkingDays: boolean;
   forms: Form[];
   validated?: boolean;
   created_at?: string;

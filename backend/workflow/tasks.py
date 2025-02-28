@@ -25,7 +25,7 @@ class WorkflowManager:
         self.container_id = form_container.id
         self.tasks = []
         self.country_code = self.get_country_code()
-        self.reminder_delay = form_container.reminder_delay
+        self.workflow_id = form_container.workflow_id
         self.use_working_days = form_container.use_working_days
 
     def adjust_for_working_days(self, start_date, delay_days):
@@ -73,10 +73,10 @@ class WorkflowManager:
 
         for i in range(1, MAX_REMINDERS + 1):
             if self.use_working_days:
-                reminder_date = self.adjust_for_working_days(start_date.date(), i * self.reminder_delay)
+                reminder_date = self.adjust_for_working_days(start_date.date(), i * self.workflow_id)
                 countdown = (datetime.combine(reminder_date, datetime.min.time()) - start_date).total_seconds()
             else:
-                countdown = i * self.reminder_delay * DAY_SEC
+                countdown = i * self.workflow_id * DAY_SEC
 
             self.tasks.append(
                 send_reminder_task.si(form_id, self.container_id, i).set(countdown=countdown)
@@ -85,10 +85,10 @@ class WorkflowManager:
         if self.escalate:
             if self.use_working_days:
                 escalation_date = self.adjust_for_working_days(start_date.date(),
-                                                               (MAX_REMINDERS + 1) * self.reminder_delay)
+                                                               (MAX_REMINDERS + 1) * self.workflow_id)
                 countdown = (datetime.combine(escalation_date, datetime.min.time()) - start_date).total_seconds()
             else:
-                countdown = (MAX_REMINDERS + 1) * self.reminder_delay * DAY_SEC
+                countdown = (MAX_REMINDERS + 1) * self.workflow_id * DAY_SEC
 
             self.tasks.append(
                 escalate_task.si(form_id, self.container_id).set(countdown=countdown)

@@ -31,7 +31,7 @@ def form_container():
         cc_emails=["cc@example.com"],
         escalade_email="escalade@example.com",
         initiated_by="user_id",
-        reminder_delay=2,
+        workflow_id=2,
         app_id=1,
         campaign_id=2
     )
@@ -71,7 +71,7 @@ def test_create_form_container(client, application, headers):
         "description": "Description",
         "user_email": "user@example.com",
         "app_id": "1",
-        "reminder_delay": 2,
+        "workflow_id": 2,
         "forms": [{"questions": [{"label": "Q1", "type": "text"}]}]
     }
 
@@ -92,7 +92,7 @@ def test_create_form_container_without_form(client, headers):
         "title": "Container without form",
         "description": "Description",
         "user_email": "user@example.com",
-        "reminder_delay": 2,
+        "workflow_id": 2,
         "app_id": "app_123"
     }
 

@@ -58,7 +58,7 @@ def create_form_container():
         reference=validated_data.get('reference'),
         escalate=validated_data.get('escalate', False),
         initiated_by=user_id,
-        reminder_delay=validated_data.get('reminder_delay'),
+        workflow_id=validated_data.get('workflow_id'),
         use_working_days=use_working_days,
         cc_emails=cc_emails,
         app_id=app_id,

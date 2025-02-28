@@ -678,7 +678,7 @@ components:
         escalate:
           type: boolean
           example: false
-        reminder_delay:
+        workflow_id:
           type: integer
           example: 5
         app_id:
@@ -723,7 +723,7 @@ components:
         validated:
           type: boolean
           example: false
-        reminder_delay:
+        workflow_id:
           type: integer
           example: 5
         app_id:

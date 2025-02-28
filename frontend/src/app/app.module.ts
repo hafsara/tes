@@ -10,6 +10,7 @@ import { provideHttpClient, withFetch } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
 // PrimeNG Modules
+import { InputSwitchModule } from 'primeng/inputswitch';
 import { PanelModule } from 'primeng/panel';
 import { DialogModule } from 'primeng/dialog';
 import { StepsModule } from 'primeng/steps';
@@ -100,6 +101,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
   ],
   imports: [
     DragDropModule,
+    InputSwitchModule,
     BrowserModule,
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
     RouterModule.forRoot([]),

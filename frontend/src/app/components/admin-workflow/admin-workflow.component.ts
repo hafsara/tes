@@ -21,6 +21,8 @@ export class AdminWorkflowComponent {
   contextStep: any = null;
   workflowName: string = '';
   displayWorkflowDialog: boolean = false;
+  selectedWorkflowSteps: any[] = [];
+  showWorkflowDetails: boolean = false;
 
   constructor(private messageService: MessageService, private formService: FormService, private confirmationService: ConfirmationService,) {
     this.initContextMenu();
@@ -220,10 +222,15 @@ export class AdminWorkflowComponent {
 
   confirmSaveWorkflow() {
     if (!this.workflowName.trim()) {
-      alert("Please enter a workflow title.");
+      this.messageService.add({ severity: 'warn', detail: "Please enter a workflow title.", life: 1000});
       return;
     }
+    const nameExists = this.workflows.some(wf => wf.name.toLowerCase() === this.workflowName.toLowerCase());
 
+    if (nameExists) {
+      this.messageService.add({ severity: 'warn', detail: "A workflow with this name already exists. Please choose another name.", life: 1000});
+      return;
+    }
     const workflowData = {
       name: this.workflowName,
       steps: this.steps,
@@ -247,9 +254,11 @@ export class AdminWorkflowComponent {
     this.showCreation = false;
   }
 
-  viewWorkflow(steps: any){
-
+  viewWorkflow(steps: any[]) {
+    this.selectedWorkflowSteps = steps;
+    this.showWorkflowDetails = true;
   }
+
 
   deleteWorkflow(id: string){
     this.confirmationService.confirm({

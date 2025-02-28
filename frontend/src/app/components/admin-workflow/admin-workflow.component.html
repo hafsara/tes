@@ -81,3 +81,15 @@
   <p-button label="Save" icon="pi pi-save" class="p-button-success" (click)="confirmSaveWorkflow()"></p-button>
 </p-dialog>
 
+<p-dialog [(visible)]="showWorkflowDetails" [modal]="true"  [style]="{ width: '35rem' }">
+  <h3>Workflow Details</h3>
+  <p-panel *ngFor="let step of selectedWorkflowSteps"
+           [header]="step.label"
+           class="step-panel"
+           toggleable="true">
+    <div class="step-details">
+      <p>Type: {{ step.type }}</p>
+      <p>Delay: {{ step.delay }} days</p>
+    </div>
+  </p-panel>
+</p-dialog >
