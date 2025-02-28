@@ -12,7 +12,7 @@ export class AdminWorkflowComponent {
   selectedStep: any = null;
   availableTypes: any[] = [];
   items: MenuItem[] = [];
-  isEditing = false;
+  isEditing = false; // Track if editing
   contextStep: any = null;
 
   constructor() {
@@ -29,13 +29,15 @@ export class AdminWorkflowComponent {
       {
         label: 'Delete',
         icon: 'pi pi-trash',
-        command: () => this.deleteStep(this.contextStep.id)
+        command: () => this.deleteStep(this.contextStep.id),
+        disabled: this.contextStep?.type === 'start'
       }
     ];
   }
 
   openContextMenu(event: Event, step: any, menu: any) {
     this.contextStep = step;
+    this.initContextMenu();
     menu.toggle(event);
   }
 
@@ -55,6 +57,7 @@ export class AdminWorkflowComponent {
 
   getAllStepTypes(): any[] {
     return [
+      { label: 'Start', value: 'start' },
       { label: 'Reminder', value: 'reminder' },
       { label: 'Escalation', value: 'escalation' },
       { label: 'Escalation Reminder', value: 'reminder-escalation' }
@@ -63,13 +66,14 @@ export class AdminWorkflowComponent {
 
   generateStepLabel(type: string): string {
     const typeMap: { [key: string]: string } = {
+      'start': 'Start',
       'reminder': 'Reminder',
       'escalation': 'Escalation',
       'reminder-escalation': 'Escalation Reminder'
     };
 
     const filteredSteps = this.steps.filter(step => step.type === type);
-    return `${typeMap[type]} ${filteredSteps.length + 1}`;
+    return type === 'start' ? 'Start' : `${typeMap[type]} ${filteredSteps.length + 1}`;
   }
 
   addStep() {
@@ -89,7 +93,7 @@ export class AdminWorkflowComponent {
       collapsed: true
     };
 
-    this.isEditing = false;
+    this.isEditing = false; // Set to false to indicate we are adding a new step
     this.displayDialog = true;
   }
 
@@ -106,7 +110,7 @@ export class AdminWorkflowComponent {
 
   onEditStep(step: any) {
     this.selectedStep = { ...step };
-    this.availableTypes = step.type === 'start' ? [] : this.getAllStepTypes();
+    this.availableTypes = step.type === 'start' ? [{ label: 'Start', value: 'start' }] : this.getAllStepTypes();
     this.isEditing = true;
     this.displayDialog = true;
   }
@@ -125,6 +129,14 @@ export class AdminWorkflowComponent {
   }
 
   deleteStep(stepId: string) {
+    const stepToDelete = this.steps.find(step => step.id === stepId);
+    if (!stepToDelete) return;
+
+    if (stepToDelete.type === 'start') {
+      alert("The Start step cannot be deleted.");
+      return;
+    }
+
     this.steps = this.steps.filter(step => step.id !== stepId);
   }
 
