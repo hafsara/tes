@@ -45,7 +45,8 @@ export class AdminWorkflowComponent {
       {
         label: 'Edit',
         icon: 'pi pi-pencil',
-        command: () => this.onEditStep(this.contextStep)
+        command: () => this.onEditStep(this.contextStep),
+        disabled: this.contextStep?.type === 'start'
       },
       {
         label: 'Delete',

@@ -1,13 +1,17 @@
 <div class="workflows-header">
   <h2>Workflow Manager</h2>
-  <button pButton label="New workflow" icon="pi pi-plus" class="p-button-rounded p-button-primary" (click)="showCreation=!showCreation"></button>
+  <p-toggleButton
+    [(ngModel)]="showCreation"
+    onLabel="Close workflow"
+    offLabel="New workflow"
+    onIcon="pi pi-minus"
+    offIcon="pi pi-plus"/>
 </div>
-
-
 
 <p-table [value]="workflows" *ngIf="!showCreation && workflows && workflows.length > 0">
   <ng-template pTemplate="header">
     <tr>
+      <th>Workflow ID</th>
       <th>Workflow name</th>
       <th>Created by</th>
       <th style="width: 7rem"></th>
@@ -15,6 +19,7 @@
   </ng-template>
   <ng-template pTemplate="body" let-workflow>
     <tr>
+      <td>{{ workflow.id }}</td>
       <td>{{ workflow.name }}</td>
       <td>{{ workflow.created_by }}</td>
       <td>
@@ -81,7 +86,7 @@
   <p-button label="Save" icon="pi pi-save" class="p-button-success" (click)="confirmSaveWorkflow()"></p-button>
 </p-dialog>
 
-<p-dialog [(visible)]="showWorkflowDetails" [modal]="true"  [style]="{ width: '35rem' }">
+<p-dialog [(visible)]="showWorkflowDetails" [modal]="true" [style]="{ width: '35rem' }">
   <h3>Workflow Details</h3>
   <p-panel *ngFor="let step of selectedWorkflowSteps"
            [header]="step.label"
@@ -92,4 +97,4 @@
       <p>Delay: {{ step.delay }} days</p>
     </div>
   </p-panel>
-</p-dialog >
+</p-dialog>

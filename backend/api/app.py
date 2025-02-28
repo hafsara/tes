@@ -3,7 +3,6 @@ from config import Config
 from api.extensions import db, migrate, cors, mail
 from flask_swagger_ui import get_swaggerui_blueprint
 
-
 from api.routes.v1 import api_v1
 from api.routes.v1.auth import auth_bp
 
@@ -26,11 +25,8 @@ def create_app(class_config=Config):
 
     # Swagger setup
     SWAGGER_URL = class_config.SWAGGER_URL
-    API_URL = '/static/swagger.yml'
-    swaggerui_blueprint = get_swaggerui_blueprint(SWAGGER_URL, API_URL)
+    swaggerui_blueprint = get_swaggerui_blueprint(SWAGGER_URL, class_config.API_URL)
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
     with app.app_context():
         ensure_admin_application_exists()
     return app
-
-

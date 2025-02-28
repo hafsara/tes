@@ -11,7 +11,6 @@ from .celery_app import celery as app
 
 logger = logging.getLogger(__name__)
 
-MAX_REMINDERS = 3
 DAY_SEC = 86400
 
 
@@ -25,7 +24,7 @@ class WorkflowManager:
         self.container_id = form_container.id
         self.tasks = []
         self.country_code = self.get_country_code()
-        self.workflow_id = form_container.workflow_id
+        self.workflow = form_container.workflow_id
         self.use_working_days = form_container.use_working_days
 
     def adjust_for_working_days(self, start_date, delay_days):
@@ -69,33 +68,45 @@ class WorkflowManager:
             self.access_token
         )
 
+        if not self.workflow:
+            logger.error(f"No workflow assigned to FormContainer {self.container_id}")
+            return
+
+        logger.info(f"Using workflow '{self.workflow.name}' for form {form_id}")
+
         start_date = datetime.utcnow()
+        for step in self.workflow.steps:
+            step_type = step.get("type")
+            delay_days = step.get("delay", 1)
 
-        for i in range(1, MAX_REMINDERS + 1):
             if self.use_working_days:
-                reminder_date = self.adjust_for_working_days(start_date.date(), i * self.workflow_id)
-                countdown = (datetime.combine(reminder_date, datetime.min.time()) - start_date).total_seconds()
+                step_date = self.adjust_for_working_days(start_date.date(), delay_days)
+                countdown = (datetime.combine(step_date, datetime.min.time()) - start_date).total_seconds()
             else:
-                countdown = i * self.workflow_id * DAY_SEC
+                countdown = delay_days * DAY_SEC
 
-            self.tasks.append(
-                send_reminder_task.si(form_id, self.container_id, i).set(countdown=countdown)
-            )
+            if step_type == "reminder":
+                self.tasks.append(
+                    send_reminder_task.si(form_id, self.container_id, step.get("id")).set(countdown=countdown)
+                )
+                logger.info(f"Scheduled Reminder {step.get('id')} in {delay_days} days")
 
-        if self.escalate:
-            if self.use_working_days:
-                escalation_date = self.adjust_for_working_days(start_date.date(),
-                                                               (MAX_REMINDERS + 1) * self.workflow_id)
-                countdown = (datetime.combine(escalation_date, datetime.min.time()) - start_date).total_seconds()
-            else:
-                countdown = (MAX_REMINDERS + 1) * self.workflow_id * DAY_SEC
+            elif step_type == "escalation":
+                self.tasks.append(
+                    escalate_task.si(form_id, self.container_id).set(countdown=countdown)
+                )
+                logger.info(f"Scheduled Escalation in {delay_days} days")
 
-            self.tasks.append(
-                escalate_task.si(form_id, self.container_id).set(countdown=countdown)
-            )
+            elif step_type == "reminder-escalation":
+                self.tasks.append(
+                    escalate_task.si(form_id, self.container_id).set(countdown=countdown)
+                )
+                logger.info(f"Scheduled Reminder-Escalation {step.get('id')} in {delay_days} days")
 
-        chain(*self.tasks).apply_async()
-        logger.info(f"Workflow started with {len(self.tasks)} tasks")
+        if self.tasks:
+            chain(*self.tasks).apply_async()
+        else:
+            logger.warning("No tasks scheduled - workflow might be empty")
 
 
 @app.task(bind=True)

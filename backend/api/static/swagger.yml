@@ -659,6 +659,76 @@ paths:
           description: Unauthorized
         "404":
           description: Token not found
+  /workflows:
+    post:
+      summary: Create a new workflow
+      description: Creates a new workflow with a list of steps.
+      tags:
+        - Workflows
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkflowRequest"
+      responses:
+        "201":
+          description: Workflow successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkflowResponse"
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized - User not authenticated
+
+    get:
+      summary: Get all workflows
+      description: Retrieves all workflows.
+      tags:
+        - Workflows
+      responses:
+        "200":
+          description: List of workflows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkflowResponse"
+        "401":
+          description: Unauthorized - User not authenticated
+
+  /workflows/{workflow_id}:
+    delete:
+      summary: Delete a workflow
+      description: Deletes a workflow by its ID.
+      tags:
+        - Workflows
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          description: The ID of the workflow to delete
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Workflow deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Workflow deleted successfully
+        "401":
+          description: Unauthorized - User not authenticated
+        "404":
+          description: Workflow not found
+
 
 components:
   schemas:
@@ -966,6 +1036,57 @@ components:
         response:
           type: string
           example: "Blue"
+    WorkflowRequest:
+      type: object
+      required:
+        - name
+        - steps
+      properties:
+        name:
+          type: string
+          example: "Approval Process"
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/Step"
+    WorkflowResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Approval Process"
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/Step"
+        created_by:
+          type: string
+          example: "user_123"
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-02-28T14:56:16.276525Z"
+    Step:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "step1"
+        label:
+          type: string
+          example: "Start"
+        type:
+          type: string
+          enum: ["start", "reminder", "escalation", "reminder-escalation"]
+          example: "reminder"
+        delay:
+          type: integer
+          description: Delay in days
+          example: 2
+
   securitySchemes:
     BearerAuth:
       type: http

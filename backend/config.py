@@ -15,8 +15,8 @@ class Config:
     OAUTH_CLIENT_SECRET = os.environ.get('OAUTH_CLIENT_SECRET')
     OAUTH_PROVIDER = "https://provider.example.com"
 
-    SWAGGER_URL = '/api/docs'
-    API_URL = '/api/static/swagger.yml'
+    SWAGGER_URL = '/api/v1/docs'
+    API_URL = '/static/swagger.yml'
 
     # Configuration de mail
     SMTP_SERVER = 'smtp.example.com'
@@ -35,3 +35,4 @@ class TestConfig:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAIL_SUPPRESS_SEND = True
     SWAGGER_URL = '/api/docs'
+    API_URL = '/static/swagger.yml'

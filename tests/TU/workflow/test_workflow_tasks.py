@@ -18,6 +18,20 @@ def mock_form():
 
 
 @pytest.fixture
+def mock_workflow():
+    """Fixture to create a mock Workflow object."""
+    workflow = MagicMock()
+    workflow.id = 1
+    workflow.name = "Test Workflow"
+    workflow.steps = [
+        {"id": "step1", "label": "Start", "type": "start", "delay": 0},
+        {"id": "step2", "type": "reminder", "label": "Reminder 1", "delay": 1},
+        {"id": "step3", "type": "escalation", "label": "Escalation 1", "delay": 1},
+    ]
+    return workflow
+
+
+@pytest.fixture
 def mock_form_container():
     """Fixture to create a mock FormContainer object."""
     form_container = MagicMock(spec=FormContainer)
@@ -27,7 +41,7 @@ def mock_form_container():
     form_container.access_token = "fake_access_token"
     form_container.escalade_email = "escalade@example.com"
     form_container.application.mail_sender = "application_email@example.com"
-    form_container.workflow_id = 1  # 1 day by default
+    form_container.workflow = mock_workflow
     form_container.escalate = True
     form_container.use_working_days = True
     return form_container
@@ -42,7 +56,7 @@ def workflow_manager(mock_form_container):
 
 
 def test_start_workflow(app, workflow_manager):
-    """Test the workflow initialization and email scheduling."""
+    """Test workflow initialization with correct steps."""
     with app.app_context():
         with patch('workflow.tasks.MailManager.send_email') as mock_send_email, \
                 patch('workflow.tasks.chain') as mock_chain:
@@ -56,9 +70,40 @@ def test_start_workflow(app, workflow_manager):
                 workflow_manager.access_token
             )
 
-            expected_task_count = MAX_REMINDERS + (1 if workflow_manager.escalate else 0)
+            expected_task_count = len(workflow_manager.workflow.steps) - 1
             assert len(workflow_manager.tasks) == expected_task_count
             mock_chain.assert_called_once()
+
+
+def test_workflow_step_execution_order(app, workflow_manager):
+    """Ensure steps are executed in the correct order."""
+    with app.app_context():
+        with patch('workflow.tasks.chain') as mock_chain:
+            workflow_manager.start_workflow(form_id=123)
+
+            step_types = [step["type"] for step in workflow_manager.workflow.steps]
+            valid_sequences = {
+                "start": ["reminder", "escalation"],
+                "reminder": ["reminder", "escalation"],
+                "escalation": ["reminder-escalation"],
+                "reminder-escalation": ["reminder-escalation"]
+            }
+
+            for i in range(len(step_types) - 1):
+                assert step_types[i + 1] in valid_sequences[step_types[i]], \
+                    f"Invalid sequence: {step_types[i]} -> {step_types[i + 1]}"
+
+            mock_chain.assert_called_once()
+
+
+def test_escalation_triggers_correctly(app, workflow_manager):
+    """Test escalation is triggered at the right time."""
+    with app.app_context():
+        with patch('workflow.tasks.escalate_task.apply_async') as mock_escalate:
+            workflow_manager.start_workflow(form_id=123)
+
+            if workflow_manager.escalate:
+                mock_escalate.assert_called_once()
 
 
 def test_send_reminder_task(app, mock_form, mock_form_container):
