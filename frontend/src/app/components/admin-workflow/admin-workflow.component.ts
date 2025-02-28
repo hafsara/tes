@@ -32,11 +32,11 @@ export class AdminWorkflowComponent {
       }
     ];
   }
+
   openContextMenu(event: Event, step: any, menu: any) {
     this.contextStep = step;
     menu.toggle(event);
   }
-
 
   getAvailableStepTypes(prevType: string): any[] {
     if (prevType === 'start' || prevType === 'reminder') {
@@ -72,17 +72,26 @@ export class AdminWorkflowComponent {
       return;
     }
 
-    const newType = this.availableTypes[0].value;
-    const newId = 'step' + (this.steps.length + 1);
-    const newStep = {
-      id: newId,
-      label: this.generateStepLabel(newType),
-      type: newType,
+    this.selectedStep = {
+      id: `step${this.steps.length + 1}`,
+      type: '',
+      label: '',
       delay: 1,
       collapsed: true
     };
 
-    this.steps.push(newStep);
+    this.displayDialog = true;
+  }
+
+  confirmAddStep() {
+    if (!this.selectedStep.type) {
+      alert("Please select a step type.");
+      return;
+    }
+
+    this.selectedStep.label = this.generateStepLabel(this.selectedStep.type);
+    this.steps.push({ ...this.selectedStep });
+    this.displayDialog = false;
   }
 
   onEditStep(step: any) {
