@@ -69,6 +69,8 @@ import { AdminCampaignComponent } from './components/admin-campaign/admin-campai
 import { AdminApplicationsComponent } from './components/admin-applications/admin-applications.component';
 import { SafeUrlPipe } from './pipes/safe-url.pipe';
 import { AdminWorkflowComponent } from './components/admin-workflow/admin-workflow.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+
 
 @NgModule({
   declarations: [
@@ -97,6 +99,7 @@ import { AdminWorkflowComponent } from './components/admin-workflow/admin-workfl
     AdminWorkflowComponent
   ],
   imports: [
+    DragDropModule,
     BrowserModule,
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
     RouterModule.forRoot([]),

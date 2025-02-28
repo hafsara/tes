@@ -20,3 +20,4 @@ npm install -g npm
 npm install ngx-markdown
 npm install jwt-decode
 npm install --save-dev @types/jwt-decode
+npm install @angular/cdk@18 --save

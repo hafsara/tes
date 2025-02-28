@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { MenuItem } from 'primeng/api';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-admin-workflow',
@@ -162,4 +163,9 @@ export class AdminWorkflowComponent {
     console.log("Workflow saved:", JSON.stringify(this.steps, null, 2));
     alert("Workflow saved successfully!");
   }
+  drop(event: CdkDragDrop<any[]>) {
+    moveItemInArray(this.steps, event.previousIndex, event.currentIndex);
+    console.log("New order:", this.steps);
+  }
+
 }

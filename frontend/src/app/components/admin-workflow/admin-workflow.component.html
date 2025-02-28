@@ -4,23 +4,26 @@
 </div>
 
 <div class="workflow-container">
-  <p-panel *ngFor="let step of steps"
-           [header]="step.label"
-           class="step-panel"
-           [collapsed]="step.collapsed"
-           toggleable="true">
-    <ng-template pTemplate="icons">
-      <button class="p-panel-header-icon p-link mr-2" (click)="openContextMenu($event, step, menu)">
-        <span class="pi pi-cog"></span>
-      </button>
-      <p-menu #menu id="config_menu" [model]="items" [popup]="true"/>
-    </ng-template>
+  <div cdkDropList [cdkDropListData]="steps" (cdkDropListDropped)="drop($event)" class="workflow-container">
+    <div *ngFor="let step of steps" cdkDrag class="draggable-step">
+      <p-panel [header]="step.label"
+               class="step-panel"
+               [collapsed]="step.collapsed"
+               toggleable="true">
+        <ng-template pTemplate="icons">
+          <button class="p-panel-header-icon p-link mr-2" (click)="openContextMenu($event, step, menu)">
+            <span class="pi pi-cog"></span>
+          </button>
+          <p-menu #menu id="config_menu" [model]="items" [popup]="true"/>
+        </ng-template>
 
-    <div class="step-details">
-      <p>Type: {{ step.type }}</p>
-      <p>Delay: {{ step.delay }} days</p>
+        <div class="step-details">
+          <p>Type: {{ step.type }}</p>
+          <p>Delay: {{ step.delay }} days</p>
+        </div>
+      </p-panel>
     </div>
-  </p-panel>
+  </div>
 
   <div class="workflow-actions">
     <p-button label="Add Step" icon="pi pi-plus" (click)="addStep()"></p-button>
