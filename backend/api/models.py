@@ -22,7 +22,7 @@ class FormContainer(db.Model):
     initiated_by = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    reminder_delay = db.Column(db.Integer, nullable=False)
+    workflow_id = db.Column(db.Integer, db.ForeignKey('workflow.id', ondelete='SET NULL'), nullable=True)
     app_id = db.Column(db.String(36), db.ForeignKey('application.id'), nullable=True)
     campaign_id = db.Column(db.Integer, db.ForeignKey('campaign.id'), nullable=True)
     archived_at = db.Column(db.DateTime, nullable=True)
@@ -31,6 +31,7 @@ class FormContainer(db.Model):
     campaign = db.relationship('Campaign', backref='form_containers')
     timeline = db.relationship('TimelineEntry', backref='form_containers', lazy=True)
     forms = db.relationship('Form', backref='form_containers', lazy=True)
+    workflow = db.relationship('Workflow', backref='form_containers', lazy=True)
 
 
 class Campaign(db.Model):
@@ -60,7 +61,7 @@ class Form(db.Model):
     questions = db.relationship('Question', backref='form', lazy=True, cascade="all, delete-orphan")
     responses = db.relationship('Response', backref='form', lazy=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    # workflow_step = db.Column(db.String(50), nullable=True)
+    workflow_step = db.Column(db.String(50), nullable=True)
 
     def __repr__(self):
         return f"<Form {self.id} for Container {self.form_container_id}>"
@@ -118,3 +119,14 @@ class APIToken(db.Model):
     created_by = db.Column(db.String, nullable=False)
     expiration = db.Column(db.DateTime, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class Workflow(db.Model):
+    __tablename__ = 'workflow'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(500), nullable=False, unique=True)
+    steps = db.Column(db.JSON, nullable=False)
+    created_by = db.Column(db.String, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    form_containers = db.relationship('FormContainer', backref='workflow', passive_deletes=True)

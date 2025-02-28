@@ -7,6 +7,9 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from api.routes.v1 import api_v1
 from api.routes.v1.auth import auth_bp
 
+from api.helpers.tools import ensure_admin_application_exists
+
+
 def create_app(class_config=Config):
     app = Flask(__name__)
     app.secret_key = class_config.SECRET_KEY
@@ -26,7 +29,8 @@ def create_app(class_config=Config):
     API_URL = '/static/swagger.yml'
     swaggerui_blueprint = get_swaggerui_blueprint(SWAGGER_URL, API_URL)
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
-
+    with app.app_context():
+        ensure_admin_application_exists()
     return app
 
 

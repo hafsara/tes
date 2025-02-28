@@ -3,7 +3,7 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
 from .models import (
     FormContainer, Campaign, Application, Form, Question, Response,
-    TimelineEntry, ConnectionLog, APIToken
+    TimelineEntry, ConnectionLog, APIToken, Workflow
 )
 
 
@@ -265,3 +265,20 @@ class APITokenSchema(SQLAlchemyAutoSchema):
     created_by = fields.Str(dump_only=True)
     expiration = fields.DateTime(required=True)
     created_at = fields.DateTime(dump_only=True)
+
+class WorkflowSchema(SQLAlchemyAutoSchema):
+    """
+    Schema for serializing and deserializing Workflow.
+    """
+
+    class Meta:
+        model = Workflow
+        include_relationships = True
+        load_instance = True
+
+    id = auto_field(dump_only=True)
+    name = fields.Str(required=True, validate=validate.Length(max=500))
+    steps = fields.List(fields.Dict(), required=True)
+    created_by = fields.Str(dump_only=True)
+    created_at = fields.DateTime(dump_only=True)
+    updated_at = fields.DateTime(dump_only=True)

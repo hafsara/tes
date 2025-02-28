@@ -10,7 +10,7 @@ import { environment } from '../../../environments/environment'
 
 export class AdminPanelComponent {
   appOptions: { name: string; token: string }[] = [];
-  selectedTab: string = 'api-tokens';
+  selectedTab: string = 'workflows';
   swaggerUrl: string = `${environment.apiUrl}/api/docs`;
   hasApps: boolean = true;
 
@@ -21,7 +21,7 @@ export class AdminPanelComponent {
     this.appOptions = options.filter(app => app.name !== 'admin');
     this.hasApps = this.appOptions.length > 0;
     if (!this.hasApps) {
-      this.selectedTab = 'applications'
+      this.selectedTab = 'workflows'
     }
   }
 

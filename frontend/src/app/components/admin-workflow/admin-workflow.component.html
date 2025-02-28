@@ -8,7 +8,7 @@
     <div *ngFor="let step of steps" cdkDrag class="draggable-step">
       <p-panel [header]="step.label"
                class="step-panel"
-               [collapsed]="step.collapsed"
+               [collapsed]="true"
                toggleable="true">
         <ng-template pTemplate="icons">
           <button class="p-panel-header-icon p-link mr-2" (click)="openContextMenu($event, step, menu)">
@@ -44,3 +44,13 @@
   </div>
   <p-button label="Confirm" (click)="isEditing ? updateStep() : confirmAddStep()"></p-button>
 </p-dialog>
+
+<p-dialog [(visible)]="displayWorkflowDialog">
+  <h3>Save Workflow</h3>
+  <div>
+    <label>Workflow Name:</label>
+    <input type="text" pInputText [(ngModel)]="workflowName">
+  </div>
+  <p-button label="Save" icon="pi pi-save" class="p-button-success" (click)="confirmSaveWorkflow()"></p-button>
+</p-dialog>
+
