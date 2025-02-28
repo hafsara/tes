@@ -1,4 +1,4 @@
-import { Component  } from '@angular/core';
+import { Component } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 
 @Component({
@@ -10,7 +10,11 @@ export class AdminWorkflowComponent {
   steps = [{ id: "step1", label: "Start", type: "start", delay: 0 }];
   displayDialog = false;
   selectedStep: any = { label: '', type: '', delay: 0 };
-  stepTypes = [{ label: 'Reminder', value: 'reminder' }, { label: 'Escalate', value: 'escalation' }];
+  stepTypes = [
+    { label: 'Reminder', value: 'reminder' },
+    { label: 'Escalate', value: 'escalation' },
+    { label: 'Escalate Reminder', value: 'reminder-escalation' }
+  ];
   items: MenuItem[] = [];
   contextStep: any = null;
 
@@ -42,6 +46,8 @@ export class AdminWorkflowComponent {
     if (prevType === 'reminder') {
       return 'reminder';
     } else if (prevType === 'escalation') {
+      return 'reminder-escalation';
+    } else if (prevType === 'reminder-escalation') {
       return 'reminder-escalation';
     }
     return 'reminder';
