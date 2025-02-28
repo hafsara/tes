@@ -31,7 +31,7 @@ class FormContainer(db.Model):
     campaign = db.relationship('Campaign', backref='form_containers')
     timeline = db.relationship('TimelineEntry', backref='form_containers', lazy=True)
     forms = db.relationship('Form', backref='form_containers', lazy=True)
-    workflow = db.relationship('Workflow', backref='form_containers', lazy=True)
+    workflow = db.relationship('Workflow', back_populates='form_containers', lazy=True)
 
 
 class Campaign(db.Model):
@@ -129,4 +129,4 @@ class Workflow(db.Model):
     steps = db.Column(db.JSON, nullable=False)
     created_by = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    form_containers = db.relationship('FormContainer', backref='workflow', passive_deletes=True)
+    form_containers = db.relationship('FormContainer', back_populates='workflow', passive_deletes=True)

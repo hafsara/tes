@@ -1,12 +1,9 @@
-from crypt import methods
-
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError
 
 from api.extensions import db
 from api.helpers.tools import error_response
 from api.routes.auth_decorators import require_valid_app_ids
-
 from api.models import Workflow
 
 from api.schemas import WorkflowSchema
@@ -32,13 +29,12 @@ def create_workflow():
     if not user_id:
         return error_response("User not authenticated", 401)
 
-    workflow = Workflow(name=validated_data.name, steps=validated_data.steps
-                        )
+    workflow = Workflow(name=validated_data.name, steps=validated_data.steps, created_by=user_id)
 
     db.session.add(workflow)
     db.session.commit()
 
-    return jsonify({"id": workflow.id, "name": workflow.name}), 201
+    return jsonify({"id": workflow.id, "name": workflow.name, "created_by": workflow.created_by}), 201
 
 
 @workflow_bp.route('/workflows', methods=['GET'])
@@ -52,7 +48,18 @@ def get_workflows():
         return error_response("User not authenticated", 401)
 
     workflows = Workflow.query.all()
-    return jsonify(workflows), 200
+    workflows_data = [
+        {
+            "id": w.id,
+            "name": w.name,
+            "steps": w.steps,
+            "created_by": w.created_by,
+            "created_at": w.created_at.isoformat() if w.created_at else None
+        }
+        for w in workflows
+    ]
+
+    return jsonify(workflows_data), 200
 
 
 @workflow_bp.route('/workflows/<string:workflow_id>', methods=['DELETE'])

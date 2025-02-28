@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { FormService } from '../../services/form.service';
 
 @Component({
@@ -14,14 +14,28 @@ export class AdminWorkflowComponent {
   displayDialog = false;
   selectedStep: any = null;
   availableTypes: any[] = [];
+  workflows: any[] = [];
   items: MenuItem[] = [];
   isEditing = false;
+  showCreation = false;
   contextStep: any = null;
   workflowName: string = '';
   displayWorkflowDialog: boolean = false;
 
-  constructor(private messageService: MessageService, private formService: FormService) {
+  constructor(private messageService: MessageService, private formService: FormService, private confirmationService: ConfirmationService,) {
     this.initContextMenu();
+    this.loadWorkflows();
+  }
+
+  loadWorkflows(): void {
+    this.formService.getWorkflows().subscribe({
+      next: (workflows) => {
+        this.workflows = workflows;
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load workflows.' });
+      },
+    });
   }
 
   initContextMenu() {
@@ -220,14 +234,44 @@ export class AdminWorkflowComponent {
   }
 
   createWorkflow(workflowData: any) {
-    const payload = JSON.stringify(workflowData);
-    this.formService.createWorkflow(payload).subscribe(
+    this.formService.createWorkflow(workflowData).subscribe(
       response => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Workflow created successfully' });
+        this.workflows.push({...workflowData, id: response.id, created_by: response.created_by});
+
       },
       error => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error creating workflow' });
       }
     );
+    this.showCreation = false;
+  }
+
+  viewWorkflow(steps: any){
+
+  }
+
+  deleteWorkflow(id: string){
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this workflow?',
+      header: 'Confirm deletion',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.ConfirmDeleteWorkflow(id);
+      },
+    });
+  }
+
+  ConfirmDeleteWorkflow(id: string){
+    this.formService.deleteWorkflow(id).subscribe({
+      next: () => {
+        this.workflows = this.workflows.filter((w) => w.id !== id);
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'workflow deleted successfully.' });
+      },
+      error: (err) => {
+        console.error('Failed to delete workflow:', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete workflow.' });
+      },
+    });
   }
 }

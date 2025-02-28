@@ -89,7 +89,7 @@ def ensure_admin_application_exists():
 
     admin_app = Application.query.filter_by(id='admin-test').first()
     if not admin_app:
-        new_admin_app = Application(id='admin-test', name="admin", created_by="system")
+        new_admin_app = Application(id='admin-test', name="admin", created_by="system", mail_sender="test@exemple.com")
         db.session.add(new_admin_app)
         db.session.commit()
 

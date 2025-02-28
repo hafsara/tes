@@ -8,7 +8,6 @@
 
 .step-panel {
   padding: 10px;
-  background: #f9f9f9;
   border-radius: 5px;
 }
 
@@ -27,9 +26,14 @@
   margin-top: 20px;
 }
 
-.tokens-header {
+.workflows-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+}
+
+.action-icons {
+  display: flex;
+  gap: 15px;
 }

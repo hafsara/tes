@@ -1,9 +1,37 @@
-<div class="tokens-header">
+<div class="workflows-header">
   <h2>Workflow Manager</h2>
-  <button pButton label="New workflow" icon="pi pi-plus" class="p-button-rounded p-button-primary"></button>
+  <button pButton label="New workflow" icon="pi pi-plus" class="p-button-rounded p-button-primary" (click)="showCreation=!showCreation"></button>
 </div>
 
-<div class="workflow-container">
+
+
+<p-table [value]="workflows" *ngIf="!showCreation && workflows && workflows.length > 0">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Workflow name</th>
+      <th>Created by</th>
+      <th style="width: 7rem"></th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-workflow>
+    <tr>
+      <td>{{ workflow.name }}</td>
+      <td>{{ workflow.created_by }}</td>
+      <td>
+        <div class="action-icons">
+          <i class="pi pi-eye" (click)="viewWorkflow(workflow.steps)" title="View"></i>
+          <i class="pi pi-ban" (click)="deleteWorkflow(workflow.id)" title="Delete"></i>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<div *ngIf="!showCreation && (!workflows || workflows.length === 0)" class="empty-state">
+  <p>You have no workflows yet.</p>
+</div>
+
+<div *ngIf="showCreation" class="workflow-container">
   <div cdkDropList [cdkDropListData]="steps" (cdkDropListDropped)="drop($event)" class="workflow-container">
     <div *ngFor="let step of steps" cdkDrag class="draggable-step">
       <p-panel [header]="step.label"
@@ -30,8 +58,7 @@
     <p-button label="Save" icon="pi pi-save" class="p-button-success" (click)="saveWorkflow()"></p-button>
   </div>
 </div>
-
-<p-dialog [(visible)]="displayDialog" *ngIf="selectedStep">
+<p-dialog [(visible)]="displayDialog" [modal]="true" *ngIf="selectedStep">
   <h3>{{ isEditing ? 'Edit Step' : 'Add Step' }}</h3>
   <div>
     <label>Type:</label>
@@ -45,7 +72,7 @@
   <p-button label="Confirm" (click)="isEditing ? updateStep() : confirmAddStep()"></p-button>
 </p-dialog>
 
-<p-dialog [(visible)]="displayWorkflowDialog">
+<p-dialog [(visible)]="displayWorkflowDialog" [modal]="true">
   <h3>Save Workflow</h3>
   <div>
     <label>Workflow Name:</label>

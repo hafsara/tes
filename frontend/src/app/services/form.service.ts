@@ -122,8 +122,19 @@ export class FormService {
       const headers = this.getAuthHeaders();
       return this.http.get<any[]>(`${this.apiBaseUrl}/users?search=${query}`, { headers });
   }
+
   createWorkflow(payload: any): Observable<any> {
     const headers = this.getAuthHeaders();
-    return this.http.post(`${this.apiBaseUrl}/workflows}`, payload,  { headers });
+    return this.http.post(`${this.apiBaseUrl}/workflows`, payload,  { headers });
+  }
+
+  getWorkflows(){
+    const headers = this.getAuthHeaders();
+    return this.http.get<any[]>(`${this.apiBaseUrl}/workflows`, { headers });
+  }
+
+  deleteWorkflow(workflowId: string){
+    const headers = this.getAuthHeaders();
+    return this.http.delete<any>(`${this.apiBaseUrl}/workflows/${workflowId}`, {headers});
   }
 }
