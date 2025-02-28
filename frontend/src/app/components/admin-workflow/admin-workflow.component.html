@@ -28,16 +28,17 @@
   </div>
 </div>
 
-<p-dialog [(visible)]="displayDialog" *ngIf="selectedStep">
-  <h3>{{ selectedStep.id.includes('step') ? 'Add Step' : 'Edit Step' }}</h3>
-  <div *ngif="!(selectedStep.type === 'start')" >
+<p-dialog [(visible)]="displayDialog" *ngIf="selectedStep" [modal]="true">
+  <h3>{{ isEditing ? 'Edit Step' : 'Add Step' }}</h3>
+  <div>
     <label>Type:</label>
     <p-dropdown [options]="availableTypes" [(ngModel)]="selectedStep.type"
+                [disabled]="selectedStep.type === 'start'"
                 (onChange)="selectedStep.label = generateStepLabel(selectedStep.type)"></p-dropdown>
   </div>
   <div>
     <label>Delay (days):</label>
     <input type="number" pInputText [(ngModel)]="selectedStep.delay">
   </div>
-  <p-button label="Confirm" (click)="selectedStep.id.includes('step') ? confirmAddStep() : updateStep()"></p-button>
+  <p-button label="Confirm" (click)="isEditing ? updateStep() : confirmAddStep()"></p-button>
 </p-dialog>

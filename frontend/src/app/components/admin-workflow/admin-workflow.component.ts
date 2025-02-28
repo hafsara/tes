@@ -12,6 +12,7 @@ export class AdminWorkflowComponent {
   selectedStep: any = null;
   availableTypes: any[] = [];
   items: MenuItem[] = [];
+  isEditing = false;
   contextStep: any = null;
 
   constructor() {
@@ -88,6 +89,7 @@ export class AdminWorkflowComponent {
       collapsed: true
     };
 
+    this.isEditing = false;
     this.displayDialog = true;
   }
 
@@ -104,7 +106,8 @@ export class AdminWorkflowComponent {
 
   onEditStep(step: any) {
     this.selectedStep = { ...step };
-    this.availableTypes = step.type === 'start' ? [] : this.getAllStepTypes(); // Prevent changing Start type
+    this.availableTypes = step.type === 'start' ? [] : this.getAllStepTypes();
+    this.isEditing = true;
     this.displayDialog = true;
   }
 
