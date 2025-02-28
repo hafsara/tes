@@ -7,14 +7,10 @@ import { MenuItem } from 'primeng/api';
   styleUrls: ['./admin-workflow.component.scss']
 })
 export class AdminWorkflowComponent {
-  steps = [{ id: "step1", label: "Start", type: "start", delay: 0 }];
+  steps = [{ id: "step1", label: "Start", type: "start", delay: 0, collapsed: true }];
   displayDialog = false;
-  selectedStep: any = { label: '', type: '', delay: 0 };
-  stepTypes = [
-    { label: 'Reminder', value: 'reminder' },
-    { label: 'Escalate', value: 'escalation' },
-    { label: 'Escalate Reminder', value: 'reminder-escalation' }
-  ];
+  selectedStep: any = null;
+  availableTypes: any[] = [];
   items: MenuItem[] = [];
   contextStep: any = null;
 
@@ -30,34 +26,37 @@ export class AdminWorkflowComponent {
         command: () => this.onEditStep(this.contextStep)
       },
       {
-        label: 'delete',
+        label: 'Delete',
         icon: 'pi pi-trash',
         command: () => this.deleteStep(this.contextStep.id)
       }
     ];
   }
-
   openContextMenu(event: Event, step: any, menu: any) {
     this.contextStep = step;
     menu.toggle(event);
   }
 
-  getNextStepType(prevType: string): string {
-    if (prevType === 'reminder') {
-      return 'reminder';
+
+  getAvailableStepTypes(prevType: string): any[] {
+    if (prevType === 'start' || prevType === 'reminder') {
+      return [
+        { label: 'Reminder', value: 'reminder' },
+        { label: 'Escalation', value: 'escalation' }
+      ];
     } else if (prevType === 'escalation') {
-      return 'reminder-escalation';
+      return [{ label: 'Escalation Reminder', value: 'reminder-escalation' }];
     } else if (prevType === 'reminder-escalation') {
-      return 'reminder-escalation';
+      return [{ label: 'Escalation Reminder', value: 'reminder-escalation' }];
     }
-    return 'reminder';
+    return [];
   }
 
   generateStepLabel(type: string): string {
     const typeMap: { [key: string]: string } = {
       'reminder': 'Reminder',
-      'escalation': 'Escalate',
-      'reminder-escalation': 'Escalate Reminder'
+      'escalation': 'Escalation',
+      'reminder-escalation': 'Escalation Reminder'
     };
 
     const filteredSteps = this.steps.filter(step => step.type === type);
@@ -66,34 +65,40 @@ export class AdminWorkflowComponent {
 
   addStep() {
     const lastStep = this.steps[this.steps.length - 1];
-    const nextType = this.getNextStepType(lastStep.type);
+    this.availableTypes = this.getAvailableStepTypes(lastStep.type);
 
+    if (this.availableTypes.length === 0) {
+      alert("No available step types.");
+      return;
+    }
+
+    const newType = this.availableTypes[0].value;
     const newId = 'step' + (this.steps.length + 1);
     const newStep = {
       id: newId,
-      label: this.generateStepLabel(nextType),
-      type: nextType,
+      label: this.generateStepLabel(newType),
+      type: newType,
       delay: 1,
+      collapsed: true
     };
-    this.selectedStep = newStep;
-    this.displayDialog = true;
+
+    this.steps.push(newStep);
   }
 
   onEditStep(step: any) {
     this.selectedStep = { ...step };
+    this.availableTypes = this.getAvailableStepTypes(step.type);
     this.displayDialog = true;
   }
 
   updateStep() {
+    if (!this.selectedStep) return;
+
     const index = this.steps.findIndex(s => s.id === this.selectedStep.id);
     if (index !== -1) {
+      this.selectedStep.label = this.generateStepLabel(this.selectedStep.type);
       this.steps[index] = { ...this.selectedStep };
     }
-    this.displayDialog = false;
-  }
-
-  validateStep(){
-    this.steps.push(this.selectedStep);
     this.displayDialog = false;
   }
 
@@ -101,8 +106,26 @@ export class AdminWorkflowComponent {
     this.steps = this.steps.filter(step => step.id !== stepId);
   }
 
+  validateWorkflow(): boolean {
+    for (let i = 1; i < this.steps.length; i++) {
+      const prevStep = this.steps[i - 1];
+      const currentStep = this.steps[i];
+
+      const allowedNextTypes = this.getAvailableStepTypes(prevStep.type).map(t => t.value);
+
+      if (!allowedNextTypes.includes(currentStep.type)) {
+        alert(`Invalid sequence: "${prevStep.label}" cannot be followed by "${currentStep.label}".`);
+        return false;
+      }
+    }
+    return true;
+  }
+
   saveWorkflow() {
-    console.log("Workflow enregistré :", JSON.stringify(this.steps, null, 2));
-    alert("Workflow sauvegardé !");
+    if (!this.validateWorkflow()) {
+      return;
+    }
+    console.log("Workflow saved:", JSON.stringify(this.steps, null, 2));
+    alert("Workflow saved successfully!");
   }
 }
