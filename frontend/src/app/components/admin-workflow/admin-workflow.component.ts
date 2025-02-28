@@ -7,12 +7,12 @@ import { MenuItem } from 'primeng/api';
   styleUrls: ['./admin-workflow.component.scss']
 })
 export class AdminWorkflowComponent {
-  items: MenuItem[] = [];
-  contextStep: any = null;
   steps = [{ id: "step1", label: "Start", type: "start", delay: 0 }];
   displayDialog = false;
   selectedStep: any = { label: '', type: '', delay: 0 };
-  stepTypes = [{ label: 'Rappel', value: 'reminder' }, { label: 'Escalade', value: 'escalation' }];
+  stepTypes = [{ label: 'Reminder', value: 'reminder' }, { label: 'Escalate', value: 'escalation' }];
+  items: MenuItem[] = [];
+  contextStep: any = null;
 
   constructor() {
     this.initContextMenu();
@@ -38,10 +38,37 @@ export class AdminWorkflowComponent {
     menu.toggle(event);
   }
 
+  getNextStepType(prevType: string): string {
+    if (prevType === 'reminder') {
+      return 'reminder';
+    } else if (prevType === 'escalation') {
+      return 'reminder-escalation';
+    }
+    return 'reminder';
+  }
+
+  generateStepLabel(type: string): string {
+    const typeMap: { [key: string]: string } = {
+      'reminder': 'Reminder',
+      'escalation': 'Escalate',
+      'reminder-escalation': 'Escalate Reminder'
+    };
+
+    const filteredSteps = this.steps.filter(step => step.type === type);
+    return `${typeMap[type]} ${filteredSteps.length + 1}`;
+  }
+
   addStep() {
+    const lastStep = this.steps[this.steps.length - 1];
+    const nextType = this.getNextStepType(lastStep.type);
+
     const newId = 'step' + (this.steps.length + 1);
-    const newStep = { id: newId, label: "Nouvelle étape", type: "reminder", delay: 1 };
-    //this.steps.push(newStep);
+    const newStep = {
+      id: newId,
+      label: this.generateStepLabel(nextType),
+      type: nextType,
+      delay: 1,
+    };
     this.selectedStep = newStep;
     this.displayDialog = true;
   }
@@ -67,6 +94,7 @@ export class AdminWorkflowComponent {
   deleteStep(stepId: string) {
     this.steps = this.steps.filter(step => step.id !== stepId);
   }
+
   saveWorkflow() {
     console.log("Workflow enregistré :", JSON.stringify(this.steps, null, 2));
     alert("Workflow sauvegardé !");

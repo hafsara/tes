@@ -1,3 +1,9 @@
+<div class="tokens-header">
+  <h2>Workflow Manager</h2>
+  <button pButton label="New workflow" icon="pi pi-plus" class="p-button-rounded p-button-primary"
+          ></button>
+</div>
+
 <div class="workflow-container">
   <p-panel *ngFor="let step of steps" [collapsed]="true" [header]="step.label" class="step-panel" [toggleable]="true">
     <ng-template pTemplate="icons">
@@ -14,9 +20,8 @@
   </p-panel>
 
   <div class="workflow-actions">
-
     <p-button label="Add step" icon="pi pi-plus" (click)="addStep()"></p-button>
-    <p-button label="Save Workflow" icon="pi pi-save" class="p-button-success" (click)="saveWorkflow()"></p-button>
+    <p-button label="Save" icon="pi pi-save" (click)="saveWorkflow()"></p-button>
 
   </div>
 </div>
