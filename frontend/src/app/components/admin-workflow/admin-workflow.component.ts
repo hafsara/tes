@@ -52,6 +52,14 @@ export class AdminWorkflowComponent {
     return [];
   }
 
+  getAllStepTypes(): any[] {
+    return [
+      { label: 'Reminder', value: 'reminder' },
+      { label: 'Escalation', value: 'escalation' },
+      { label: 'Escalation Reminder', value: 'reminder-escalation' }
+    ];
+  }
+
   generateStepLabel(type: string): string {
     const typeMap: { [key: string]: string } = {
       'reminder': 'Reminder',
@@ -96,7 +104,7 @@ export class AdminWorkflowComponent {
 
   onEditStep(step: any) {
     this.selectedStep = { ...step };
-    this.availableTypes = this.getAvailableStepTypes(step.type);
+    this.availableTypes = step.type === 'start' ? [] : this.getAllStepTypes(); // Prevent changing Start type
     this.displayDialog = true;
   }
 
@@ -105,7 +113,9 @@ export class AdminWorkflowComponent {
 
     const index = this.steps.findIndex(s => s.id === this.selectedStep.id);
     if (index !== -1) {
-      this.selectedStep.label = this.generateStepLabel(this.selectedStep.type);
+      if (this.selectedStep.type !== 'start') {
+        this.selectedStep.label = this.generateStepLabel(this.selectedStep.type);
+      }
       this.steps[index] = { ...this.selectedStep };
     }
     this.displayDialog = false;

@@ -1,7 +1,6 @@
 <div class="tokens-header">
   <h2>Workflow Manager</h2>
-  <button pButton label="New workflow" icon="pi pi-plus" class="p-button-rounded p-button-primary"
-  ></button>
+  <button pButton label="New workflow" icon="pi pi-plus" class="p-button-rounded p-button-primary"></button>
 </div>
 
 <div class="workflow-container">
@@ -9,8 +8,7 @@
            [header]="step.label"
            class="step-panel"
            [collapsed]="step.collapsed"
-           toggleable="true"
-  >
+           toggleable="true">
     <ng-template pTemplate="icons">
       <button class="p-panel-header-icon p-link mr-2" (click)="openContextMenu($event, step, menu)">
         <span class="pi pi-cog"></span>
@@ -31,8 +29,8 @@
 </div>
 
 <p-dialog [(visible)]="displayDialog" *ngIf="selectedStep">
-  <h3>Edit Step</h3>
-  <div>
+  <h3>{{ selectedStep.id.includes('step') ? 'Add Step' : 'Edit Step' }}</h3>
+  <div *ngif="!(selectedStep.type === 'start')" >
     <label>Type:</label>
     <p-dropdown [options]="availableTypes" [(ngModel)]="selectedStep.type"
                 (onChange)="selectedStep.label = generateStepLabel(selectedStep.type)"></p-dropdown>
@@ -42,5 +40,4 @@
     <input type="number" pInputText [(ngModel)]="selectedStep.delay">
   </div>
   <p-button label="Confirm" (click)="selectedStep.id.includes('step') ? confirmAddStep() : updateStep()"></p-button>
-
 </p-dialog>
