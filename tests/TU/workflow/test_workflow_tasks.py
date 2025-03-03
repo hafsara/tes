@@ -107,7 +107,6 @@ def test_workflow_step_execution_order(app, workflow_manager):
 def test_escalation_triggers_correctly(app, workflow_manager):
     """Test escalation is triggered at the right time."""
     with patch('workflow.tasks.escalate_task.apply_async') as mock_escalate:
-        print("HAFSA Escalation call:", escalate_task.apply_async.call_args_list)
         workflow_manager.start_workflow(form_id=123)
 
         if workflow_manager.escalate:

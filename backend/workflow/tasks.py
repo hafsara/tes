@@ -59,6 +59,9 @@ class WorkflowManager:
             return None
 
     def start_workflow(self, form_id):
+        start_date = datetime.utcnow()
+        cumulative_delay = 0
+
         logger.info(f"Starting workflow for form {form_id} and container {self.container_id}")
         MailManager.send_email(
             self.mail_sender,
@@ -74,34 +77,34 @@ class WorkflowManager:
 
         logger.info(f"Using workflow '{self.workflow.name}' for form {form_id}")
 
-        start_date = datetime.utcnow()
         for step in self.workflow.steps:
             step_type = step.get("type")
             delay_days = step.get("delay", 1)
+            cumulative_delay += delay_days
 
             if self.use_working_days:
-                step_date = self.adjust_for_working_days(start_date.date(), delay_days)
+                step_date = self.adjust_for_working_days(start_date.date(), cumulative_delay)
                 countdown = (datetime.combine(step_date, datetime.min.time()) - start_date).total_seconds()
             else:
-                countdown = delay_days * DAY_SEC
+                countdown = cumulative_delay * DAY_SEC
 
             if step_type == "reminder":
                 self.tasks.append(
                     send_reminder_task.si(form_id, self.container_id, step.get("id")).set(countdown=countdown)
                 )
-                logger.info(f"Scheduled Reminder {step.get('id')} in {delay_days} days")
+                logger.info(f"Scheduled Reminder {step.get('id')} in {cumulative_delay} days")
 
             elif step_type == "escalation":
                 self.tasks.append(
                     escalate_task.si(form_id, self.container_id).set(countdown=countdown)
                 )
-                logger.info(f"Scheduled Escalation in {delay_days} days")
+                logger.info(f"Scheduled Escalation in {cumulative_delay} days")
 
             elif step_type == "reminder-escalation":
                 self.tasks.append(
                     escalate_task.si(form_id, self.container_id).set(countdown=countdown)
                 )
-                logger.info(f"Scheduled Reminder-Escalation {step.get('id')} in {delay_days} days")
+                logger.info(f"Scheduled Reminder-Escalation {step.get('id')} in {cumulative_delay} days")
 
         if self.tasks:
             chain(*self.tasks).apply_async()

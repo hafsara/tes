@@ -54,9 +54,4 @@ def headers():
 def verify_token():
     token = request.headers.get("Authorization", "").replace("Bearer ", "")
     print(f"Token reçu: {token}")
-@pytest.fixture(scope="function")
-def setup_database():
-    _db.create_all()  # Crée les tables
-    yield
-    _db.session.remove()
-    _db.drop_all()  # Nettoie après le test
+
