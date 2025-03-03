@@ -14,11 +14,7 @@ def app():
     Configure an instance of the Flask application for testing.
     """
     app = create_app(TestConfig)
-    with app.app_context():
-        _db.create_all()
     yield app
-    with app.app_context():
-        _db.drop_all()
 
 
 @pytest.fixture
@@ -27,6 +23,17 @@ def client(app):
     Returns a test Flask client.
     """
     return app.test_client()
+
+
+@pytest.fixture(scope="function", autouse=True)
+def app_context(app):
+    """Ensure that each test runs within an application context and reinitialize the DB."""
+    with app.app_context():
+        _db.create_all()
+        yield
+        _db.session.remove()
+        _db.drop_all()
+
 
 
 @pytest.fixture
@@ -47,3 +54,9 @@ def headers():
 def verify_token():
     token = request.headers.get("Authorization", "").replace("Bearer ", "")
     print(f"Token reçu: {token}")
+@pytest.fixture(scope="function")
+def setup_database():
+    _db.create_all()  # Crée les tables
+    yield
+    _db.session.remove()
+    _db.drop_all()  # Nettoie après le test
