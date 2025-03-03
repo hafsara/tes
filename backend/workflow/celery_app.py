@@ -22,5 +22,5 @@ def make_celery(app):
     return celery
 
 
-app = create_app()
+app = create_app(Config)
 celery = make_celery(app)

@@ -1,33 +1,41 @@
 import pytest
+from api.extensions import db
 from api.models import Workflow
 
-WORKFLOW_URL = '/api/v1/workflows'
+WORKFLOW_URL = "/api/v1/workflows"
 
 
 @pytest.fixture
 def mock_workflow():
     """Mock workflow object."""
-    return Workflow(id="123", name="Test Workflow", steps=[{"step": "Start"}], created_by="test_user")
+    workflow = Workflow(id="123", name="Test Workflow", steps=[{"step": "Start"}], created_by="test_user")
+    db.session.add(workflow)
+    db.session.commit()
+    return workflow
 
 
 def test_create_workflow(client, mocker, mock_workflow, headers):
     """Test POST /workflows - Create a workflow."""
     mocker.patch("api.routes.v1.workflows.WorkflowSchema.load", return_value=mock_workflow)
-    mocker.patch("api.routes.v1.workflows.db.session.add")
-    mocker.patch("api.routes.v1.workflows.db.session.commit")
+
+    mock_add = mocker.patch("api.routes.v1.workflows.db.session.add")
+    mock_commit = mocker.patch("api.routes.v1.workflows.db.session.commit")
 
     response = client.post(
         WORKFLOW_URL,
         json={"name": "Test Workflow", "steps": [{"step": "Start"}]},
         headers=headers
     )
-    print(response.json)
+
     assert response.status_code == 201
     assert response.json == {
         "id": "123",
         "name": "Test Workflow",
         "created_by": "test_user",
     }
+
+    mock_add.assert_called_once()
+    mock_commit.assert_called_once()
 
 
 def test_get_workflows(client, mocker, mock_workflow, headers):

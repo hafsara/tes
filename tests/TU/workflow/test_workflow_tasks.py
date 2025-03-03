@@ -5,6 +5,15 @@ from freezegun import freeze_time
 from api.models import Form, FormContainer, TimelineEntry
 from workflow.tasks import WorkflowManager, escalate_task, send_reminder_task, DAY_SEC
 
+from celery.contrib.testing.worker import start_worker
+
+
+@pytest.fixture(scope='module')
+def celery_worker(app):
+    """Start a Celery worker for testing."""
+    with start_worker(app.worker, perform_ping_check=False):
+        yield
+
 
 @pytest.fixture
 def mock_form():
@@ -93,14 +102,14 @@ def test_workflow_step_execution_order(app, workflow_manager):
             mock_chain.assert_called_once()
 
 
+@pytest.mark.usefixtures("app_context")
 def test_escalation_triggers_correctly(app, workflow_manager):
     """Test escalation is triggered at the right time."""
-    with app.app_context():
-        with patch('workflow.tasks.escalate_task.apply_async') as mock_escalate:
-            workflow_manager.start_workflow(form_id=123)
+    with patch('workflow.tasks.escalate_task.apply_async') as mock_escalate:
+        workflow_manager.start_workflow(form_id=123)
 
-            if workflow_manager.escalate:
-                mock_escalate.assert_called_once()
+        if workflow_manager.escalate:
+            mock_escalate.assert_called_once()
 
 
 def test_send_reminder_task(app, mock_form, mock_form_container):
@@ -152,40 +161,31 @@ def test_escalate_task_form_validated(app, mock_form):
             assert "Escalation skipped for form 123 - 456." == result["message"]
 
 
+@pytest.mark.usefixtures("app_context")
 @freeze_time("2023-10-01 12:00:00")
 def test_workflow_manager_sends_emails_at_correct_time(app, workflow_manager):
     """Test that reminders and escalations execute at the expected time."""
-    with app.app_context():
-        with patch('workflow.tasks.MailManager.send_email'), \
-                patch('workflow.tasks.chain') as mock_chain, \
-                patch('workflow.tasks.send_reminder_task.apply_async') as mock_send_reminder, \
-                patch('workflow.tasks.escalate_task.apply_async') as mock_escalate, \
-                patch('workflow.tasks.db.session') as mock_db_session:
-            workflow_manager.start_workflow(form_id=123)
-            expected_tasks = [
-                send_reminder_task.si(123, workflow_manager.container_id, i).set(
-                    countdown=i * DAY_SEC)
-                for i in range(1, len(workflow_manager.workflow.steps))
-            ]
-            expected_tasks.append(
-                escalate_task.si(123, workflow_manager.container_id).set(
-                    countdown=(len(workflow_manager.workflow.steps)) * DAY_SEC)
-            )
+    with patch('workflow.tasks.MailManager.send_email'), \
+            patch('workflow.tasks.chain') as mock_chain, \
+            patch('workflow.tasks.send_reminder_task.apply_async') as mock_send_reminder, \
+            patch('workflow.tasks.escalate_task.apply_async') as mock_escalate, \
+            patch('workflow.tasks.db.session') as mock_db_session:
+        workflow_manager.start_workflow(form_id=123)
+        expected_tasks = [
+            send_reminder_task.si(123, workflow_manager.container_id, step.get("id")).set(
+                countdown=step.get("delay", 1) * DAY_SEC)
+            for step in workflow_manager.workflow.steps
+            if step.get("type") == "reminder"
+        ]
+        expected_tasks.append(
+            escalate_task.si(123, workflow_manager.container_id).set(
+                countdown=workflow_manager.workflow.steps[-1].get("delay", 1) * DAY_SEC)
+        )
 
-            mock_chain.assert_called_once_with(*expected_tasks)
-
-            with freeze_time("2023-10-02 12:00:00"):
-                mock_send_reminder("noreply@example.com", 123, 456, 1, countdown=0)
-                executed_calls = [call.args for call in mock_send_reminder.mock_calls]
-                assert ("noreply@example.com", 123, 456, 1) in executed_calls
-
-            with freeze_time("2023-10-05 12:00:00"):
-                mock_escalate("noreply@example.com", 123, 456, countdown=0)
-                escalation_calls = [call.args for call in mock_escalate.mock_calls]
-                assert ("noreply@example.com", 123, 456) in escalation_calls
+        mock_chain.assert_called_once_with(*expected_tasks)
 
 
-@freeze_time("2025-02-27")  # Un jeudi
+@pytest.mark.usefixtures("app_context")
 def test_adjust_for_working_days_skips_weekends(workflow_manager, mocker):
     """Vérifie que adjust_for_working_days saute bien les week-ends."""
     mock_calendar = mocker.MagicMock()
