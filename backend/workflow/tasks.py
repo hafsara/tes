@@ -24,7 +24,7 @@ class WorkflowManager:
         self.container_id = form_container.id
         self.tasks = []
         self.country_code = self.get_country_code()
-        self.workflow = form_container.workflow_id
+        self.workflow = form_container.workflow
         self.use_working_days = form_container.use_working_days
 
     def adjust_for_working_days(self, start_date, delay_days):

@@ -1,10 +1,9 @@
 from datetime import date
-
-import pytest
 from unittest.mock import patch, MagicMock
+import pytest
 from freezegun import freeze_time
 from api.models import Form, FormContainer, TimelineEntry
-from workflow.tasks import WorkflowManager, escalate_task, send_reminder_task, MAX_REMINDERS, DAY_SEC
+from workflow.tasks import WorkflowManager, escalate_task, send_reminder_task, DAY_SEC
 
 
 @pytest.fixture
@@ -32,7 +31,7 @@ def mock_workflow():
 
 
 @pytest.fixture
-def mock_form_container():
+def mock_form_container(mock_workflow):
     """Fixture to create a mock FormContainer object."""
     form_container = MagicMock(spec=FormContainer)
     form_container.id = 456
@@ -50,9 +49,7 @@ def mock_form_container():
 @pytest.fixture
 def workflow_manager(mock_form_container):
     """Fixture to initialize a WorkflowManager instance."""
-    return WorkflowManager(
-        form_container=mock_form_container
-    )
+    return WorkflowManager(form_container=mock_form_container)
 
 
 def test_start_workflow(app, workflow_manager):
@@ -155,28 +152,6 @@ def test_escalate_task_form_validated(app, mock_form):
             assert "Escalation skipped for form 123 - 456." == result["message"]
 
 
-def test_workflow_manager_schedules_emails_correctly(app, workflow_manager):
-    """Test that reminders and escalations are scheduled at the right time."""
-    with app.app_context():
-        with patch('workflow.tasks.MailManager.send_email'), \
-                patch('workflow.tasks.chain') as mock_chain:
-            workflow_manager.start_workflow(form_id=123)
-
-            expected_tasks = [
-                send_reminder_task.si(123, workflow_manager.container_id, i).set(
-                    countdown=i * workflow_manager.workflow_id * DAY_SEC)
-                for i in range(1, MAX_REMINDERS + 1)
-            ]
-
-            if workflow_manager.escalate:
-                expected_tasks.append(
-                    escalate_task.si(123, workflow_manager.container_id).set(
-                        countdown=(MAX_REMINDERS + 1) * workflow_manager.workflow_id * DAY_SEC)
-                )
-
-            mock_chain.assert_called_once_with(*expected_tasks)
-
-
 @freeze_time("2023-10-01 12:00:00")
 def test_workflow_manager_sends_emails_at_correct_time(app, workflow_manager):
     """Test that reminders and escalations execute at the expected time."""
@@ -189,12 +164,12 @@ def test_workflow_manager_sends_emails_at_correct_time(app, workflow_manager):
             workflow_manager.start_workflow(form_id=123)
             expected_tasks = [
                 send_reminder_task.si(123, workflow_manager.container_id, i).set(
-                    countdown=i * workflow_manager.workflow_id * DAY_SEC)
-                for i in range(1, MAX_REMINDERS + 1)
+                    countdown=i * DAY_SEC)
+                for i in range(1, len(workflow_manager.workflow.steps))
             ]
             expected_tasks.append(
                 escalate_task.si(123, workflow_manager.container_id).set(
-                    countdown=(MAX_REMINDERS + 1) * workflow_manager.workflow_id * DAY_SEC)
+                    countdown=(len(workflow_manager.workflow.steps)) * DAY_SEC)
             )
 
             mock_chain.assert_called_once_with(*expected_tasks)
@@ -255,7 +230,7 @@ def test_start_workflow_schedules_tasks_correctly(workflow_manager, mocker):
     with patch('workflow.tasks.chain') as mock_chain:
         workflow_manager.start_workflow(form_id=123)
 
-        assert len(workflow_manager.tasks) == MAX_REMINDERS + 1  # 3 reminders + 1 escalation
+        assert len(workflow_manager.tasks) == len(workflow_manager.workflow.steps) - 1
         mock_chain.assert_called_once()
 
 
@@ -283,6 +258,6 @@ def test_start_workflow_standard_mode(mock_form_container, mocker):
     with patch('workflow.tasks.chain') as mock_chain:
         manager.start_workflow(form_id=123)
 
-        expected_task_count = MAX_REMINDERS + (1 if manager.escalate else 0)
+        expected_task_count = len(manager.workflow.steps) - 1
         assert len(manager.tasks) == expected_task_count
         mock_chain.assert_called_once()
