@@ -1,8 +1,9 @@
 import logging
+from functools import wraps
 
 import pycountry
 from celery import chain
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 from workalendar.registry import registry
 from api.models import Form, FormContainer, TimelineEntry
 from api.extensions import db
@@ -12,6 +13,29 @@ from .celery_app import celery as app
 logger = logging.getLogger(__name__)
 
 DAY_SEC = 86400
+
+
+class RevokeChainRequested(Exception):
+    def __init__(self, return_value):
+        super().__init__("")
+        self.return_value = return_value
+
+
+def revoke_chain_authority(a_task):
+    """
+    Décorateur pour révoquer la chaîne Celery en cas de condition spécifique.
+    """
+
+    @wraps(a_task)
+    def inner(self, *args, **kwargs):
+        try:
+            return a_task(self, *args, **kwargs)
+        except RevokeChainRequested as e:
+            if self.request.callbacks:
+                self.request.callbacks[:] = []
+            return e.return_value
+
+    return inner
 
 
 class WorkflowManager:
@@ -77,43 +101,41 @@ class WorkflowManager:
 
         logger.info(f"Using workflow '{self.workflow.name}' for form {form_id}")
 
-        for step in self.workflow.steps:
+        for i, step in enumerate(self.workflow.steps):
             step_type = step.get("type")
             delay_days = step.get("delay", 1)
             cumulative_delay += delay_days
 
             if self.use_working_days:
-                step_date = self.adjust_for_working_days(start_date.date(), cumulative_delay)
-                countdown = (datetime.combine(step_date, datetime.min.time()) - start_date).total_seconds()
+                eta_time = self.adjust_for_working_days(start_date.date(), cumulative_delay)
             else:
-                countdown = cumulative_delay * DAY_SEC
+                eta_time = start_date + timedelta(days=cumulative_delay)
+
 
             if step_type == "reminder":
-                self.tasks.append(
-                    send_reminder_task.si(form_id, self.container_id, step.get("id")).set(countdown=countdown)
-                )
-                logger.info(f"Scheduled Reminder {step.get('id')} in {cumulative_delay} days")
+                self.tasks.append(send_reminder_task.subtask(
+                    args=(form_id, self.container_id, i),
+                    eta=eta_time
+                ))
+                logger.info(f"Scheduled Reminder {i} for {eta_time}")
 
-            elif step_type == "escalation":
-                self.tasks.append(
-                    escalate_task.si(form_id, self.container_id).set(countdown=countdown)
-                )
-                logger.info(f"Scheduled Escalation in {cumulative_delay} days")
-
-            elif step_type == "reminder-escalation":
-                self.tasks.append(
-                    escalate_task.si(form_id, self.container_id).set(countdown=countdown)
-                )
-                logger.info(f"Scheduled Reminder-Escalation {step.get('id')} in {cumulative_delay} days")
+            if self.escalate and step_type in ("escalation", "reminder-escalation"):
+                self.tasks.append(send_escalate_task.subtask(
+                    args=(form_id, self.container_id),
+                    eta=eta_time
+                ))
+                logger.info(f"Scheduled Reminder-Escalation {step.get('id')} for {eta_time}")
 
         if self.tasks:
-            chain(*self.tasks).apply_async()
+            workflow_chain = chain(*self.tasks)
+            workflow_chain.apply_async()
         else:
             logger.warning("No tasks scheduled - workflow might be empty")
 
 
 @app.task(bind=True)
-def escalate_task(self, form_id, container_id, manual_escalation=False, manual_escalation_email=None):
+@revoke_chain_authority
+def send_escalate_task(self, form_id, container_id, manual_escalation=False, manual_escalation_email=None):
     """
     Escalade un formulaire, soit automatiquement après X relances, soit manuellement si la réponse est insatisfaisante.
     """
@@ -154,6 +176,7 @@ def escalate_task(self, form_id, container_id, manual_escalation=False, manual_e
 
 
 @app.task(bind=True)
+@revoke_chain_authority
 def send_reminder_task(self, form_id, container_id, reminder_count):
     logger.info(f"Sending reminder {reminder_count} for form {form_id} and container {container_id}")
     form = Form.query.filter_by(id=form_id, status='open').first()

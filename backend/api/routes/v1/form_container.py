@@ -310,7 +310,7 @@ def get_total_forms_count():
 @form_container_bp.route('/form-containers/<int:container_id>/forms', methods=['POST'])
 @require_valid_app_ids(param_name="app_id", source="args", allow_multiple=False)
 def add_form_to_container(container_id):
-    from workflow.tasks import WorkflowManager, escalate_task
+    from workflow.tasks import WorkflowManager, send_escalate_task
 
     user_id = getattr(request, 'user_id', None)
     if not user_id:
@@ -346,7 +346,7 @@ def add_form_to_container(container_id):
     try:
         if manual_escalation and manual_escalation_email:
             manual_escalation, _ = get_eq_emails(form_container.user_email, manual_escalation_email)
-            escalate_task.delay(new_form.id, container_id, manual_escalation=True,
+            send_escalate_task.delay(new_form.id, container_id, manual_escalation=True,
                                 manual_escalation_email=manual_escalation_email)
         else:
             WorkflowManager(form_container).start_workflow(new_form.id)

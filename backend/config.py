@@ -19,7 +19,7 @@ class Config:
     # SMTP_PASSWORD = 'password'
     # EMAIL_FROM = 'no-reply@example.com'
     # REMINDER_DELAY_DAYS = 3
-    # APP_URL = 'https://yourapp.com'
+    APP_URL = 'https://yourapp.com'
     # ARCHIVE_DELAY_DAYS = 90
     # Configuration OAuth
     SECRET_KEY = os.getenv('SECRET_KEY', 'your_secret_key')
@@ -32,8 +32,6 @@ class Config:
     OAUTH_CLIENT_ID = os.environ.get('OAUTH_CLIENT_ID')
     OAUTH_CLIENT_SECRET = os.environ.get('OAUTH_CLIENT_SECRET')
     OAUTH_PROVIDER = "https://provider.example.com"
-
-
 
 
 class TestConfig:

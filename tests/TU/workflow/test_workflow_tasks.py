@@ -2,10 +2,12 @@ from datetime import date
 from unittest.mock import patch, MagicMock
 import pytest
 from freezegun import freeze_time
-from api.models import Form, FormContainer, TimelineEntry
-from workflow.tasks import WorkflowManager, escalate_task, send_reminder_task, DAY_SEC
+from api.models import Form, FormContainer
+from workflow.tasks import WorkflowManager, send_escalate_task, send_reminder_task, DAY_SEC
 
 from celery.contrib.testing.worker import start_worker
+
+from api.extensions import db
 
 
 @pytest.fixture(scope='module')
@@ -106,7 +108,7 @@ def test_workflow_step_execution_order(app, workflow_manager):
 @pytest.mark.usefixtures("app_context")
 def test_escalation_triggers_correctly(app, workflow_manager):
     """Test escalation is triggered at the right time."""
-    with patch('workflow.tasks.escalate_task.apply_async') as mock_escalate:
+    with patch('workflow.tasks.send_escalate_task.apply_async') as mock_escalate:
         workflow_manager.start_workflow(form_id=123)
 
         if workflow_manager.escalate:
@@ -116,7 +118,12 @@ def test_escalation_triggers_correctly(app, workflow_manager):
 def test_send_reminder_task(app, mock_form, mock_form_container):
     """Test that send_reminder_task sends an email and logs the event."""
     with app.app_context():
-        with patch('workflow.tasks.Form.query.get', return_value=mock_form):
+        print(db.engine.table_names())  # Vérifie les tables créées
+        assert "forms" in db.engine.table_names(), "Table 'forms' n'existe pas"
+
+    with app.app_context():
+        with patch('workflow.tasks.db.session.get',
+                   side_effect=lambda model, id: mock_form if model == Form else mock_form_container):
             mock_form.status = 'open'
             result = send_reminder_task(form_id=123, container_id=456, reminder_count=1)
             if result["status"] == "skipped":
@@ -137,27 +144,27 @@ def test_send_reminder_task_form_validated(app, mock_form):
             assert "Reminder skipped for form 123 - 456." == result["message"]
 
 
-def test_escalate_task(app, mock_form, mock_form_container):
-    """Test that escalate_task sends an escalation email and logs the event."""
+def test_send_escalate_task(app, mock_form, mock_form_container):
+    """Test that send_escalate_task sends an escalation email and logs the event."""
     with app.app_context():
         with patch('workflow.tasks.db.session.get',
                    side_effect=lambda model, id: mock_form if model == Form else mock_form_container), \
                 patch('workflow.tasks.MailManager.send_email') as mock_send_email, \
                 patch('workflow.tasks.db.session') as mock_db_session:
-            result = escalate_task(form_id=123, container_id=456)
+            result = send_escalate_task(form_id=123, container_id=456)
             mock_db_session.add.assert_called_once()
             mock_db_session.commit.assert_called_once()
             assert result["status"] == "success"
             assert result["task"] == "escalate"
 
 
-def test_escalate_task_form_validated(app, mock_form):
+def test_send_escalate_task_form_validated(app, mock_form):
     """Test that escalation is skipped if the form is already validated."""
     with app.app_context():
         with patch('workflow.tasks.Form.query.get', return_value=mock_form):
             mock_form.status = 'validated'
 
-            result = escalate_task(form_id=123, container_id=456)
+            result = send_escalate_task(form_id=123, container_id=456)
             assert result["status"] == "skipped"
             assert "Escalation skipped for form 123 - 456." == result["message"]
 
@@ -168,8 +175,8 @@ def test_workflow_manager_sends_emails_at_correct_time(app, workflow_manager):
     """Test that reminders and escalations execute at the expected time."""
     with patch('workflow.tasks.MailManager.send_email'), \
             patch('workflow.tasks.chain') as mock_chain, \
-            patch('workflow.tasks.send_reminder_task.apply_async') , \
-            patch('workflow.tasks.escalate_task.apply_async') , \
+            patch('workflow.tasks.send_reminder_task.apply_async'), \
+            patch('workflow.tasks.send_escalate_task.apply_async'), \
             patch('workflow.tasks.db.session'):
         workflow_manager.start_workflow(form_id=123)
         expected_tasks = [
@@ -179,7 +186,7 @@ def test_workflow_manager_sends_emails_at_correct_time(app, workflow_manager):
             if step.get("type") == "reminder"
         ]
         expected_tasks.append(
-            escalate_task.si(123, workflow_manager.container_id).set(
+            send_escalate_task.si(123, workflow_manager.container_id).set(
                 countdown=workflow_manager.workflow.steps[-1].get("delay", 1) * DAY_SEC)
         )
         actual_args = [tuple(task.args) for call in mock_chain.call_args_list for task in call[0]]
