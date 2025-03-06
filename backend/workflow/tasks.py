@@ -55,11 +55,17 @@ class WorkflowManager:
         """
         Retourne la date réelle en tenant compte des jours ouvrés.
         """
-        cal = registry.get(self.country_code)()
-        public_holidays = set(cal.holidays(start_date.year))
+        if not self.country_code:
+            return start_date + timedelta(days=delay_days)
 
-        current_date = start_date
+        current_date = start_date.date() if isinstance(start_date, datetime) else start_date
         days_counted = 0
+        cal = registry.get(self.country_code)()
+        years = {start_date.year, (start_date + timedelta(days=delay_days * 2 + 365)).year}
+        public_holidays = set()
+
+        for year in years:
+            public_holidays.update(cal.holidays(year))
 
         while days_counted < delay_days:
             current_date += timedelta(days=1)
@@ -80,7 +86,7 @@ class WorkflowManager:
             return pycountry.countries.lookup(country_name).alpha_2
         except LookupError:
             logger.warning(f"Invalid country name: {country_name}.")
-            return None
+            return 'FR'
 
     def start_workflow(self, form_id):
         start_date = datetime.utcnow()
@@ -107,10 +113,9 @@ class WorkflowManager:
             cumulative_delay += delay_days
 
             if self.use_working_days:
-                eta_time = self.adjust_for_working_days(start_date.date(), cumulative_delay)
+                eta_time = self.adjust_for_working_days(start_date, cumulative_delay)
             else:
                 eta_time = start_date + timedelta(days=cumulative_delay)
-
 
             if step_type == "reminder":
                 self.tasks.append(send_reminder_task.subtask(
