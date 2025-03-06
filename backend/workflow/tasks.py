@@ -138,39 +138,41 @@ class WorkflowManager:
             logger.warning("No tasks scheduled - workflow might be empty")
 
 
-@app.task(bind=True)
-@revoke_chain_authority
-def send_escalate_task(self, form_id, container_id, manual_escalation=False, manual_escalation_email=None):
-    """
-    Escalade un formulaire, soit automatiquement après X relances, soit manuellement si la réponse est insatisfaisante.
-    """
+def _handle_task_common(form_id, container_id, get_recipient, get_event_details, workflow_step,
+                        extra_result_fields=None, **kwargs):
+    """Helper function centralizing common task logic."""
     form = Form.query.filter_by(id=form_id, status='open').first()
     form_container = FormContainer.query.get(container_id)
 
     if not form or not form_container:
-        raise RevokeChainRequested(
-            {"status": "skipped", "message": f"Escalation skipped for form {form_id} - {container_id}."})
+        raise RevokeChainRequested({
+            "status": "skipped",
+            "message": f"Task skipped for form {form_id} - {container_id}."
+        })
 
-    to = manual_escalation_email if manual_escalation and manual_escalation_email else form_container.escalade_email
+    # Dynamic determination of parameters
+    to = get_recipient(form_container, **kwargs)
+    event_type, details = get_event_details(form_container, **kwargs)
+
     MailManager.send_email(
         mail_sender=form_container.application.mail_sender,
         to=to,
         cc=form_container.cc_emails,
         title="Please respond to the form.",
         access_token=form_container.access_token,
-        workflow_step='escalate'
+        workflow_step=workflow_step
     )
 
-    event_type = "Manual Escalation" if manual_escalation else "Automatic Escalation"
     timeline_entry = TimelineEntry(
         form_container_id=container_id,
         form_id=form_id,
         event=event_type,
         timestamp=datetime.utcnow(),
-        details=f"{event_type} sent to manager {to}"
+        details=details
     )
     db.session.add(timeline_entry)
-    form.workflow_step = 'escalate'
+    form.workflow_step = workflow_step
+
     try:
         db.session.commit()
     except Exception as e:
@@ -178,40 +180,66 @@ def send_escalate_task(self, form_id, container_id, manual_escalation=False, man
         logger.error(f"Database commit failed: {e}")
         return {"status": "error", "message": str(e)}
 
-    return {"status": "success", "task": "escalate", "form_id": form_id, "access_token": form_container.access_token}
+    result = {
+        "status": "success",
+        "task": workflow_step,
+        "form_id": form_id,
+        "access_token": form_container.access_token
+    }
+    if extra_result_fields:
+        result.update(extra_result_fields)
+    return result
+
+
+@app.task(bind=True)
+@revoke_chain_authority
+def send_escalate_task(self, form_id, container_id, manual_escalation=False, manual_escalation_email=None):
+    """Send escalate task"""
+
+    def get_recipient(form_container, **kwargs):
+        return (
+            kwargs.get('manual_escalation_email')
+            if kwargs.get('manual_escalation')
+            else form_container.escalade_email
+        )
+
+    def get_event_details(form_container, **kwargs):
+        event_type = "Manual Escalation" if kwargs.get('manual_escalation') else "Automatic Escalation"
+        return event_type, f"{event_type} to {form_container.escalade_email}"
+
+    return _handle_task_common(
+        form_id,
+        container_id,
+        get_recipient=get_recipient,
+        get_event_details=get_event_details,
+        workflow_step='escalate',
+        manual_escalation=manual_escalation,
+        manual_escalation_email=manual_escalation_email
+    )
 
 
 @app.task(bind=True)
 @revoke_chain_authority
 def send_reminder_task(self, form_id, container_id, reminder_count):
-    logger.info(f"Sending reminder {reminder_count} for form {form_id} and container {container_id}")
-    form = Form.query.filter_by(id=form_id, status='open').first()
-    form_container = FormContainer.query.get(container_id)
+    """Send reminders tasks """
+    logger.info(f"Starting reminder {reminder_count} for {form_id}")
 
-    if not form or not form_container:
-        raise RevokeChainRequested(
-            {"status": "skipped", "message": f"Escalation skipped for form {form_id} - {container_id}."})
+    def get_recipient(form_container, **_):
+        return form_container.user_email
 
-    MailManager.send_email(
-        mail_sender=form_container.application.mail_sender,
-        to=form_container.user_email,
-        cc=form_container.cc_emails,
-        title="Please respond to the form.",
-        access_token=form_container.access_token,
-        workflow_step='reminder'
+    def get_event_details(form_container, **kwargs):
+        count = kwargs.get('reminder_count')
+        return f"Reminder {count} sent", f"Reminder {count} to {form_container.user_email}"
+
+    result = _handle_task_common(
+        form_id,
+        container_id,
+        get_recipient=get_recipient,
+        get_event_details=get_event_details,
+        workflow_step='reminder',
+        extra_result_fields={'reminder_count': reminder_count},
+        reminder_count=reminder_count
     )
 
-    timeline_entry = TimelineEntry(
-        form_container_id=container_id,
-        form_id=form_id,
-        event=f"Reminder {reminder_count} sent",
-        timestamp=datetime.utcnow(),
-        details=f"Reminder {reminder_count} sent to user {form_container.user_email}"
-    )
-    db.session.add(timeline_entry)
-    form.workflow_step = 'reminder'
-    db.session.commit()
-
-    logger.info(f"Reminder {reminder_count} sent for form {form_id}")
-    return {"status": "success", "task": "reminder", "form_id": form_id, "access_token": form_container.access_token,
-            "reminder_count": reminder_count}
+    logger.info(f"Reminder {reminder_count} completed for {form_id}")
+    return result
