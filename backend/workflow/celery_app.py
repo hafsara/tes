@@ -1,13 +1,13 @@
 from celery import Celery
-from config import Config
+from config import TestConfig
 
 from api.app import create_app
 
 
 def make_celery(app):
     celery = Celery(__name__)
-    celery.conf.broker_url = Config.CELERY_BROKER_URL
-    celery.conf.result_backend = Config.CELERY_RESULT_BACKEND
+    celery.conf.broker_url = TestConfig.CELERY_BROKER_URL
+    celery.conf.result_backend = TestConfig.CELERY_RESULT_BACKEND
     celery.conf.broker_connection_retry_on_startup  = True
     task_base = celery.Task
 
@@ -22,5 +22,5 @@ def make_celery(app):
     return celery
 
 
-app = create_app(Config)
+app = create_app(TestConfig)
 celery = make_celery(app)
