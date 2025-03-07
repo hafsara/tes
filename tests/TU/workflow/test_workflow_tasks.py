@@ -65,6 +65,7 @@ def workflow_manager(mock_form_container):
     """Fixture to initialize a WorkflowManager instance."""
     return WorkflowManager(form_container=mock_form_container)
 
+
 @pytest.fixture
 def application():
     """Fixture to initialize a WorkflowManager instance."""
@@ -152,7 +153,7 @@ def test_adjust_for_working_days_skips_holidays(workflow_manager, mocker):
 
 
 def test_revoke_chain_authority():
-    """Test que la chaîne Celery est interrompue correctement en cas d'exception."""
+    """Test that the Celery chain is interrupted correctly in case of an exception."""
 
     class MockTask:
         request = MagicMock(callbacks=["test_callback"])
@@ -169,14 +170,14 @@ def test_revoke_chain_authority():
 
 
 def test_get_country_code_valid(mock_form_container):
-    """Test que le code pays est correctement récupéré pour un email valide."""
+    """Test that the country code is correctly retrieved for a valid email."""
     manager = WorkflowManager(mock_form_container)
     patch.object(manager, 'get_user_country', return_value='France')
     assert manager.get_country_code() == "FR"
 
 
 def test_get_country_code_invalid(mock_form_container):
-    """Test qu'un pays invalide retourne 'FR' par défaut."""
+    """Test that an invalid country returns 'FR' by default."""
     manager = WorkflowManager(mock_form_container)
     with patch("workflow.tasks.pycountry.countries.lookup", side_effect=LookupError):
         assert manager.get_country_code() == "FR"
