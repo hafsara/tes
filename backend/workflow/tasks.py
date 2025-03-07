@@ -17,7 +17,7 @@ DAY_SEC = 86400
 
 class RevokeChainRequested(Exception):
     def __init__(self, return_value):
-        super().__init__("")
+        Exception.__init__(self, "")
         self.return_value = return_value
 
 

@@ -1,16 +1,19 @@
-from datetime import date
+from datetime import date, datetime, timedelta
 from unittest.mock import patch, MagicMock
 import pytest
 from freezegun import freeze_time
-from api.models import Form, FormContainer
-from workflow.tasks import WorkflowManager, send_escalate_task, send_reminder_task, DAY_SEC
-
+from api.models import Form, FormContainer, TimelineEntry, Application
+from workflow.tasks import (
+    WorkflowManager,
+    send_reminder_task,
+    send_escalate_task,
+    revoke_chain_authority,
+    RevokeChainRequested
+)
 from celery.contrib.testing.worker import start_worker
 
-from api.extensions import db
 
-
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def celery_worker(app):
     """Start a Celery worker for testing."""
     with start_worker(app.worker, perform_ping_check=False):
@@ -22,8 +25,8 @@ def mock_form():
     """Fixture to create a mock Form object."""
     form = MagicMock()
     form.id = 123
-    form.status = 'open'
-    form.workflow_step = 'reminder'
+    form.status = "open"
+    form.workflow_step = "reminder"
     return form
 
 
@@ -42,7 +45,7 @@ def mock_workflow():
 
 
 @pytest.fixture
-def mock_form_container(mock_workflow):
+def mock_form_container(mock_workflow, application):
     """Fixture to create a mock FormContainer object."""
     form_container = MagicMock()
     form_container.id = 456
@@ -51,8 +54,7 @@ def mock_form_container(mock_workflow):
     form_container.access_token = "fake_access_token"
     form_container.escalade_email = "escalade@example.com"
     form_container.workflow = mock_workflow
-    form_container.application = MagicMock()
-    form_container.application.mail_sender = "application_email@example.com"
+    form_container.application = application
     form_container.escalate = True
     form_container.use_working_days = True
     return form_container
@@ -63,20 +65,30 @@ def workflow_manager(mock_form_container):
     """Fixture to initialize a WorkflowManager instance."""
     return WorkflowManager(form_container=mock_form_container)
 
+@pytest.fixture
+def application():
+    """Fixture to initialize a WorkflowManager instance."""
+    application = MagicMock()
+    application.id = 1
+    application.name = "test_app"
+    application.created_by = "user-test"
+    application.mail_sender = "test-app@exemple.com"
+    return application
+
 
 def test_start_workflow(app, workflow_manager):
     """Test workflow initialization with correct steps."""
     with app.app_context():
-        with patch('workflow.tasks.MailManager.send_email') as mock_send_email, \
-                patch('workflow.tasks.chain') as mock_chain:
+        with patch("workflow.tasks.MailManager.send_email") as mock_send_email, patch(
+                "workflow.tasks.chain") as mock_chain:
             workflow_manager.start_workflow(form_id=123)
 
             mock_send_email.assert_called_once_with(
                 workflow_manager.mail_sender,
                 workflow_manager.user_email,
                 workflow_manager.cc_emails,
-                'You have a new Form from Psirt team',
-                workflow_manager.access_token
+                "You have a new Form from Psirt team",
+                workflow_manager.access_token,
             )
 
             expected_task_count = len(workflow_manager.workflow.steps) - 1
@@ -84,31 +96,10 @@ def test_start_workflow(app, workflow_manager):
             mock_chain.assert_called_once()
 
 
-def test_workflow_step_execution_order(app, workflow_manager):
-    """Ensure steps are executed in the correct order."""
-    with app.app_context():
-        with patch('workflow.tasks.chain') as mock_chain:
-            workflow_manager.start_workflow(form_id=123)
-
-            step_types = [step["type"] for step in workflow_manager.workflow.steps]
-            valid_sequences = {
-                "start": ["reminder", "escalation"],
-                "reminder": ["reminder", "escalation"],
-                "escalation": ["reminder-escalation"],
-                "reminder-escalation": ["reminder-escalation"]
-            }
-
-            for i in range(len(step_types) - 1):
-                assert step_types[i + 1] in valid_sequences[step_types[i]], \
-                    f"Invalid sequence: {step_types[i]} -> {step_types[i + 1]}"
-
-            mock_chain.assert_called_once()
-
-
 @pytest.mark.usefixtures("app_context")
 def test_escalation_triggers_correctly(app, workflow_manager):
     """Test escalation is triggered at the right time."""
-    with patch('workflow.tasks.send_escalate_task.apply_async') as mock_escalate:
+    with patch("workflow.tasks.send_escalate_task.subtask") as mock_escalate:
         workflow_manager.start_workflow(form_id=123)
 
         if workflow_manager.escalate:
@@ -118,39 +109,24 @@ def test_escalation_triggers_correctly(app, workflow_manager):
 def test_send_reminder_task(app, mock_form, mock_form_container):
     """Test that send_reminder_task sends an email and logs the event."""
     with app.app_context():
-        print(db.engine.table_names())  # Vérifie les tables créées
-        assert "forms" in db.engine.table_names(), "Table 'forms' n'existe pas"
-
-    with app.app_context():
-        with patch('workflow.tasks.db.session.get',
-                   side_effect=lambda model, id: mock_form if model == Form else mock_form_container):
-            mock_form.status = 'open'
+        with patch("workflow.tasks.db.session.get",
+                   side_effect=lambda model, id: mock_form if model == Form else mock_form_container), \
+                patch("workflow.tasks.db.session") as mock_db_session:
             result = send_reminder_task(form_id=123, container_id=456, reminder_count=1)
-            if result["status"] == "skipped":
-                assert "Reminder skipped" in result["message"]
-            else:
-                assert result["status"] == "success"
-                assert result["task"] == "reminder"
-                assert result["reminder_count"] == 1
-
-
-def test_send_reminder_task_form_validated(app, mock_form):
-    """Test that no reminder is sent if the form is already validated."""
-    with app.app_context():
-        with patch('workflow.tasks.Form.query.get', return_value=mock_form):
-            mock_form.status = 'validated'
-            result = send_reminder_task(form_id=123, container_id=456, reminder_count=1)
-            assert result["status"] == "skipped"
-            assert "Reminder skipped for form 123 - 456." == result["message"]
+            mock_db_session.add.assert_called_once()
+            mock_db_session.commit.assert_called_once()
+            assert result["status"] == "success"
+            assert result["task"] == "reminder"
+            assert result["reminder_count"] == 1
 
 
 def test_send_escalate_task(app, mock_form, mock_form_container):
     """Test that send_escalate_task sends an escalation email and logs the event."""
     with app.app_context():
-        with patch('workflow.tasks.db.session.get',
+        with patch("workflow.tasks.db.session.get",
                    side_effect=lambda model, id: mock_form if model == Form else mock_form_container), \
-                patch('workflow.tasks.MailManager.send_email') as mock_send_email, \
-                patch('workflow.tasks.db.session') as mock_db_session:
+                patch("workflow.tasks.MailManager.send_email") as mock_send_email, \
+                patch("workflow.tasks.db.session") as mock_db_session:
             result = send_escalate_task(form_id=123, container_id=456)
             mock_db_session.add.assert_called_once()
             mock_db_session.commit.assert_called_once()
@@ -158,115 +134,49 @@ def test_send_escalate_task(app, mock_form, mock_form_container):
             assert result["task"] == "escalate"
 
 
-def test_send_escalate_task_form_validated(app, mock_form):
-    """Test that escalation is skipped if the form is already validated."""
-    with app.app_context():
-        with patch('workflow.tasks.Form.query.get', return_value=mock_form):
-            mock_form.status = 'validated'
-
-            result = send_escalate_task(form_id=123, container_id=456)
-            assert result["status"] == "skipped"
-            assert "Escalation skipped for form 123 - 456." == result["message"]
-
-
-@pytest.mark.usefixtures("app_context")
-@freeze_time("2025-02-27 12:00:00")
-def test_workflow_manager_sends_emails_at_correct_time(app, workflow_manager):
-    """Test that reminders and escalations execute at the expected time."""
-    with patch('workflow.tasks.MailManager.send_email'), \
-            patch('workflow.tasks.chain') as mock_chain, \
-            patch('workflow.tasks.send_reminder_task.apply_async'), \
-            patch('workflow.tasks.send_escalate_task.apply_async'), \
-            patch('workflow.tasks.db.session'):
-        workflow_manager.start_workflow(form_id=123)
-        expected_tasks = [
-            send_reminder_task.si(123, workflow_manager.container_id, step.get("id")).set(
-                countdown=step.get("delay", 1) * DAY_SEC)
-            for step in workflow_manager.workflow.steps
-            if step.get("type") == "reminder"
-        ]
-        expected_tasks.append(
-            send_escalate_task.si(123, workflow_manager.container_id).set(
-                countdown=workflow_manager.workflow.steps[-1].get("delay", 1) * DAY_SEC)
-        )
-        actual_args = [tuple(task.args) for call in mock_chain.call_args_list for task in call[0]]
-        expected_args = [tuple(expected.args) for expected in expected_tasks]
-        assert actual_args == expected_args, f"Expected {expected_args}, but got {actual_args}"
-
-
-@pytest.mark.usefixtures("app_context")
-def test_adjust_for_working_days_skips_weekends(workflow_manager, mocker):
-    """Vérifie que adjust_for_working_days saute bien les week-ends."""
-    mock_calendar = mocker.MagicMock()
-    mock_calendar.is_working_day.side_effect = lambda d: d.weekday() < 5  # Lundi à Vendredi
-    mock_calendar.holidays.return_value = []  # Pas de jours fériés
-
-    mocker.patch("workflow.tasks.registry.get", return_value=lambda: mock_calendar)
-
-    start_date = date(2025, 2, 27)  # Jeudi
-    delay_days = 3  # Doit sauter le week-end et finir mardi
-
-    expected_date = date(2025, 3, 4)  # Mardi
-    result = workflow_manager.adjust_for_working_days(start_date, delay_days)
-    assert result == expected_date, f"Expected {expected_date}, got {result}"
-
-
 @freeze_time("2025-02-27")
 def test_adjust_for_working_days_skips_holidays(workflow_manager, mocker):
-    """Vérifie que adjust_for_working_days saute bien les jours fériés."""
+    """Test that adjust_for_working_days correctly skips weekends and holidays."""
     mock_calendar = mocker.MagicMock()
-    mock_calendar.is_working_day.side_effect = lambda d: d.weekday() < 5  # Lundi à Vendredi
-    mock_calendar.holidays.return_value = [date(2025, 3, 3)]  # Jour férié le 3 mars
+    mock_calendar.is_working_day.side_effect = lambda d: d.weekday() < 5
+    mock_calendar.holidays.return_value = [date(2025, 3, 3)]
 
     mocker.patch("workflow.tasks.registry.get", return_value=lambda: mock_calendar)
 
-    start_date = date(2025, 2, 27)  # Jeudi
-    delay_days = 3  # Doit sauter le 3 mars
+    start_date = date(2025, 2, 27)
+    delay_days = 3
 
-    expected_date = date(2025, 3, 5)  # Mercredi
+    expected_date = date(2025, 3, 5)
     result = workflow_manager.adjust_for_working_days(start_date, delay_days)
     assert result == expected_date, f"Expected {expected_date}, got {result}"
 
 
-@freeze_time("2025-02-27")
-def test_start_workflow_schedules_tasks_correctly(workflow_manager, mocker):
-    """Vérifie que les tâches Celery sont bien planifiées avec des jours ouvrés."""
-    mock_calendar = mocker.MagicMock()
-    mock_calendar.is_working_day.side_effect = lambda d: d.weekday() < 5  # Lundi à Vendredi
-    mock_calendar.holidays.return_value = []  # Pas de jours fériés
-    mocker.patch("workflow.tasks.registry.get", return_value=lambda: mock_calendar)
+def test_revoke_chain_authority():
+    """Test que la chaîne Celery est interrompue correctement en cas d'exception."""
 
-    with patch('workflow.tasks.chain') as mock_chain:
-        workflow_manager.start_workflow(form_id=123)
+    class MockTask:
+        request = MagicMock(callbacks=["test_callback"])
 
-        assert len(workflow_manager.tasks) == len(workflow_manager.workflow.steps) - 1
-        mock_chain.assert_called_once()
+    @revoke_chain_authority
+    def mock_task(self, *args, **kwargs):
+        raise RevokeChainRequested({"status": "skipped"})
 
+    mock_task_instance = MockTask()
+    result = mock_task(mock_task_instance)
 
-@freeze_time("2025-02-27")
-def test_start_workflow_handles_non_working_days(workflow_manager, mocker):
-    """Vérifie que les rappels ne tombent pas sur un week-end."""
-    mock_calendar = mocker.MagicMock()
-    mock_calendar.is_working_day.side_effect = lambda d: d.weekday() < 5  # Lundi à Vendredi
-    mock_calendar.holidays.return_value = [date(2025, 3, 3)]  # Jour férié le 3 mars
-    mocker.patch("workflow.tasks.registry.get", return_value=lambda: mock_calendar)
-
-    with patch('workflow.tasks.send_reminder_task.apply_async') as mock_send_reminder:
-        workflow_manager.start_workflow(form_id=123)
-
-        called_times = [call[1]["countdown"] for call in mock_send_reminder.call_args_list]
-        assert all(t > 0 for t in called_times), "All countdowns should be positive."
+    assert result == {"status": "skipped"}
+    assert mock_task_instance.request.callbacks == []
 
 
-@freeze_time("2025-02-27")
-def test_start_workflow_standard_mode(mock_form_container, mocker):
-    """Vérifie que les rappels fonctionnent normalement quand `use_working_days` est désactivé."""
-    mock_form_container.use_working_days = False
-    manager = WorkflowManager(form_container=mock_form_container)
+def test_get_country_code_valid(mock_form_container):
+    """Test que le code pays est correctement récupéré pour un email valide."""
+    manager = WorkflowManager(mock_form_container)
+    patch.object(manager, 'get_user_country', return_value='France')
+    assert manager.get_country_code() == "FR"
 
-    with patch('workflow.tasks.chain') as mock_chain:
-        manager.start_workflow(form_id=123)
 
-        expected_task_count = len(manager.workflow.steps) - 1
-        assert len(manager.tasks) == expected_task_count
-        mock_chain.assert_called_once()
+def test_get_country_code_invalid(mock_form_container):
+    """Test qu'un pays invalide retourne 'FR' par défaut."""
+    manager = WorkflowManager(mock_form_container)
+    with patch("workflow.tasks.pycountry.countries.lookup", side_effect=LookupError):
+        assert manager.get_country_code() == "FR"

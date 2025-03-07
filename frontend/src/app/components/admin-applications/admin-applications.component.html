@@ -87,6 +87,7 @@
       [(ngModel)]="selectedApplication.name"
       class="w-full p-inputtext p-mb-2"
       placeholder="Enter application name"
+      [disabled]="selectedApplication?.name === 'admin'"
     />
   </div>
 
@@ -97,7 +98,7 @@
       pInputText
       [(ngModel)]="selectedApplication.mail_sender"
       class="w-full p-inputtext"
-      placeholder="Enter sender email"
+      placeholder="Enter sender email"  [disabled]="selectedApplication?.name === 'admin'"
     />
   </div>
 
