@@ -11,13 +11,19 @@ import { MenuItem } from 'primeng/api';
 export class FormTableComponent {
   @Input() forms: any[] = [];
   @Input() totalCount: number = 0;
+  @Input() currentPage: number = 1;
+  @Input() pageSize: number = 10;
+  @Input() pageSizeOptions: number[] = [10, 25, 50];
   @Output() formSelected = new EventEmitter<string>();
+  @Output() pageChange = new EventEmitter<any>();
+  @Output() filterChange = new EventEmitter<string[]>();
+  @Output() toggleFilter = new EventEmitter<void>();
+  @Output() sortChange = new EventEmitter<string>();
 
   filterDates: Date[] = [];
   selectedForms!: any[];
   items: MenuItem[];
-  minDate: Date = new Date(new Date().setFullYear(new Date().getFullYear() - 1));
-  maxDate: Date = new Date();
+  activeTags: string[] = [];
 
   constructor(private location: Location) {
     this.items = [
@@ -30,13 +36,33 @@ export class FormTableComponent {
     ];
   }
 
-  filterGlobal(table: Table, event: Event): void {
-    const input = event.target as HTMLInputElement;
-    table.filterGlobal(input.value, 'contains');
+  onPageChange(event: any): void {
+    const currentPage = (event.first / event.rows) + 1;
+
+    this.pageChange.emit({
+      page: currentPage,
+      limit: event.rows
+    });
+  }
+
+  toggleTagFilter(tag: string): void {
+    if (!this.activeTags.includes(tag)) {
+      this.activeTags.push(tag);
+    } else {
+      this.activeTags = this.activeTags.filter(t => t !== tag);
+    }
+    this.filterChange.emit(this.activeTags);
+  }
+
+  onTagRemove(tag: string): void {
+    this.activeTags = this.activeTags.filter(t => t !== tag);
+    this.filterChange.emit(this.activeTags);
   }
 
   clear(table: Table): void {
     table.clear();
+    this.activeTags = [];
+    this.filterChange.emit(this.activeTags);
   }
 
   selectForm(accessToken: string, appName:string): void {
@@ -88,5 +114,18 @@ export class FormTableComponent {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+  }
+
+  isExpired(form: any): boolean {
+    return form.validated && new Date(form.archived_at) <= new Date();
+  }
+
+  onToggleFilter(): void {
+    this.toggleFilter.emit();
+  }
+
+  onSort(event: any): void {
+    const sortOrder = event.order === 1 ? 'asc' : 'desc';
+    this.sortChange.emit(sortOrder);
   }
 }

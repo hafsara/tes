@@ -1,0 +1,32 @@
+@startuml
+actor User
+participant Angular_Frontend
+participant Flask_Backend
+participant Celery_Worker
+database Redis
+
+User -> Angular : Submit form
+Angular -> Flask : POST /start_workflow
+activate Flask
+Flask -> WorkflowManager: start_workflow(form_id)
+activate WorkflowManager
+WorkflowManager -> Celery : chain(task1.si().set(eta), task2.si().set(eta))
+WorkflowManager --> Flask : return
+deactivate WorkflowManager
+Flask --> Frontend: HTTP 200 (OK)
+deactivate Flask
+
+Celery -> Redis : store task metadata
+deactivate Flask
+
+... Later at ETA time ...
+Celery_Worker -> Redis : Fetch task details
+Celery_Worker -> Redis: Check workflow revoked?
+alt Workflow not revoked
+    Redis --> Celery_Worker : proceed task
+    Celery_Worker -> MailManager : send_email()
+    Celery_Worker -> DB : update TimelineEntry
+else Workflow revoked
+    Celery_Worker --> Redis : skip task execution
+@enduml
+

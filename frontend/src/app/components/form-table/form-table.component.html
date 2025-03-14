@@ -1,24 +1,30 @@
 <div class="card">
+  <div class="active-tags-container" *ngIf="activeTags.length > 0">
+    <span class="active-tag" *ngFor="let tag of activeTags">
+      <p-tag [value]="tag" severity="secondary" (click)="onTagRemove(tag)" icon="pi pi-times"></p-tag>
+    </span>
+  </div>
+
   <p-table
     #dt
     [value]="forms"
     dataKey="id"
     [rows]="10"
     [rowsPerPageOptions]="[10, 25, 50]"
+    [totalRecords]="totalCount"
     [paginator]="true"
-    [globalFilterFields]="['title', 'description', 'reference', 'user_email']"
     [(selection)]="selectedForms"
+    (onPage)="onPageChange($event)"
+    (onSort)="onSort($event)"
+    [lazy]="true"
   >
     <ng-template pTemplate="caption">
       <div class="flex">
-        <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)"/>
-        <p-splitButton class="total-count" label="Export" icon="pi pi-file-excel" (onClick)="exportSelectedToCsv()" [model]="items" />
-        <span class="p-input-icon-left ml-auto">
-          <i class="pi pi-search"></i>
-          <input pInputText type="text" placeholder="Search keyword" (input)="filterGlobal(dt, $event)"/>
-        </span>
-        <span class="total-count" title="Visible forms / Total forms in the system">
-          Total: {{ forms.length }}/{{ totalCount}}
+        <p-button icon="pi pi-sliders-h"  (click)="onToggleFilter()"/>
+        <p-splitButton class=" total-count" label="Export" icon="pi pi-file-excel" (onClick)="exportSelectedToCsv()"
+                       [model]="items"/>
+        <span class="p-input-icon-left ml-auto total-count" title="Visible forms / Total forms in the system">
+          Total: {{ totalCount}}
         </span>
       </div>
     </ng-template>
@@ -30,36 +36,22 @@
         <th style="width:50%;min-width:15rem">
           <div class="flex align-items-center">
             Title
-            <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
           </div>
         </th>
         <th>
           <div class="flex align-items-center">
             User
-            <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
           </div>
         </th>
         <th>
           <div class="flex align-items-center">
             Campaign
-            <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
           </div>
         </th>
 
         <th pSortableColumn="created_at">
           <div class="flex align-items-center">
             Created at
-            <p-columnFilter type="date" field="created_at" display="menu">
-              <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                <p-calendar
-                  [(ngModel)]="filterDates"
-                  selectionMode="range"
-                  [minDate]="minDate"
-                  [maxDate]="maxDate"
-                  placeholder="Select date range"
-                ></p-calendar>
-              </ng-template>
-            </p-columnFilter>
             <p-sortIcon field="created_at"></p-sortIcon>
           </div>
         </th>
@@ -79,8 +71,18 @@
             {{ form.title }}
           </a>
           <div class="card flex gap-2" style="margin-top: 0.7rem;">
-            <p-tag [value]="'APP: ' + form.app_name"></p-tag>
-            <p-tag *ngIf="form.reference" [value]="form.reference" severity="info"></p-tag>
+            <p-tag [value]="'app: ' + form.app_name" severity="secondary">
+            </p-tag>
+            <p-tag *ngIf="form.reference"
+                   [value]="'ref: ' + form.reference"
+                   (click)="toggleTagFilter('ref: ' + form.reference)"
+                   class="clickable-tag" severity="secondary">
+            </p-tag>
+            <p-tag *ngIf="isExpired(form)"
+                   [value]="'EXPIRED'"
+                   (click)="toggleTagFilter('EXPIRED')"
+                   class="clickable-tag" severity="danger">
+            </p-tag>
           </div>
         </td>
         <td>

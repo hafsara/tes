@@ -71,6 +71,8 @@ import { AdminApplicationsComponent } from './components/admin-applications/admi
 import { SafeUrlPipe } from './pipes/safe-url.pipe';
 import { AdminWorkflowComponent } from './components/admin-workflow/admin-workflow.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { FilterComponent } from './components/filter/filter.component';
+import { DashboardTableComponent } from './components/dashboard/dashboard-table/dashboard-table.component';
 
 
 @NgModule({
@@ -97,7 +99,9 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     AdminCampaignComponent,
     AdminApplicationsComponent,
     SafeUrlPipe,
-    AdminWorkflowComponent
+    AdminWorkflowComponent,
+    FilterComponent,
+    DashboardTableComponent
   ],
   imports: [
     DragDropModule,

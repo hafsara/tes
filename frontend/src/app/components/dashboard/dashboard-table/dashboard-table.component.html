@@ -1,0 +1,13 @@
+<app-filter *ngIf="isFilterVisible" (filterChange)="handleFilterUpdate($event)"></app-filter>
+<app-form-table
+  [forms]="forms"
+  [totalCount]="totalCount"
+  [currentPage]="currentPage"
+  [pageSize]="pageSize"
+  [pageSizeOptions]="pageSizeOptions"
+  (pageChange)="handlePageChange($event)"
+  (sortChange)="handleSortChange($event)"
+  (filterChange)="handleFilterUpdate($event)"
+  (formSelected)="handleFormSelection($event)"
+  (toggleFilter)="toggleFilter()">
+</app-form-table>

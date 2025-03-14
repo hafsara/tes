@@ -130,3 +130,14 @@ def validate_token(token):
     if application:
         return jsonify({"is_valid": True, "token": generate_token(application)}), 200
     return jsonify({"is_valid": False, "token": None}), 401
+
+
+@application_bp.route('/applications/get-app-info', methods=['GET'])
+@require_user_token
+def get_application_from_id(): # ADD STRING TOKEN EN ENTREE
+    token = '0170f26f-2cb9-4de5-8fa7-ba615d894d47'
+    application = Application.query.filter_by(id=token).first()
+    if application:
+        return jsonify({"id": application.id, "name": application.name}), 200
+    return jsonify({"id": None, "name": None}), 401
+

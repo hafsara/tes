@@ -1,0 +1,31 @@
+<div class="filter-container">
+  <div class="filter-row">
+    <div class="filter-group">
+      <label>Title</label>
+      <input type="text" [(ngModel)]="filters.title" placeholder="Title">
+    </div>
+
+    <div class="filter-group">
+      <label>User email</label>
+      <input type="text" [(ngModel)]="filters.user_email" placeholder="User email">
+    </div>
+  </div>
+
+  <div class="filter-row">
+    <div class="filter-group">
+      <label>Campaign</label>
+      <input type="text" [(ngModel)]="filters.campaign_name" placeholder="Campaign name">
+    </div>
+
+    <div class="date-group">
+      <label>Creation date</label>
+      <p-calendar [(ngModel)]="filters.dateRange" [showIcon]="true" selectionMode="range" [minDate]="minDate"
+                  [maxDate]="maxDate" placeholder="Select date range"></p-calendar>
+    </div>
+  </div>
+
+  <div class="filter-actions">
+    <p-button label="Clear" icon="pi pi-filter-slash" (onClick)="clearFilters()"/>
+    <p-button label="Apply" icon="pi pi-search" (onClick)="applyFilters()"/>
+  </div>
+</div>

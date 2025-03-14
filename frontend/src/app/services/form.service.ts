@@ -49,16 +49,53 @@ export class FormService {
   }
 
   getFormContainersByStatus(
-      appIds: string,
-      status: string,
+    appIds: string,
+    status: string,
+    page: number = 1,
+    limit: number = 10,
+    filters?: {
+      references?: string[],
+      expired?: boolean,
+      title?: string,
+      user_email?: string,
+      campaign_name?: string,
+      dateRange?: { start: string, end: string }
+    },
+    sort: string = 'desc'
   ): Observable<any> {
-     const headers = this.getAuthHeaders();
-     const params = new HttpParams()
-       .set('app_ids', appIds)
-       .set('filter', 'status')
-       .set('status', status)
-     return this.http.get<any>(`${this.apiFormContainerUrl}`, { headers, params });
+    const headers = this.getAuthHeaders();
+    let params = new HttpParams()
+      .set('app_ids', appIds)
+      .set('status', status)
+      .set('page', page.toString())
+      .set('limit', limit.toString())
+      .set('sort', sort);
+
+    if (filters) {
+      if (filters.references && filters.references.length > 0) {
+        params = params.set('references', filters.references.join(','));
+      }
+      if (filters.expired) {
+        params = params.set('expired', 'true');
+      }
+      if (filters.title) {
+        params = params.set('title', filters.title.trim());
+      }
+      if (filters.user_email) {
+        params = params.set('user_email', filters.user_email.trim());
+      }
+      if (filters.campaign_name) {
+        params = params.set('campaign_name', filters.campaign_name.trim());
+      }
+      if (filters.dateRange && filters.dateRange.start && filters.dateRange.end) {
+        const startISO = new Date(filters.dateRange.start).toISOString();
+        const endISO = new Date(filters.dateRange.end).toISOString();
+        params = params.append('dateRange', `${startISO},${endISO}`);
+      }
+    }
+    return this.http.get<any>(`${this.apiFormContainerUrl}`, { headers, params });
   }
+
 
   validateFormContainer(formContainerId: number, formId: number, archive:boolean): Observable<any> {
     const headers = this.getAuthHeaders();

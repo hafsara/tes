@@ -1,30 +1,36 @@
 <app-navbar
-  (appOptionsLoaded)="onAppOptionsLoaded($event)"
+  (appOptionsLoaded)="appOptions = $event"
   (selectedAppIdsChange)="onSelectedAppIdsChange($event)">
 </app-navbar>
 
 <div class="layout">
   <app-sidebar
-    (menuItemSelected)="selectMenuItem($event)"
+    (menuItemSelected)="handleStatusChange($event)"
     (createFormClicked)="navigateToCreateForm()">
   </app-sidebar>
-  <div class="content-container content" [ngClass]="{'questions-view': currentView === 'questions'}"
-       [ngSwitch]="currentView">
-    <div *ngSwitchCase="'table'">
-      <app-form-table
-        [forms]="forms"
-        [totalCount]="totalCount"
-        (formSelected)="onFormSelected($event)">
-      </app-form-table>
-    </div>
+
+  <div class="content-container" [ngSwitch]="currentView">
+    <app-dashboard-table
+      *ngSwitchCase="'table'"
+      [forms]="(state.forms$ | async) ?? []"
+      [totalCount]="(state.totalCount$ | async) ?? 0"
+      [currentPage]="state.currentPage$.value"
+      [pageSize]="state.pageSize$.value"
+      [isFilterVisible]="isFilterVisible"
+      (pageChanged)="state.updatePagination($event.page, $event.limit)"
+      (sortChanged)="state.updateSort($event)"
+      (filterToggled)="isFilterVisible = !isFilterVisible"
+      (formSelected)="onFormSelected($event)"
+      (filterChanged)="state.updateFilters($event)">
+    </app-dashboard-table>
 
     <div *ngSwitchCase="'questions'">
-      <p-button icon="pi pi-chevron-left" (click)="switchTo('table')"></p-button>
+      <p-button icon="pi pi-chevron-left" (click)="showTableView()"></p-button>
       <app-form-container-preview *ngIf="accessToken" [accessToken]="accessToken"></app-form-container-preview>
     </div>
 
     <div *ngSwitchCase="'createForm'">
-      <p-button icon="pi pi-chevron-left" (click)="switchTo('table')"></p-button>
+      <p-button icon="pi pi-chevron-left" (click)="showTableView()"></p-button>
       <app-create-form-container [appOptions]="appOptions"></app-create-form-container>
     </div>
 
@@ -32,10 +38,6 @@
       <div class="card flex justify-content-center">
         <p-progressSpinner ariaLabel="loading"></p-progressSpinner>
       </div>
-    </div>
-
-    <div *ngSwitchDefault>
-      <p>Invalid view selected</p>
     </div>
   </div>
 </div>

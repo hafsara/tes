@@ -1,147 +1,81 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { FormService } from '../../services/form.service';
-import { PollingService } from '../../services/polling.service';
+import { FormStateService } from '../../services/form-state.service';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
-
 export class DashboardComponent implements OnInit, OnDestroy {
-  forms: any[] = [];
-  totalCount: number = 0;
+  currentView: 'loading' | 'table' | 'questions' | 'createForm' = 'loading';
+  isFilterVisible = false;
+  accessToken: string | null = null;
   appOptions: { name: string; token: string }[] = [];
   selectedApps: string[] = [];
-  currentView = 'loading';
-  status = 'answered';
-  accessToken: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
-    private formService: FormService,
     private location: Location,
-    private pollingService: PollingService
+    public state: FormStateService
   ) {}
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      const accessToken = params.get('access_token');
-      if (accessToken) {
-        this.onFormSelected(accessToken);
-      } else {
-        this.switchTo('table')
-        this.startTablePolling();
-      }
+    this.initRouteListening();
+    this.state.selectedApps$.subscribe(apps => {
+      this.selectedApps = apps;
     });
   }
 
-  ngOnDestroy(): void {
-    this.stopPolling();
+  private initRouteListening(): void {
+    this.route.paramMap.subscribe(params => {
+      const token = params.get('access_token');
+      token ? this.showQuestionsView(token) : this.showTableView();
+    });
   }
 
-  selectMenuItem(status: string): void {
-    this.updateStatus(status);
-  }
-
-  updateStatus(newStatus: string): void {
-    this.status = newStatus;
-    this.currentView = 'loading';
-    this.switchTo('table');
+  public showTableView(): void {
+    this.currentView = 'table';
+    this.state.currentView$.next('table');
+    this.state.startPolling();
     this.location.go('/dashboard');
   }
 
-  checkAndLoadForms(): void {
-    if (this.selectedApps.length > 0 && this.status) {
-      const appIds = this.selectedApps.join(',');
-      this.loadForms(appIds, this.status);
-    } else {
-      this.forms = [];
-      this.totalCount = 0;
-    }
-  }
-
-  onAppOptionsLoaded(options: { name: string; token: string }[]): void {
-    this.appOptions = options;
-  }
-
-  onSelectedAppIdsChange(selectedAppIds: string[]): void {
-    this.selectedApps = selectedAppIds;
-    this.checkAndLoadForms();
-  }
-
-  loadForms(appIds: string, status: string): void {
-    this.fetchTotalCount(appIds);
-    this.formService.getFormContainersByStatus(appIds, status).subscribe(
-      (data) => {
-        this.forms = data.form_containers;
-      }
-    );
-  }
-
-  switchTo(view: string): void {
-    this.currentView = view;
-    if (view === 'table') {
-      this.checkAndLoadForms();
-      this.location.go('/dashboard');
-    } else if (view === 'createForm') {
-      this.location.go('/create-form');
-    }
+  private showQuestionsView(token: string): void {
+    this.currentView = 'questions';
+    this.state.currentView$.next('questions');
+    this.state.stopPolling();
+    this.accessToken = token;
   }
 
   navigateToCreateForm(): void {
-    this.switchTo('createForm');
+    this.currentView = 'createForm';
+    this.state.currentView$.next('createForm');
+    this.state.stopPolling();
+    this.location.go('/create-form');
+  }
+
+  ngOnDestroy(): void {
+    this.state.ngOnDestroy();
+  }
+
+  handleStatusChange(status: string): void {
+    this.state.currentStatus$.next(status);
+    this.state.refreshData();
+  }
+
+  handleAppSelection(selectedApps: string[]): void {
+    this.selectedApps = selectedApps;
+    this.state.updatePagination(1, this.state.pageSize$.value);
+  }
+
+  onSelectedAppIdsChange(selectedAppIds: string[]): void {
+    this.state.selectedApps$.next(selectedAppIds);
+    this.state.updatePagination(1, this.state.pageSize$.value);
   }
 
   onFormSelected(accessToken: string): void {
-    this.accessToken = accessToken;
-    this.switchTo('questions');
-  }
-
-  startTablePolling(): void {
-    const appIds = this.selectedApps.join(',');
-    this.pollingService.startPolling(
-      'tablePolling',
-      15000,
-      () => {
-        const appIds = this.selectedApps.join(',');
-        if (!appIds) {
-          return Promise.resolve({ total: 0, form_containers: [] });
-        }
-        return this.fetchForms(appIds);
-      },
-      (newData) => this.updateForms(newData)
-    );
-  }
-
-  stopPolling(): void {
-    this.pollingService.stopPolling('tablePolling');
-  }
-
-  private fetchForms(appIds: string): Promise<{ total: number; form_containers: any[] }> {
-    return this.formService.getFormContainersByStatus(appIds, this.status)
-      .toPromise()
-      .then(response => ({
-        total: response.total,
-        form_containers: response.form_containers || []
-      }))
-      .catch(() => ({ total: 0, form_containers: [] }));
-  }
-
-  private updateForms(newData: { total: number; form_containers: any[] }): void {
-    if (newData.form_containers.length !== this.forms.length) {
-      this.forms = newData.form_containers;
-    }
-    this.totalCount = newData.total;
-  }
-
-  fetchTotalCount(appIds: string): void {
-    this.formService.getTotalFormsCount(appIds).subscribe({
-      next: (response) => {
-        this.totalCount = response.totalCount;
-      }
-    });
+    this.showQuestionsView(accessToken);
   }
 }

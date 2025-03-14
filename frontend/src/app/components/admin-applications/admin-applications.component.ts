@@ -183,8 +183,4 @@ export class AdminApplicationsComponent {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
-
-  updateLocalStorage(oldApp: any, updatedData: any) {
-    // mettre à jour le localstorage
-  }
 }

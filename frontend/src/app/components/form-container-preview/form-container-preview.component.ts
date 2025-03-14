@@ -277,4 +277,8 @@ this.items = [
       }
     );
   }
+
+  isExpired(form: any): boolean {
+    return form.validated && new Date(form.archived_at) <= new Date();
+  }
 }

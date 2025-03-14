@@ -20,7 +20,6 @@ def create_form_container():
     """
     Create a new form container.
     """
-    from workflow.tasks import WorkflowManager
 
     data = request.json
     schema = FormContainerSchema()
@@ -93,7 +92,7 @@ def create_form_container():
         event="FormContainer created",
         details=f'Form container created with title {form_container.title} by {user_id}'
     )
-    WorkflowManager(form_container).start_workflow(form.id)
+    # WorkflowManager(form_container).start_workflow(form.id)
     db.session.commit()
     return jsonify({
         "container_id": form_container.id,
@@ -106,22 +105,24 @@ def create_form_container():
 @require_valid_app_ids(param_name="app_ids", source="args", allow_multiple=True)
 def get_form_containers():
     """
-    Retrieve all form containers associated with given app IDs.
+    Retrieve paginated form containers associated with given app IDs.
 
     Query Params:
         - app_ids (str, required): Comma-separated list of application IDs.
-        - filter (str, optional): Filter type (e.g., "status").
         - status (str, optional): Status of the form containers (e.g., "open", "reminder", "escalate").
-        - sort (str, optional): Sorting order (default: "desc").
-        - limit (int, optional): Number of results to return (default: 50).
-        - page (int, optional): Pagination page (default: 1).
+        - references (str, optional): Comma-separated list of references.
+        - expired (bool, optional): Filter expired forms (`true` or `false`).
+        - title (str, optional): Search by title (case-insensitive, partial match).
+        - user_email (str, optional): Search by user email (case-insensitive, partial match).
+        - campaign_name (str, optional): Search by campaign name (case-insensitive, partial match).
+        - dateRange (str, optional): Start and end date for `created_at`, formatted as `YYYY-MM-DD,YYYY-MM-DD`.
+        - sort (str, optional): Sorting order (`asc` or `desc`, default: `desc`).
+        - limit (int, optional): Number of results per page (default: 10).
+        - page (int, optional): Page number (default: 1).
 
     Returns:
-        JSON: A list of form containers matching the criteria.
+        JSON: A paginated list of form containers matching the criteria.
     """
-    batch_size = 100
-    all_results = []
-    offset = 0
 
     user_id = getattr(request, "user_id", None)
     if not user_id:
@@ -130,37 +131,74 @@ def get_form_containers():
     app_id_list = request.args.get("app_ids", "").split(",")
 
     if not app_id_list:
-        return error_response("Applications id required", 401)
+        return error_response("Applications ID required", 400)
 
-    filter_type = request.args.get("filter")
+    # Pagination
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 50, type=int)
+    offset = (page - 1) * limit
+    if page < 1 or limit < 1:
+        return error_response("Invalid pagination parameters", 400)
+
+    # Filters
     status = request.args.get("status")
-    sort_order = request.args.get("sort", "desc").lower()
+    references = request.args.get("references", "")
+    expired = request.args.get("expired", "false").lower() == "true"
+    title = request.args.get("title", "").strip()
+    user_email = request.args.get("user_email", "").strip()
+    campaign_name = request.args.get("campaign_name", "").strip()
+    date_range = request.args.get("dateRange", "")
 
     query = FormContainer.query.filter(FormContainer.app_id.in_(app_id_list))
 
-    if filter_type == "status" and status:
+    if status:
         if status in ("reminder", "escalate"):
             query = query.filter(FormContainer.forms.any(and_(Form.workflow_step == status, Form.status == "open")))
         else:
             query = query.filter(FormContainer.forms.any(Form.status == status))
 
+    if references:
+        references_list = references.split(',')
+        query = query.filter(FormContainer.reference.in_(references_list))
+
+    if expired:
+        query = query.filter(FormContainer.archived_at <= datetime.utcnow())
+
+    if title:
+        query = query.filter(FormContainer.title.ilike(f"%{title}%"))
+
+    if user_email:
+        query = query.filter(FormContainer.user_email.ilike(f"%{user_email}%"))
+
+    if campaign_name:
+        query = query.filter(FormContainer.campaign_name.ilike(f"%{campaign_name}%"))
+
+    if date_range:
+        try:
+            start_date, end_date = date_range.split(",")
+            start_date = datetime.fromisoformat(start_date.replace("Z", ""))
+            end_date = datetime.fromisoformat(end_date.replace("Z", ""))
+            if start_date and end_date:
+                query = query.filter(FormContainer.created_at.between(start_date, end_date))
+        except ValueError as e:
+            return error_response("Invalid date format", 400)
+
+    sort_order = request.args.get("sort", "desc").lower()
     if sort_order == "asc":
         query = query.order_by(FormContainer.created_at.asc())
     else:
         query = query.order_by(FormContainer.created_at.desc())
 
-    while True:
-        batch = query.limit(batch_size).offset(offset).all()
-        if not batch:
-            break
-        all_results.extend(batch)
-        offset += batch_size
-
+    total = query.count()
+    paginated_query = query.limit(limit).offset(offset)
+    results = paginated_query.all()
     schema = FormContainerListSchema(session=db.session, many=True)
-    result = schema.dump(all_results)
+    result = schema.dump(results)
 
     return jsonify({
-        "total": len(result),
+        "total": total,
+        "page": page,
+        "page_size": limit,
         "form_containers": result
     }), 200
 
@@ -204,7 +242,7 @@ def validate_form_container(container_id, form_id):
     archive = data.get("archive", False)
 
     form_container.validated = True
-    form_container.archive_at = datetime.utcnow() if archive else datetime.utcnow() + timedelta(
+    form_container.archived_at = datetime.utcnow() if archive else datetime.utcnow() + timedelta(
         days=Config.ARCHIVE_DELAY_DAYS)
     form.status = "validated"
 
@@ -272,7 +310,8 @@ def cancel_form_container(container_id, form_id):
 
 @form_container_bp.route('/form-containers/<int:form_container_id>/timeline', methods=['GET'])
 def get_form_container_timeline(form_container_id):
-    timeline_entry = TimelineEntry.query.filter_by(form_container_id=form_container_id).all()
+    timeline_entry = TimelineEntry.query.filter_by(form_container_id=form_container_id).order_by(
+        TimelineEntry.timestamp.asc()).all()
     if not timeline_entry:
         return error_response("Timeline not found", 404)
 
@@ -310,7 +349,7 @@ def get_total_forms_count():
 @form_container_bp.route('/form-containers/<int:container_id>/forms', methods=['POST'])
 @require_valid_app_ids(param_name="app_id", source="args", allow_multiple=False)
 def add_form_to_container(container_id):
-    from workflow.tasks import WorkflowManager, send_escalate_task
+    #from workflow.tasks import WorkflowManager, send_escalate_task
 
     user_id = getattr(request, 'user_id', None)
     if not user_id:
@@ -344,12 +383,6 @@ def add_form_to_container(container_id):
         return error_response("An error occurred while adding the form", 500)
 
     try:
-        if manual_escalation and manual_escalation_email:
-            manual_escalation, _ = get_eq_emails(form_container.user_email, manual_escalation_email)
-            send_escalate_task.delay(new_form.id, container_id, manual_escalation=True,
-                                manual_escalation_email=manual_escalation_email)
-        else:
-            WorkflowManager(form_container).start_workflow(new_form.id)
 
         log_timeline_event(form_container.id, new_form.id, 'Unsubstantial response',
                            f'Response marked as unsubstantial by {user_id}')
