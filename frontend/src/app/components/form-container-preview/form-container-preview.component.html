@@ -10,9 +10,10 @@
             <div class="card flex align-items-center justify-content-between"
                  style="margin-top: 0.7rem; margin-bottom: 2rem;">
               <div class="tags-container flex gap-2">
-                <p-tag [value]="'APP: ' + formContainer.app_name"></p-tag>
-                <p-tag [value]="formContainer.campaign_name" severity="info"></p-tag>
-                <p-tag *ngIf="formContainer.reference" [value]="formContainer.reference" severity="info"></p-tag>
+                <p-tag [value]="'app: ' + formContainer.app_name" severity="success"></p-tag>
+                <p-tag [value]="'camp: ' + formContainer.campaign_name" severity="success"></p-tag>
+                <p-tag *ngIf="formContainer.reference" [value]="'ref: ' + formContainer.reference" severity="success"></p-tag>
+                <p-tag *ngIf="isExpired(formContainer)" [value]="'EXPIRED'" severity="danger"></p-tag>
               </div>
               <div class="date-badge flex align-items-center" style="margin-left: auto;">
                 <i class="pi pi-clock" style="margin-right: 0.5rem;"></i>

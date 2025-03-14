@@ -20,7 +20,6 @@ def create_form_container():
     """
     Create a new form container.
     """
-    from workflow.tasks import WorkflowManager
 
     data = request.json
     schema = FormContainerSchema()
@@ -93,7 +92,7 @@ def create_form_container():
         event="FormContainer created",
         details=f'Form container created with title {form_container.title} by {user_id}'
     )
-    WorkflowManager(form_container).start_workflow(form.id)
+    # WorkflowManager(form_container).start_workflow(form.id)
     db.session.commit()
     return jsonify({
         "container_id": form_container.id,
@@ -272,7 +271,8 @@ def cancel_form_container(container_id, form_id):
 
 @form_container_bp.route('/form-containers/<int:form_container_id>/timeline', methods=['GET'])
 def get_form_container_timeline(form_container_id):
-    timeline_entry = TimelineEntry.query.filter_by(form_container_id=form_container_id).all()
+    timeline_entry = TimelineEntry.query.filter_by(form_container_id=form_container_id).order_by(
+        TimelineEntry.timestamp.asc()).all()
     if not timeline_entry:
         return error_response("Timeline not found", 404)
 
@@ -310,7 +310,7 @@ def get_total_forms_count():
 @form_container_bp.route('/form-containers/<int:container_id>/forms', methods=['POST'])
 @require_valid_app_ids(param_name="app_id", source="args", allow_multiple=False)
 def add_form_to_container(container_id):
-    from workflow.tasks import WorkflowManager, send_escalate_task
+    #from workflow.tasks import WorkflowManager, send_escalate_task
 
     user_id = getattr(request, 'user_id', None)
     if not user_id:
@@ -344,12 +344,6 @@ def add_form_to_container(container_id):
         return error_response("An error occurred while adding the form", 500)
 
     try:
-        if manual_escalation and manual_escalation_email:
-            manual_escalation, _ = get_eq_emails(form_container.user_email, manual_escalation_email)
-            send_escalate_task.delay(new_form.id, container_id, manual_escalation=True,
-                                manual_escalation_email=manual_escalation_email)
-        else:
-            WorkflowManager(form_container).start_workflow(new_form.id)
 
         log_timeline_event(form_container.id, new_form.id, 'Unsubstantial response',
                            f'Response marked as unsubstantial by {user_id}')

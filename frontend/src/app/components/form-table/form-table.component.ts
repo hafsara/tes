@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { Table } from 'primeng/table';
 import { Location } from '@angular/common';
 import { MenuItem } from 'primeng/api';
@@ -8,7 +8,7 @@ import { MenuItem } from 'primeng/api';
   templateUrl: './form-table.component.html',
   styleUrl: './form-table.component.scss'
 })
-export class FormTableComponent {
+export class FormTableComponent implements OnInit, OnChanges {
   @Input() forms: any[] = [];
   @Input() totalCount: number = 0;
   @Output() formSelected = new EventEmitter<string>();
@@ -18,6 +18,8 @@ export class FormTableComponent {
   items: MenuItem[];
   minDate: Date = new Date(new Date().setFullYear(new Date().getFullYear() - 1));
   maxDate: Date = new Date();
+  activeTags: string[] = [];
+  dataFiltered: any[] = [];
 
   constructor(private location: Location) {
     this.items = [
@@ -30,6 +32,45 @@ export class FormTableComponent {
     ];
   }
 
+  ngOnInit(): void {
+    this.dataFiltered = [...this.forms];
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['forms']) {
+      this.dataFiltered = [...this.forms];
+    }
+  }
+
+  toggleTagFilter(tag: string): void {
+    if (!this.activeTags.includes(tag)) {
+      this.activeTags.push(tag);
+    } else {
+      this.activeTags = this.activeTags.filter(t => t !== tag);
+    }
+    this.filterTable();
+  }
+
+  filterTable(): void {
+    if (this.activeTags.length === 0) {
+      this.dataFiltered = [...this.forms];
+      return;
+    }
+
+    this.dataFiltered = this.forms.filter(item =>
+      this.activeTags.every(tag =>
+        (tag === 'EXPIRED' && this.isExpired(item)) ||
+        tag === 'ref: ' + item.reference ||
+        tag === 'app: ' + item.app_name
+      )
+    );
+  }
+
+  onTagRemove(tag: string): void {
+    this.activeTags = this.activeTags.filter(t => t !== tag);
+    this.filterTable();
+  }
+
   filterGlobal(table: Table, event: Event): void {
     const input = event.target as HTMLInputElement;
     table.filterGlobal(input.value, 'contains');
@@ -37,6 +78,8 @@ export class FormTableComponent {
 
   clear(table: Table): void {
     table.clear();
+    this.activeTags = [];
+    this.dataFiltered = [...this.forms];
   }
 
   selectForm(accessToken: string, appName:string): void {
@@ -88,5 +131,10 @@ export class FormTableComponent {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+  }
+
+  isExpired(form: any): boolean {
+    console.log(form);
+    return form.validated && new Date(form.archived_at) <= new Date();
   }
 }
