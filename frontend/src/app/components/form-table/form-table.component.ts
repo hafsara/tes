@@ -11,7 +11,12 @@ import { MenuItem } from 'primeng/api';
 export class FormTableComponent implements OnInit, OnChanges {
   @Input() forms: any[] = [];
   @Input() totalCount: number = 0;
+  @Input() currentFormContainerCount: number = 0;
+  @Input() currentPage: number = 1;
+  @Input() pageSize: number = 10;
+  @Input() pageSizeOptions: number[] = [10, 25, 50];
   @Output() formSelected = new EventEmitter<string>();
+  @Output() pageChange = new EventEmitter<any>();
 
   filterDates: Date[] = [];
   selectedForms!: any[];
@@ -40,6 +45,15 @@ export class FormTableComponent implements OnInit, OnChanges {
     if (changes['forms']) {
       this.dataFiltered = [...this.forms];
     }
+  }
+
+  onPageChange(event: any): void {
+    const currentPage = (event.first / event.rows) + 1;
+
+    this.pageChange.emit({
+      page: currentPage,
+      limit: event.rows
+    });
   }
 
   toggleTagFilter(tag: string): void {
@@ -134,7 +148,6 @@ export class FormTableComponent implements OnInit, OnChanges {
   }
 
   isExpired(form: any): boolean {
-    console.log(form);
     return form.validated && new Date(form.archived_at) <= new Date();
   }
 }

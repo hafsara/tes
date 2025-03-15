@@ -7,13 +7,16 @@
 
   <p-table
     #dt
-    [value]="dataFiltered.length ? dataFiltered : forms"
+    [value]="forms"
     dataKey="id"
     [rows]="10"
     [rowsPerPageOptions]="[10, 25, 50]"
+    [totalRecords]="currentFormContainerCount"
     [paginator]="true"
     [globalFilterFields]="['title', 'description', 'reference', 'user_email']"
     [(selection)]="selectedForms"
+    (onPage)="onPageChange($event)"
+    [lazy]="true"
   >
     <ng-template pTemplate="caption">
       <div class="flex">
@@ -25,7 +28,7 @@
           <input pInputText type="text" placeholder="Search keyword" (input)="filterGlobal(dt, $event)"/>
         </span>
         <span class="total-count" title="Visible forms / Total forms in the system">
-          Total: {{ forms.length }}/{{ totalCount}}
+          Total: {{ currentFormContainerCount }}/{{ totalCount}}
         </span>
       </div>
     </ng-template>

@@ -48,17 +48,18 @@ export class FormService {
     return this.http.get(`${this.apiFormContainerUrl}/${formContainerId}/timeline`, { headers });
   }
 
-  getFormContainersByStatus(
-      appIds: string,
-      status: string,
-  ): Observable<any> {
+  getFormContainersByStatus(appIds: string, status: string, page: number = 1, limit: number = 10, sort: string = 'desc'): Observable<any> {
      const headers = this.getAuthHeaders();
      const params = new HttpParams()
        .set('app_ids', appIds)
        .set('filter', 'status')
        .set('status', status)
+       .set('page', page)
+       .set('limit', limit)
+       .set('sort', sort)
      return this.http.get<any>(`${this.apiFormContainerUrl}`, { headers, params });
   }
+
 
   validateFormContainer(formContainerId: number, formId: number, archive:boolean): Observable<any> {
     const headers = this.getAuthHeaders();

@@ -14,8 +14,12 @@
       <app-form-table
         [forms]="forms"
         [totalCount]="totalCount"
+        [currentFormContainerCount]="currentFormContainerCount"
+        [currentPage]="currentPage"
+        (pageChange)="handlePageChange($event)"
         (formSelected)="onFormSelected($event)">
-      </app-form-table>
+      ></app-form-table>
+
     </div>
 
     <div *ngSwitchCase="'questions'">

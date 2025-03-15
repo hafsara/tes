@@ -13,11 +13,15 @@ import { PollingService } from '../../services/polling.service';
 export class DashboardComponent implements OnInit, OnDestroy {
   forms: any[] = [];
   totalCount: number = 0;
+  currentFormContainerCount: number = 0;
   appOptions: { name: string; token: string }[] = [];
   selectedApps: string[] = [];
   currentView = 'loading';
   status = 'answered';
   accessToken: string | null = null;
+  currentPage: number = 1;
+  pageSize: number = 10;
+  pageSizeOptions: number[] = [10, 25, 50];
 
   constructor(
     private route: ActivatedRoute,
@@ -69,16 +73,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   onSelectedAppIdsChange(selectedAppIds: string[]): void {
     this.selectedApps = selectedAppIds;
+    this.currentPage = 1;
     this.checkAndLoadForms();
   }
 
   loadForms(appIds: string, status: string): void {
     this.fetchTotalCount(appIds);
-    this.formService.getFormContainersByStatus(appIds, status).subscribe(
+    this.formService.getFormContainersByStatus(appIds, status, this.currentPage, this.pageSize).subscribe(
       (data) => {
         this.forms = data.form_containers;
+        this.currentFormContainerCount = data.total
       }
     );
+  }
+
+  handlePageChange(paginationParams: { page: number; limit: number }): void {
+    this.currentPage = paginationParams.page;
+    this.pageSize = paginationParams.limit;
+    this.checkAndLoadForms();
   }
 
   switchTo(view: string): void {
@@ -86,6 +98,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (view === 'table') {
       this.checkAndLoadForms();
       this.location.go('/dashboard');
+      this.currentPage = 1;
     } else if (view === 'createForm') {
       this.location.go('/create-form');
     }
@@ -121,7 +134,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private fetchForms(appIds: string): Promise<{ total: number; form_containers: any[] }> {
-    return this.formService.getFormContainersByStatus(appIds, this.status)
+    return this.formService.getFormContainersByStatus(appIds, this.status, this.currentPage, this.pageSize)
       .toPromise()
       .then(response => ({
         total: response.total,
@@ -134,7 +147,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (newData.form_containers.length !== this.forms.length) {
       this.forms = newData.form_containers;
     }
-    this.totalCount = newData.total;
   }
 
   fetchTotalCount(appIds: string): void {

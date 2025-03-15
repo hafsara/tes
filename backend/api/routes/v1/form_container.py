@@ -105,22 +105,19 @@ def create_form_container():
 @require_valid_app_ids(param_name="app_ids", source="args", allow_multiple=True)
 def get_form_containers():
     """
-    Retrieve all form containers associated with given app IDs.
+    Retrieve paginated form containers associated with given app IDs.
 
     Query Params:
         - app_ids (str, required): Comma-separated list of application IDs.
         - filter (str, optional): Filter type (e.g., "status").
         - status (str, optional): Status of the form containers (e.g., "open", "reminder", "escalate").
         - sort (str, optional): Sorting order (default: "desc").
-        - limit (int, optional): Number of results to return (default: 50).
-        - page (int, optional): Pagination page (default: 1).
+        - limit (int, optional): Number of results per page (default: 10).
+        - page (int, optional): Page number (default: 1).
 
     Returns:
-        JSON: A list of form containers matching the criteria.
+        JSON: A paginated list of form containers matching the criteria.
     """
-    batch_size = 100
-    all_results = []
-    offset = 0
 
     user_id = getattr(request, "user_id", None)
     if not user_id:
@@ -129,11 +126,17 @@ def get_form_containers():
     app_id_list = request.args.get("app_ids", "").split(",")
 
     if not app_id_list:
-        return error_response("Applications id required", 401)
+        return error_response("Applications ID required", 400)
 
     filter_type = request.args.get("filter")
     status = request.args.get("status")
     sort_order = request.args.get("sort", "desc").lower()
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 50, type=int)
+    offset = (page - 1) * limit
+
+    if page < 1 or limit < 1:
+        return error_response("Invalid pagination parameters", 400)
 
     query = FormContainer.query.filter(FormContainer.app_id.in_(app_id_list))
 
@@ -148,18 +151,15 @@ def get_form_containers():
     else:
         query = query.order_by(FormContainer.created_at.desc())
 
-    while True:
-        batch = query.limit(batch_size).offset(offset).all()
-        if not batch:
-            break
-        all_results.extend(batch)
-        offset += batch_size
-
+    total = query.count()
+    paginated_query = query.limit(limit).offset(offset)
+    results = paginated_query.all()
     schema = FormContainerListSchema(session=db.session, many=True)
-    result = schema.dump(all_results)
-
+    result = schema.dump(results)
     return jsonify({
-        "total": len(result),
+        "total": total,
+        "page": page,
+        "page_size": limit,
         "form_containers": result
     }), 200
 
