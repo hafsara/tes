@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Table } from 'primeng/table';
 import { Location } from '@angular/common';
 import { MenuItem } from 'primeng/api';
@@ -8,7 +8,7 @@ import { MenuItem } from 'primeng/api';
   templateUrl: './form-table.component.html',
   styleUrl: './form-table.component.scss'
 })
-export class FormTableComponent implements OnInit, OnChanges {
+export class FormTableComponent {
   @Input() forms: any[] = [];
   @Input() totalCount: number = 0;
   @Input() currentFormContainerCount: number = 0;
@@ -17,6 +17,7 @@ export class FormTableComponent implements OnInit, OnChanges {
   @Input() pageSizeOptions: number[] = [10, 25, 50];
   @Output() formSelected = new EventEmitter<string>();
   @Output() pageChange = new EventEmitter<any>();
+  @Output() filterChange = new EventEmitter<string[]>();
 
   filterDates: Date[] = [];
   selectedForms!: any[];
@@ -37,16 +38,6 @@ export class FormTableComponent implements OnInit, OnChanges {
     ];
   }
 
-  ngOnInit(): void {
-    this.dataFiltered = [...this.forms];
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['forms']) {
-      this.dataFiltered = [...this.forms];
-    }
-  }
-
   onPageChange(event: any): void {
     const currentPage = (event.first / event.rows) + 1;
 
@@ -62,32 +53,18 @@ export class FormTableComponent implements OnInit, OnChanges {
     } else {
       this.activeTags = this.activeTags.filter(t => t !== tag);
     }
-    this.filterTable();
-  }
-
-  filterTable(): void {
-    if (this.activeTags.length === 0) {
-      this.dataFiltered = [...this.forms];
-      return;
-    }
-
-    this.dataFiltered = this.forms.filter(item =>
-      this.activeTags.every(tag =>
-        (tag === 'EXPIRED' && this.isExpired(item)) ||
-        tag === 'ref: ' + item.reference ||
-        tag === 'app: ' + item.app_name
-      )
-    );
+    this.filterChange.emit(this.activeTags);
   }
 
   onTagRemove(tag: string): void {
     this.activeTags = this.activeTags.filter(t => t !== tag);
-    this.filterTable();
+    this.filterChange.emit(this.activeTags);
   }
 
   filterGlobal(table: Table, event: Event): void {
     const input = event.target as HTMLInputElement;
     table.filterGlobal(input.value, 'contains');
+    // this.filterChange.emit(this.activeTags);
   }
 
   clear(table: Table): void {

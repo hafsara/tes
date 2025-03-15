@@ -40,19 +40,19 @@
         <th style="width:50%;min-width:15rem">
           <div class="flex align-items-center">
             Title
-            <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+            <p-columnFilter type="text" field="title" display="menu"></p-columnFilter>
           </div>
         </th>
         <th>
           <div class="flex align-items-center">
             User
-            <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+            <p-columnFilter type="text" field="user_email" display="menu"></p-columnFilter>
           </div>
         </th>
         <th>
           <div class="flex align-items-center">
             Campaign
-            <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+            <p-columnFilter type="text" field="campaign" display="menu"></p-columnFilter>
           </div>
         </th>
 
@@ -89,9 +89,7 @@
             {{ form.title }}
           </a>
           <div class="card flex gap-2" style="margin-top: 0.7rem;">
-            <p-tag [value]="'app: ' + form.app_name"
-                   (click)="toggleTagFilter('app: ' + form.app_name)"
-                   class="clickable-tag" severity="secondary">
+            <p-tag [value]="'app: ' + form.app_name" severity="secondary">
             </p-tag>
             <p-tag *ngIf="form.reference"
                    [value]="'ref: ' + form.reference"

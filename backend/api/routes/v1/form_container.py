@@ -109,7 +109,6 @@ def get_form_containers():
 
     Query Params:
         - app_ids (str, required): Comma-separated list of application IDs.
-        - filter (str, optional): Filter type (e.g., "status").
         - status (str, optional): Status of the form containers (e.g., "open", "reminder", "escalate").
         - sort (str, optional): Sorting order (default: "desc").
         - limit (int, optional): Number of results per page (default: 10).
@@ -128,23 +127,31 @@ def get_form_containers():
     if not app_id_list:
         return error_response("Applications ID required", 400)
 
-    filter_type = request.args.get("filter")
     status = request.args.get("status")
     sort_order = request.args.get("sort", "desc").lower()
     page = request.args.get('page', 1, type=int)
     limit = request.args.get('limit', 50, type=int)
     offset = (page - 1) * limit
+    references = request.args.get('references', '')
+    expired = request.args.get('expired', 'false').lower() == 'true'
 
     if page < 1 or limit < 1:
         return error_response("Invalid pagination parameters", 400)
 
     query = FormContainer.query.filter(FormContainer.app_id.in_(app_id_list))
 
-    if filter_type == "status" and status:
+    if status:
         if status in ("reminder", "escalate"):
             query = query.filter(FormContainer.forms.any(and_(Form.workflow_step == status, Form.status == "open")))
         else:
             query = query.filter(FormContainer.forms.any(Form.status == status))
+
+    if references:
+        references = references.split(',')
+        query = query.filter(FormContainer.reference.in_(references))
+
+    if expired:
+        query = query.filter(FormContainer.archived_at <= datetime.utcnow()) # todo archive_at
 
     if sort_order == "asc":
         query = query.order_by(FormContainer.created_at.asc())
@@ -203,7 +210,7 @@ def validate_form_container(container_id, form_id):
     archive = data.get("archive", False)
 
     form_container.validated = True
-    form_container.archive_at = datetime.utcnow() if archive else datetime.utcnow() + timedelta(
+    form_container.archived_at = datetime.utcnow() if archive else datetime.utcnow() + timedelta(
         days=Config.ARCHIVE_DELAY_DAYS)
     form.status = "validated"
 

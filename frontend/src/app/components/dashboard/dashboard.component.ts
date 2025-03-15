@@ -22,6 +22,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   currentPage: number = 1;
   pageSize: number = 10;
   pageSizeOptions: number[] = [10, 25, 50];
+  currentFilters: any = {};
 
   constructor(
     private route: ActivatedRoute,
@@ -31,6 +32,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // todo recuperer les filtre stocker
     this.route.paramMap.subscribe(params => {
       const accessToken = params.get('access_token');
       if (accessToken) {
@@ -57,6 +59,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.location.go('/dashboard');
   }
 
+  handleFilterChange(tags: string[]): void {
+    this.currentFilters = {
+      appNames: tags.filter(t => t.startsWith('app: ')).map(t => t.replace('app: ', '')),
+      references: tags.filter(t => t.startsWith('ref: ')).map(t => t.replace('ref: ', '')),
+      expired: tags.includes('EXPIRED')
+    };
+    this.checkAndLoadForms();
+
+    // todo stocker les filtre
+  }
+
   checkAndLoadForms(): void {
     if (this.selectedApps.length > 0 && this.status) {
       const appIds = this.selectedApps.join(',');
@@ -79,12 +92,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   loadForms(appIds: string, status: string): void {
     this.fetchTotalCount(appIds);
-    this.formService.getFormContainersByStatus(appIds, status, this.currentPage, this.pageSize).subscribe(
-      (data) => {
-        this.forms = data.form_containers;
-        this.currentFormContainerCount = data.total
-      }
-    );
+    this.formService.getFormContainersByStatus(
+      appIds,
+      status,
+      this.currentPage,
+      this.pageSize,
+      this.currentFilters
+    ).subscribe((data) => {
+      this.forms = data.form_containers;
+      this.currentFormContainerCount = data.total;
+    });
   }
 
   handlePageChange(paginationParams: { page: number; limit: number }): void {
@@ -114,19 +131,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   startTablePolling(): void {
-    const appIds = this.selectedApps.join(',');
     this.pollingService.startPolling(
       'tablePolling',
       15000,
-      () => {
-        const appIds = this.selectedApps.join(',');
-        if (!appIds) {
-          return Promise.resolve({ total: 0, form_containers: [] });
-        }
-        return this.fetchForms(appIds);
-      },
+      () => this.fetchFormsWithParams(),
       (newData) => this.updateForms(newData)
     );
+  }
+
+  private fetchFormsWithParams(): Promise<{ total: number; form_containers: any[] }> {
+    const appIds = this.selectedApps.join(',');
+    return this.formService.getFormContainersByStatus(
+      appIds,
+      this.status,
+      this.currentPage,
+      this.pageSize,
+      this.currentFilters
+    ).toPromise();
   }
 
   stopPolling(): void {
