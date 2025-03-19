@@ -44,7 +44,8 @@ paths:
           description: Unauthorized
 
     get:
-      summary: Retrieve all form containers
+      summary: Retrieve paginated form containers
+      description: Retrieve form containers associated with given app IDs, supporting multiple filters.
       tags:
         - Form Containers
       security:
@@ -55,26 +56,76 @@ paths:
           required: true
           schema:
             type: string
-          description: Comma-separated list of application IDs
-        - name: filter
-          in: query
-          schema:
-            type: string
-          description: Filter type (e.g., "status")
+          description: Comma-separated list of application IDs.
+
         - name: status
           in: query
           schema:
             type: string
-          description: Status of the form containers (e.g., "open", "reminder", "escalate")
+          description: Status of the form containers (e.g., "open", "reminder", "escalate").
+
+        - name: references
+          in: query
+          schema:
+            type: string
+          description: Comma-separated list of references.
+
+        - name: expired
+          in: query
+          schema:
+            type: boolean
+          description: Filter expired forms (`true` or `false`).
+
+        - name: title
+          in: query
+          schema:
+            type: string
+          description: Search by title (case-insensitive, partial match).
+
+        - name: user_email
+          in: query
+          schema:
+            type: string
+          description: Search by user email (case-insensitive, partial match).
+
+        - name: campaign_ids
+          in: query
+          schema:
+            type: string
+          description: Comma-separated list of campaign IDs to filter.
+
+        - name: dateRange
+          in: query
+          schema:
+            type: string
+            example: "2025-03-10,2025-03-15"
+          description: Start and end date for `created_at`, formatted as `YYYY-MM-DD,YYYY-MM-DD`.
+
         - name: sort
           in: query
           schema:
             type: string
+            enum: [ "asc", "desc" ]
             default: "desc"
-          description: "Sorting order (default: desc)"
+          description: Sorting order (`asc` or `desc`).
+
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Number of results per page.
+
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number.
+
       responses:
         "200":
-          description: List of form containers
+          description: Paginated list of form containers matching the criteria.
           content:
             application/json:
               schema:
@@ -82,13 +133,21 @@ paths:
                 properties:
                   total:
                     type: integer
-                    example: 15
+                    example: 100
+                  page:
+                    type: integer
+                    example: 1
+                  page_size:
+                    type: integer
+                    example: 10
                   form_containers:
                     type: array
                     items:
                       $ref: "#/components/schemas/FormContainer"
+        "400":
+          description: Bad Request (invalid parameters or missing required fields).
         "401":
-          description: Unauthorized
+          description: Unauthorized access.
 
   /form-containers/{access_token}:
     get:
