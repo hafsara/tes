@@ -17,6 +17,7 @@
       [currentPage]="state.currentPage$.value"
       [pageSize]="state.pageSize$.value"
       [isFilterVisible]="isFilterVisible"
+      [selectedAppIds]="selectedApps"
       (pageChanged)="state.updatePagination($event.page, $event.limit)"
       (sortChanged)="state.updateSort($event)"
       (filterToggled)="isFilterVisible = !isFilterVisible"

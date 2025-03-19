@@ -6,6 +6,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 })
 export class DashboardTableComponent {
   @Input() forms: any[] = [];
+  @Input() selectedAppIds: any[] = [];
   @Input() totalCount: number = 0;
   @Input() currentPage: number = 1;
   @Input() pageSize: number = 10;
@@ -51,7 +52,7 @@ export class DashboardTableComponent {
           ...(typeof filters === 'object' ? {
               title: filters.title !== undefined ? filters.title.trim() || null : this.currentFilters.title,
               user_email: filters.user_email !== undefined ? filters.user_email.trim() || null : this.currentFilters.user_email,
-              campaign_name: filters.campaign_name !== undefined ? filters.campaign_name.trim() || null : this.currentFilters.campaign_name,
+              campaign_ids: filters.campaign_ids && filters.campaign_ids.length > 0 ? filters.campaign_ids : this.currentFilters.campaign_name,
 
               dateRange: (filters.dateRange && Array.isArray(filters.dateRange) && filters.dateRange.length === 2)
                   ? { start: filters.dateRange[0], end: filters.dateRange[1] }

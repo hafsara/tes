@@ -14,7 +14,16 @@
   <div class="filter-row">
     <div class="filter-group">
       <label>Campaign</label>
-      <input type="text" [(ngModel)]="filters.campaign_name" placeholder="Campaign name">
+      <p-multiSelect
+        [options]="campaignOptions"
+        [(ngModel)]="filters.campaign_ids"
+        optionLabel="name"
+        optionValue="id"
+        display="chip"
+        placeholder="Campaign name"
+        [filter]="true">
+      </p-multiSelect>
+
     </div>
 
     <div class="date-group">

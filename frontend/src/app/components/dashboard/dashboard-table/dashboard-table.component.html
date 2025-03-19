@@ -1,4 +1,8 @@
-<app-filter *ngIf="isFilterVisible" (filterChange)="handleFilterUpdate($event)"></app-filter>
+<app-filter *ngIf="isFilterVisible"
+  [selectedAppIds]="selectedAppIds"
+  (filterChange)="handleFilterUpdate($event)">
+</app-filter>
+
 <app-form-table
   [forms]="forms"
   [totalCount]="totalCount"

@@ -58,7 +58,7 @@ export class FormService {
       expired?: boolean,
       title?: string,
       user_email?: string,
-      campaign_name?: string,
+      campaign_ids?: string[],
       dateRange?: { start: string, end: string }
     },
     sort: string = 'desc'
@@ -84,8 +84,8 @@ export class FormService {
       if (filters.user_email) {
         params = params.set('user_email', filters.user_email.trim());
       }
-      if (filters.campaign_name) {
-        params = params.set('campaign_name', filters.campaign_name.trim());
+      if (filters.campaign_ids && filters.campaign_ids.length > 0) {
+        params = params.set('campaign_ids', filters.campaign_ids.join(','));
       }
       if (filters.dateRange && filters.dateRange.start && filters.dateRange.end) {
         const startISO = new Date(filters.dateRange.start).toISOString();

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from datetime import datetime, timedelta
 from marshmallow import ValidationError
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 
 from api.extensions import db
 from api.models import FormContainer, Campaign, Form, TimelineEntry, Question, Response
@@ -114,7 +114,7 @@ def get_form_containers():
         - expired (bool, optional): Filter expired forms (`true` or `false`).
         - title (str, optional): Search by title (case-insensitive, partial match).
         - user_email (str, optional): Search by user email (case-insensitive, partial match).
-        - campaign_name (str, optional): Search by campaign name (case-insensitive, partial match).
+        - campaign_ids (str, optional): Search by campaign name (case-insensitive, partial match).
         - dateRange (str, optional): Start and end date for `created_at`, formatted as `YYYY-MM-DD,YYYY-MM-DD`.
         - sort (str, optional): Sorting order (`asc` or `desc`, default: `desc`).
         - limit (int, optional): Number of results per page (default: 10).
@@ -146,7 +146,7 @@ def get_form_containers():
     expired = request.args.get("expired", "false").lower() == "true"
     title = request.args.get("title", "").strip()
     user_email = request.args.get("user_email", "").strip()
-    campaign_name = request.args.get("campaign_name", "").strip()
+    campaign_ids = request.args.get("campaign_ids", "")
     date_range = request.args.get("dateRange", "")
 
     query = FormContainer.query.filter(FormContainer.app_id.in_(app_id_list))
@@ -170,8 +170,10 @@ def get_form_containers():
     if user_email:
         query = query.filter(FormContainer.user_email.ilike(f"%{user_email}%"))
 
-    if campaign_name:
-        query = query.filter(FormContainer.campaign_name.ilike(f"%{campaign_name}%"))
+    if campaign_ids:
+        campaign_list = campaign_ids.split(',')
+        print(campaign_list)
+        query = query.filter(or_(*[FormContainer.campaign_id.ilike(f"%{campaign}%") for campaign in campaign_list]))
 
     if date_range:
         try:
